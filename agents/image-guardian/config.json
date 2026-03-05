@@ -1,0 +1,31 @@
+{
+  "name": "摄影师",
+  "role": "specialist",
+  "description": "Unsplash 数据追踪",
+  "capabilities": [
+    "stats_fetch",
+    "trend_analyze",
+    "tag_optimize",
+    "report_push"
+  ],
+  "triggers": [
+    "/unsplash",
+    "Unsplash 数据",
+    "图片统计",
+    "下载量"
+  ],
+  "schedule": {
+    "dailyStats": "09:00"
+  },
+  "inputFrom": [
+    "hub.json",
+    "Unsplash API"
+  ],
+  "outputTo": [
+    "hub.json",
+    "daily-stats/",
+    "feishu"
+  ],
+  "reportTo": "小秘书",
+  "deployment": "GitLab CI/CD"
+}

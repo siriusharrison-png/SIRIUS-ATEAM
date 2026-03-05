@@ -1,0 +1,33 @@
+{
+  "name": "Figma设计员工",
+  "role": "specialist",
+  "description": "Figma 设计操作执行",
+  "capabilities": [
+    "figma_read",
+    "figma_create",
+    "figma_modify",
+    "style_apply",
+    "lint_check"
+  ],
+  "triggers": [
+    "在 Figma 中",
+    "Figma 链接",
+    "创建组件",
+    "修改设计"
+  ],
+  "dependencies": {
+    "vibmaRelay": {
+      "port": 3055,
+      "channel": "vibma"
+    }
+  },
+  "inputFrom": [
+    "hub.json",
+    "Vibma MCP"
+  ],
+  "outputTo": [
+    "hub.json",
+    "Figma 文件"
+  ],
+  "reportTo": "小秘书"
+}

@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "rulesVersion": "1.0.0",
+    "lastUpdate": "2026-03-05T20:00:00+08:00",
+    "description": "AI 团队协作中枢"
+  },
+  "agents": {
+    "小秘书": {
+      "status": "active",
+      "lastSeen": "2026-03-05T20:00:00+08:00"
+    },
+    "设计师": {
+      "status": "active",
+      "lastSeen": "2026-03-05T20:00:00+08:00"
+    },
+    "Figma设计员工": {
+      "status": "active",
+      "lastSeen": "2026-03-05T20:00:00+08:00"
+    },
+    "知识管理": {
+      "status": "active",
+      "lastSeen": "2026-03-05T20:00:00+08:00"
+    },
+    "测试QA": {
+      "status": "active",
+      "lastSeen": "2026-03-05T20:00:00+08:00"
+    },
+    "摄影师": {
+      "status": "active",
+      "lastSeen": "2026-03-05T20:00:00+08:00"
+    }
+  },
+  "messages": [
+    {
+      "id": "msg-001",
+      "from": "小秘书",
+      "time": "2026-03-05T20:00:00+08:00",
+      "type": "info",
+      "content": "协作中枢初始化完成，所有 Agent 已就位"
+    }
+  ],
+  "tasks": [],
+  "dailySummary": {
+    "date": "2026-03-05",
+    "stats": {
+      "messagesCount": 1,
+      "tasksCompleted": 0,
+      "alertsCount": 0
+    }
+  }
+}

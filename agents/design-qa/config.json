@@ -1,0 +1,28 @@
+{
+  "name": "测试QA",
+  "role": "specialist",
+  "description": "设计还原度检查",
+  "capabilities": [
+    "code_scan",
+    "token_validate",
+    "report_generate",
+    "auto_fix"
+  ],
+  "triggers": [
+    "检测代码",
+    "设计走查",
+    "还原度检查",
+    "硬编码检测"
+  ],
+  "inputFrom": [
+    "hub.json",
+    "design-tokens.json",
+    "source_code"
+  ],
+  "outputTo": [
+    "hub.json",
+    "reports/"
+  ],
+  "reportTo": "小秘书",
+  "github": "https://github.com/siriusharrison-png/design-qa-cli"
+}

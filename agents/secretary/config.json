@@ -1,0 +1,26 @@
+{
+  "name": "小秘书",
+  "role": "coordinator",
+  "description": "AI 团队中枢协调者",
+  "capabilities": [
+    "task_dispatch",
+    "progress_monitor",
+    "report_generate",
+    "feishu_push"
+  ],
+  "triggers": [
+    "/report",
+    "日报",
+    "查看报告",
+    "汇总",
+    "分配任务"
+  ],
+  "outputTo": [
+    "hub.json",
+    "report.html",
+    "feishu"
+  ],
+  "schedule": {
+    "dailyReport": "18:00"
+  }
+}

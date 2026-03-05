@@ -1,0 +1,13 @@
+{
+  "name": "figma-handoff",
+  "version": "1.0.0",
+  "description": "Figma Design Handoff Plugin - Generate code and specs from designs",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.50.0",
+    "typescript": "^5.0.0"
+  }
+}

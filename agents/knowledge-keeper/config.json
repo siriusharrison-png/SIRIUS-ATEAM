@@ -1,0 +1,28 @@
+{
+  "name": "知识管理",
+  "role": "specialist",
+  "description": "学习知识收集与管理",
+  "capabilities": [
+    "knowledge_add",
+    "notion_sync",
+    "local_backup",
+    "weekly_summary"
+  ],
+  "triggers": [
+    "/learn",
+    "/weekly",
+    "加入知识库",
+    "加入待学清单",
+    "学习这个概念"
+  ],
+  "inputFrom": [
+    "hub.json",
+    "user_input"
+  ],
+  "outputTo": [
+    "hub.json",
+    "Notion",
+    "knowledge-list.md"
+  ],
+  "reportTo": "小秘书"
+}

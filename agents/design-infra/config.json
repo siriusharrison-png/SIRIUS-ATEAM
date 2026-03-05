@@ -1,0 +1,27 @@
+{
+  "name": "设计师",
+  "role": "specialist",
+  "description": "设计系统基础设施维护",
+  "capabilities": [
+    "design_token_manage",
+    "figma_sync",
+    "mapping_maintain",
+    "version_control"
+  ],
+  "triggers": [
+    "/design-system",
+    "同步设计 Token",
+    "更新设计规范",
+    "设计系统"
+  ],
+  "inputFrom": [
+    "hub.json",
+    "tokens.json"
+  ],
+  "outputTo": [
+    "hub.json",
+    "CHANGELOG.md",
+    "tailwind.config.js"
+  ],
+  "reportTo": "小秘书"
+}

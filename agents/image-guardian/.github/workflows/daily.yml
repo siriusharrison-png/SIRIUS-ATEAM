@@ -1,0 +1,22 @@
+name: Daily Report
+on:
+  schedule:
+    # UTC 23:00 = 北京时间 7:00（提前抓取数据）
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Run daily task
+        env:
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          UNSPLASH_USERNAME: ${{ secrets.UNSPLASH_USERNAME }}
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+        run: python scripts/run-daily-cloud.py

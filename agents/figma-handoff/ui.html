@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Design Handoff</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 12px;
+      color: #333;
+      background: #fff;
+    }
+
+    .container {
+      padding: 12px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e5e5e5;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      color: #666;
+    }
+
+    .tab.active {
+      color: #18a0fb;
+      border-bottom-color: #18a0fb;
+    }
+
+    .tab:hover {
+      color: #18a0fb;
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Code Panel */
+    .code-area {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 12px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      max-height: 300px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* Specs Form */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    .form-sublabel {
+      font-weight: normal;
+      color: #666;
+      font-size: 11px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #18a0fb;
+    }
+
+    textarea.form-input {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .btn-primary {
+      background: #18a0fb;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0d8de8;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e5e5;
+    }
+
+    /* Status */
+    .status {
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      font-size: 11px;
+    }
+
+    .status-info {
+      background: #e8f4fd;
+      color: #0d8de8;
+    }
+
+    .status-success {
+      background: #e6f9e6;
+      color: #1e8e3e;
+    }
+
+    .status-warning {
+      background: #fef7e0;
+      color: #f29900;
+    }
+
+    /* Connection Status */
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+
+    .connection-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .connected .connection-dot {
+      background: #1e8e3e;
+    }
+
+    .disconnected .connection-dot {
+      background: #d93025;
+    }
+
+    .connected {
+      background: #e6f9e6;
+      color: #1e8e3e;
+    }
+
+    .disconnected {
+      background: #fce8e6;
+      color: #d93025;
+    }
+
+    /* Section */
+    .section {
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="connection-status disconnected">
+      <div class="connection-dot"></div>
+      <span id="connectionText">Disconnected</span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" data-tab="code">Code</div>
+      <div class="tab" data-tab="specs">Specs</div>
+    </div>
+
+    <!-- Code Tab -->
+    <div id="codeTab" class="tab-content active">
+      <div id="codeEmpty" class="empty-state">
+        Select a component to generate code
+      </div>
+
+      <div id="codeContent" style="display: none;">
+        <div class="status status-info" id="nodeInfo">
+          Selected: <span id="nodeName">-</span>
+        </div>
+
+        <pre class="code-area" id="codeOutput">// Code will appear here</pre>
+
+        <button class="btn btn-primary" id="generateBtn">Generate Code</button>
+        <button class="btn btn-secondary" id="copyBtn">Copy to Clipboard</button>
+      </div>
+    </div>
+
+    <!-- Specs Tab -->
+    <div id="specsTab" class="tab-content">
+      <div id="specsEmpty" class="empty-state">
+        Select a component to edit specs
+      </div>
+
+      <div id="specsContent" style="display: none;">
+        <!-- 交互状态 -->
+        <div class="section">
+          <div class="section-title">Interaction States</div>
+
+          <div class="form-group">
+            <label class="form-label">Default</label>
+            <input type="text" class="form-input" id="stateDefault" placeholder="Default state description">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Hover</label>
+            <input type="text" class="form-input" id="stateHover" placeholder="Hover effect">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Active</label>
+            <input type="text" class="form-input" id="stateActive" placeholder="Active/pressed state">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Disabled</label>
+            <input type="text" class="form-input" id="stateDisabled" placeholder="When disabled">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Loading</label>
+            <input type="text" class="form-input" id="stateLoading" placeholder="Loading state">
+          </div>
+        </div>
+
+        <!-- 内容边界 -->
+        <div class="section">
+          <div class="section-title">Content Rules</div>
+
+          <div class="form-group">
+            <label class="form-label">Max Lines</label>
+            <input type="number" class="form-input" id="maxLines" placeholder="e.g., 2">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Overflow</label>
+            <select class="form-input" id="overflow">
+              <option value="">Select...</option>
+              <option value="ellipsis">Truncate with ellipsis</option>
+              <option value="wrap">Wrap text</option>
+              <option value="hidden">Hidden</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Empty State</label>
+            <input type="text" class="form-input" id="emptyState" placeholder="What to show when empty">
+          </div>
+        </div>
+
+        <!-- 数据依赖 -->
+        <div class="section">
+          <div class="section-title">Data Binding</div>
+
+          <div class="form-group">
+            <label class="form-label">API Field <span class="form-sublabel">(e.g., response.data.title)</span></label>
+            <textarea class="form-input" id="dataBinding" placeholder="Field mapping, one per line:&#10;title: api.response.title&#10;image: api.response.coverUrl"></textarea>
+          </div>
+        </div>
+
+        <!-- 条件显示 -->
+        <div class="section">
+          <div class="section-title">Visibility Condition</div>
+
+          <div class="form-group">
+            <label class="form-label">Condition</label>
+            <input type="text" class="form-input" id="visibilityCondition" placeholder="e.g., user.isLoggedIn && status === 'active'">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <input type="text" class="form-input" id="visibilityDesc" placeholder="When to show/hide">
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="saveSpecsBtn">Save Specs</button>
+        <button class="btn btn-secondary" id="exportSpecsBtn">Export as JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentNodeData = null;
+    let isConnected = false;
+    let ws = null;
+
+    // DOM Elements
+    const tabs = document.querySelectorAll('.tab');
+    const codeTab = document.getElementById('codeTab');
+    const specsTab = document.getElementById('specsTab');
+    const codeEmpty = document.getElementById('codeEmpty');
+    const codeContent = document.getElementById('codeContent');
+    const specsEmpty = document.getElementById('specsEmpty');
+    const specsContent = document.getElementById('specsContent');
+    const codeOutput = document.getElementById('codeOutput');
+    const nodeName = document.getElementById('nodeName');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const connectionText = document.getElementById('connectionText');
+
+    // Tab switching
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const tabName = tab.dataset.tab;
+        codeTab.classList.toggle('active', tabName === 'code');
+        specsTab.classList.toggle('active', tabName === 'specs');
+      });
+    });
+
+    // Connect to Relay
+    function connectToRelay() {
+      try {
+        ws = new WebSocket('ws://localhost:3055');
+
+        ws.onopen = () => {
+          isConnected = true;
+          updateConnectionStatus();
+          // Join channel
+          ws.send(JSON.stringify({ type: 'join', channel: 'handoff' }));
+        };
+
+        ws.onclose = () => {
+          isConnected = false;
+          updateConnectionStatus();
+          // Reconnect after 3s
+          setTimeout(connectToRelay, 3000);
+        };
+
+        ws.onerror = () => {
+          isConnected = false;
+          updateConnectionStatus();
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'code-result') {
+              codeOutput.textContent = msg.code;
+            }
+          } catch (e) {
+            console.error('Parse error:', e);
+          }
+        };
+      } catch (e) {
+        isConnected = false;
+        updateConnectionStatus();
+      }
+    }
+
+    function updateConnectionStatus() {
+      connectionStatus.className = `connection-status ${isConnected ? 'connected' : 'disconnected'}`;
+      connectionText.textContent = isConnected ? 'Connected to Claude' : 'Disconnected';
+    }
+
+    // Generate button
+    document.getElementById('generateBtn').addEventListener('click', () => {
+      if (!currentNodeData) return;
+
+      if (isConnected && ws) {
+        // Send to Claude via Relay
+        ws.send(JSON.stringify({
+          type: 'generate-code',
+          nodeData: currentNodeData,
+          specs: collectSpecs()
+        }));
+        codeOutput.textContent = '// Generating...';
+      } else {
+        // Fallback: send to plugin backend
+        parent.postMessage({ pluginMessage: { type: 'generate-code' } }, '*');
+      }
+    });
+
+    // Copy button
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const code = codeOutput.textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        alert('Copied!');
+      });
+    });
+
+    // Save specs
+    document.getElementById('saveSpecsBtn').addEventListener('click', () => {
+      const specs = collectSpecs();
+      parent.postMessage({ pluginMessage: { type: 'save-specs', specs } }, '*');
+    });
+
+    // Export specs
+    document.getElementById('exportSpecsBtn').addEventListener('click', () => {
+      const specs = collectSpecs();
+      const json = JSON.stringify(specs, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentNodeData?.name || 'specs'}.json`;
+      a.click();
+    });
+
+    function collectSpecs() {
+      return {
+        states: {
+          default: document.getElementById('stateDefault').value,
+          hover: document.getElementById('stateHover').value,
+          active: document.getElementById('stateActive').value,
+          disabled: document.getElementById('stateDisabled').value,
+          loading: document.getElementById('stateLoading').value
+        },
+        contentRules: {
+          maxLines: parseInt(document.getElementById('maxLines').value) || null,
+          overflow: document.getElementById('overflow').value,
+          emptyState: document.getElementById('emptyState').value
+        },
+        dataBinding: document.getElementById('dataBinding').value,
+        visibility: {
+          condition: document.getElementById('visibilityCondition').value,
+          description: document.getElementById('visibilityDesc').value
+        }
+      };
+    }
+
+    function loadSpecs(specs) {
+      if (!specs) return;
+
+      if (specs.states) {
+        document.getElementById('stateDefault').value = specs.states.default || '';
+        document.getElementById('stateHover').value = specs.states.hover || '';
+        document.getElementById('stateActive').value = specs.states.active || '';
+        document.getElementById('stateDisabled').value = specs.states.disabled || '';
+        document.getElementById('stateLoading').value = specs.states.loading || '';
+      }
+
+      if (specs.contentRules) {
+        document.getElementById('maxLines').value = specs.contentRules.maxLines || '';
+        document.getElementById('overflow').value = specs.contentRules.overflow || '';
+        document.getElementById('emptyState').value = specs.contentRules.emptyState || '';
+      }
+
+      if (specs.dataBinding) {
+        document.getElementById('dataBinding').value = specs.dataBinding;
+      }
+
+      if (specs.visibility) {
+        document.getElementById('visibilityCondition').value = specs.visibility.condition || '';
+        document.getElementById('visibilityDesc').value = specs.visibility.description || '';
+      }
+    }
+
+    // Listen for messages from plugin
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      if (msg.type === 'selection' || msg.type === 'node-data') {
+        currentNodeData = msg.data;
+        nodeName.textContent = msg.data.name;
+
+        codeEmpty.style.display = 'none';
+        codeContent.style.display = 'block';
+        specsEmpty.style.display = 'none';
+        specsContent.style.display = 'block';
+
+        // Load specs for this node
+        parent.postMessage({ pluginMessage: { type: 'load-specs' } }, '*');
+      }
+
+      if (msg.type === 'specs-loaded') {
+        loadSpecs(msg.data);
+      }
+
+      if (msg.type === 'show-tab') {
+        tabs.forEach(t => t.classList.remove('active'));
+        document.querySelector(`[data-tab="${msg.tab}"]`).classList.add('active');
+        codeTab.classList.toggle('active', msg.tab === 'code');
+        specsTab.classList.toggle('active', msg.tab === 'specs');
+      }
+    };
+
+    // Initialize
+    connectToRelay();
+  </script>
+</body>
+</html>
