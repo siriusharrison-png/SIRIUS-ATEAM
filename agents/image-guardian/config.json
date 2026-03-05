@@ -2,6 +2,7 @@
   "name": "摄影师",
   "role": "specialist",
   "description": "Unsplash 数据追踪",
+  "homepage": "https://unsplash.com/@siriusharrison/stats",
   "capabilities": [
     "stats_fetch",
     "trend_analyze",
