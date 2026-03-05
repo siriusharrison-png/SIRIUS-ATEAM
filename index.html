@@ -31,13 +31,14 @@
         linear-gradient(rgba(26, 60, 232, 0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(26, 60, 232, 0.05) 1px, transparent 1px);
       background-size: 20px 20px;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      height: calc(100vh - 80px);
+      min-height: calc(100vh - 80px);
       display: flex;
       flex-direction: column;
     }
@@ -764,6 +765,7 @@
     }
 
     /* Responsive */
+    /* Tablet */
     @media (max-width: 900px) {
       .member-card {
         flex-direction: column;
@@ -780,18 +782,315 @@
         top: 20px;
         right: 25px;
       }
+      .header-right {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 16px;
+      }
+      .header-nav {
+        gap: 20px;
+      }
     }
 
+    /* Mobile */
     @media (max-width: 600px) {
-      .tags-container {
-        gap: 10px;
+      body {
+        padding: 20px 16px;
       }
-      .tag {
-        padding: 10px 16px;
+
+      .corner-mark {
+        display: none;
+      }
+
+      /* Header */
+      header {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px 0;
+        margin-bottom: 20px;
+      }
+
+      .logo h1 {
+        font-size: 1.8rem;
+        letter-spacing: 2px;
+      }
+
+      .logo .subtitle {
         font-size: 0.75rem;
       }
+
+      .header-right {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-nav {
+        display: none;
+      }
+
+      .workflow-btn {
+        padding: 8px 14px;
+        font-size: 0.7rem;
+      }
+
+      /* Tags */
+      .tags-container {
+        gap: 8px;
+        padding: 16px 0;
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        margin: 0 -16px;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .tags-container::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tag {
+        padding: 10px 14px;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
       .tag-icon {
         display: none;
+      }
+
+      /* Card Display */
+      .card-display {
+        min-height: auto;
+        position: relative;
+      }
+
+      .member-card {
+        position: relative;
+        max-width: 100%;
+        padding: 24px 20px;
+        gap: 20px;
+        display: none;
+      }
+
+      .member-card.visible {
+        display: flex;
+      }
+
+      .card-left {
+        max-width: 180px;
+      }
+
+      .card-corner {
+        font-size: 0.6rem;
+      }
+      .card-corner.tl { top: 8px; left: 10px; }
+      .card-corner.tr { top: 8px; right: 10px; }
+      .card-corner.bl { bottom: 8px; left: 10px; }
+      .card-corner.br { bottom: 8px; right: 10px; }
+
+      .card-number {
+        font-size: 2rem;
+        top: 16px;
+        right: 20px;
+      }
+
+      .card-name {
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+      }
+
+      .card-role {
+        font-size: 0.85rem;
+        margin-bottom: 16px;
+      }
+
+      .card-divider {
+        margin: 16px 0;
+      }
+
+      .card-tasks h4 {
+        font-size: 0.7rem;
+        margin-bottom: 12px;
+      }
+
+      .task-list {
+        gap: 10px;
+      }
+
+      .task-item {
+        font-size: 0.8rem;
+        gap: 8px;
+      }
+
+      .status-row {
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .status-tag {
+        padding: 5px 12px;
+        font-size: 0.65rem;
+      }
+
+      .github-link {
+        padding: 5px 12px;
+        font-size: 0.65rem;
+      }
+
+      .card-status {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-top: 16px;
+        padding-top: 12px;
+      }
+
+      .log-btn {
+        padding: 6px 10px;
+        font-size: 0.65rem;
+      }
+
+      /* Hint */
+      .workflow-hint {
+        font-size: 0.7rem;
+        padding: 16px 0;
+      }
+
+      /* Footer */
+      footer {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+        padding-top: 16px;
+        font-size: 0.65rem;
+      }
+
+      /* Modal */
+      .modal {
+        width: 95%;
+        max-height: 85vh;
+        margin: 20px;
+      }
+
+      .modal-header {
+        padding: 16px 20px;
+      }
+
+      .modal-title {
+        font-size: 1rem;
+      }
+
+      .modal-body {
+        padding: 20px;
+      }
+
+      .log-modal-body {
+        padding: 20px;
+      }
+
+      /* Workflow Modal */
+      .workflow-row {
+        gap: 8px;
+      }
+
+      .workflow-node {
+        padding: 12px;
+        min-width: 70px;
+      }
+
+      .workflow-node-icon {
+        width: 30px;
+        height: 30px;
+      }
+
+      .workflow-node-name {
+        font-size: 0.65rem;
+      }
+
+      .workflow-node-desc {
+        font-size: 0.55rem;
+      }
+
+      .workflow-node.center {
+        padding: 14px 20px;
+      }
+
+      .workflow-arrow {
+        font-size: 1rem;
+      }
+
+      .workflow-section-title {
+        font-size: 0.6rem;
+        margin: 16px 0 8px;
+      }
+
+      .workflow-legend {
+        margin-top: 20px;
+        padding-top: 16px;
+      }
+
+      .workflow-legend-title {
+        font-size: 0.6rem;
+      }
+
+      .workflow-legend-items {
+        gap: 12px;
+      }
+
+      .workflow-legend-item {
+        font-size: 0.65rem;
+      }
+
+      /* Log Modal */
+      .log-agent-name {
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+      }
+
+      .log-item {
+        flex-direction: column;
+        gap: 6px;
+        padding-bottom: 12px;
+      }
+
+      .log-date {
+        font-size: 0.7rem;
+      }
+
+      .log-content {
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Extra small mobile */
+    @media (max-width: 380px) {
+      .logo h1 {
+        font-size: 1.5rem;
+      }
+
+      .tag {
+        padding: 8px 10px;
+        font-size: 0.65rem;
+      }
+
+      .card-name {
+        font-size: 1rem;
+      }
+
+      .member-card {
+        padding: 20px 16px;
+      }
+
+      .card-left {
+        max-width: 150px;
       }
     }
   </style>
