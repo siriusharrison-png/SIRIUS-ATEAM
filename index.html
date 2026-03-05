@@ -351,6 +351,23 @@
       color: white;
     }
 
+    .unsplash-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border: 1px solid var(--blue);
+      color: var(--blue);
+      text-decoration: none;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .unsplash-link:hover {
+      background: var(--blue);
+      color: white;
+    }
+
     /* Workflow hint */
     .workflow-hint {
       text-align: center;
@@ -1775,6 +1792,12 @@
             </div>
             <div class="status-row">
               <span class="status-tag">LOCAL ONLY</span>
+              <a href="https://unsplash.com/@siriusharrison/stats" class="unsplash-link" target="_blank">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7.5 6.75V0h9v6.75h-9zm9 3.75H24V24H0V10.5h7.5v6.75h9V10.5z"/>
+                </svg>
+                Unsplash Stats
+              </a>
             </div>
             <div class="card-status">
               <div class="status-info">
