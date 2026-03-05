@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "CommonJS",
+    "lib": ["ES2017", "DOM"],
+    "strict": false,
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types", "./node_modules/@figma"]
+  },
+  "include": ["code.ts"]
+}

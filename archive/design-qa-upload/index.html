@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>Design QA Agent - 项目汇报</title>
+  <style>
+    :root {
+      --brand: #1161fe;
+      --accent: #ec4899;
+      --text-1: #181818;
+      --text-2: #616161;
+      --text-3: #9e9e9e;
+      --border: #e5e7eb;
+      --bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang SC", -apple-system, sans-serif;
+      background: linear-gradient(135deg, #fdf2f8 0%, #f0f9ff 100%);
+      color: var(--text-1);
+      line-height: 1.6;
+      padding: 64px 48px;
+      min-height: 100vh;
+    }
+    .container { max-width: 960px; margin: 0 auto; }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 48px; }
+    .header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--brand) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .header p { font-size: 15px; color: var(--text-2); }
+
+    /* One Liner */
+    .one-liner {
+      background: linear-gradient(135deg, #fce7f3 0%, #e0f2fe 100%);
+      border-left: 4px solid;
+      border-image: linear-gradient(180deg, var(--accent), var(--brand)) 1;
+      padding: 28px 32px;
+      margin-bottom: 48px;
+    }
+    .one-liner .label { font-size: 12px; color: var(--brand); margin-bottom: 8px; font-weight: 600; letter-spacing: 1px; }
+    .one-liner p { font-size: 18px; font-weight: 500; color: var(--text-1); }
+
+    /* Section */
+    .section { margin-bottom: 40px; }
+    .section-title { font-size: 12px; color: var(--text-3); margin-bottom: 16px; letter-spacing: 2px; text-transform: uppercase; }
+
+    /* Two Column */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .card { background: var(--bg); padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .card h3 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #fbcfe8;
+      color: var(--accent);
+    }
+    .card:last-child h3 { border-bottom-color: #bae6fd; color: var(--brand); }
+    .card ul { list-style: none; }
+    .card li { padding: 8px 0; font-size: 14px; color: var(--text-2); }
+    .card li::before { content: "·"; margin-right: 8px; font-weight: bold; }
+
+    /* Mind Map */
+    .mindmap-wrap { background: var(--bg); padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .map-center {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--brand) 100%);
+      color: #fff;
+      padding: 12px 32px;
+      font-size: 15px;
+      font-weight: 600;
+      width: fit-content;
+      margin: 0 auto 28px;
+    }
+    .map-branches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .branch { background: #fafafa; padding: 16px; }
+    .branch-title { font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 10px; }
+    .branch:nth-child(2) .branch-title { color: #a855f7; }
+    .branch:nth-child(3) .branch-title { color: var(--brand); }
+    .branch:nth-child(4) .branch-title { color: #0891b2; }
+    .branch:nth-child(5) .branch-title { color: #8b5cf6; }
+    .branch:nth-child(6) .branch-title { color: #06b6d4; }
+    .branch-items { font-size: 13px; color: var(--text-2); }
+    .branch-items div { padding: 3px 0; }
+
+    /* Flow */
+    .flow-wrap { background: var(--bg); padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .flow-steps { display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .flow-step { text-align: center; }
+    .flow-step .num {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--brand) 100%);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 600; margin: 0 auto 6px;
+      border-radius: 50%;
+    }
+    .flow-step .text { font-size: 12px; color: var(--text-2); }
+    .flow-arrow { color: var(--border); font-size: 20px; }
+
+    /* MVP */
+    .mvp-wrap { background: var(--bg); padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .mvp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    .mvp-col h4 { font-size: 11px; color: var(--text-3); margin-bottom: 12px; font-weight: 600; letter-spacing: 1px; }
+    .mvp-col ul { list-style: none; }
+    .mvp-col li { padding: 6px 0; font-size: 14px; color: var(--text-2); }
+    .mvp-col li::before { content: "✓"; margin-right: 8px; color: var(--brand); font-weight: bold; }
+    .mvp-col.later li { color: var(--text-3); }
+    .mvp-col.later li::before { content: "○"; color: var(--text-3); }
+
+    /* Phases */
+    .phases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .phase { background: var(--bg); padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+    .phase::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .phase:nth-child(1)::before { background: linear-gradient(90deg, var(--accent), var(--brand)); }
+    .phase:nth-child(2)::before { background: linear-gradient(90deg, #a855f7, #06b6d4); }
+    .phase:nth-child(3)::before { background: linear-gradient(90deg, var(--brand), #0891b2); }
+    .phase-num { font-size: 11px; color: var(--text-3); margin-bottom: 4px; }
+    .phase-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .phase-desc { font-size: 12px; color: var(--text-3); margin-bottom: 12px; }
+    .phase-features { font-size: 13px; color: var(--text-2); }
+    .phase-features div { padding: 3px 0; }
+
+    /* Footer */
+    .footer { text-align: center; color: var(--text-3); font-size: 12px; margin-top: 48px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <h1>Design QA Agent</h1>
+      <p>设计还原质量检测工具</p>
+    </div>
+
+    <div class="one-liner">
+      <div class="label">一句话说明</div>
+      <p>让产品、测试、设计师无需懂代码，也能发现样式问题并清晰告诉开发"哪里要改"</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">痛点 & 解决方案</div>
+      <div class="two-col">
+        <div class="card">
+          <h3>痛点</h3>
+          <ul>
+            <li>设计稿和开发产物经常有样式差异</li>
+            <li>人工走查效率低、容易遗漏</li>
+            <li>需求方看不懂代码，只能说"感觉不对"</li>
+            <li>开发能看懂代码，但缺少设计品味</li>
+            <li>很多小需求没有完整设计稿</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>解决方案</h3>
+          <ul>
+            <li>以设计系统 Tokens 为真理源</li>
+            <li>可视化标注问题，无需懂代码</li>
+            <li>Checkflow 闭环协作流程</li>
+            <li>问题自动同步到飞书/Linear</li>
+            <li>所有问题解决后生成验收报告</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">产品思维导图</div>
+      <div class="mindmap-wrap">
+        <div class="map-center">Design QA Agent</div>
+        <div class="map-branches">
+          <div class="branch">
+            <div class="branch-title">目标用户</div>
+            <div class="branch-items">
+              <div>产品经理</div>
+              <div>测试人员</div>
+              <div>设计师</div>
+              <div>前端开发（自测）</div>
+            </div>
+          </div>
+          <div class="branch">
+            <div class="branch-title">核心理念</div>
+            <div class="branch-items">
+              <div>Tokens 是真理源</div>
+              <div>设计稿可滞后</div>
+              <div>用对规范 = 样式正确</div>
+              <div>闭环协作流程</div>
+            </div>
+          </div>
+          <div class="branch">
+            <div class="branch-title">产品形态</div>
+            <div class="branch-items">
+              <div>浏览器插件</div>
+              <div>截图/URL 输入</div>
+              <div>可视化标注</div>
+              <div>问题列表管理</div>
+            </div>
+          </div>
+          <div class="branch">
+            <div class="branch-title">协作流程</div>
+            <div class="branch-items">
+              <div>发起检查</div>
+              <div>标注问题</div>
+              <div>指派开发</div>
+              <div>验收关闭</div>
+            </div>
+          </div>
+          <div class="branch">
+            <div class="branch-title">集成能力</div>
+            <div class="branch-items">
+              <div>飞书通知</div>
+              <div>Linear Issue</div>
+              <div>自动创建子任务</div>
+              <div>状态同步</div>
+            </div>
+          </div>
+          <div class="branch">
+            <div class="branch-title">输出产物</div>
+            <div class="branch-items">
+              <div>问题列表</div>
+              <div>标注截图</div>
+              <div>验收报告</div>
+              <div>历史记录</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">核心流程</div>
+      <div class="flow-wrap">
+        <div class="flow-steps">
+          <div class="flow-step"><div class="num">1</div><div class="text">上传截图</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="num">2</div><div class="text">标注问题</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="num">3</div><div class="text">指派开发</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="num">4</div><div class="text">开发修复</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="num">5</div><div class="text">验收关闭</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step"><div class="num">✓</div><div class="text">完成</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">MVP 方案</div>
+      <div class="mvp-wrap">
+        <div class="mvp-grid">
+          <div class="mvp-col">
+            <h4>第一版包含</h4>
+            <ul>
+              <li>上传截图</li>
+              <li>手动圈选标注</li>
+              <li>问题列表管理</li>
+              <li>指派给开发</li>
+              <li>状态流转（待处理→已解决）</li>
+              <li>导出问题报告</li>
+            </ul>
+          </div>
+          <div class="mvp-col later">
+            <h4>后续迭代</h4>
+            <ul>
+              <li>URL 自动截图</li>
+              <li>AI 自动检测差异</li>
+              <li>飞书/Linear 自动同步</li>
+              <li>优先级分级面板</li>
+              <li>Tokens 规范自动校验</li>
+              <li>历史趋势看板</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">产品路线图</div>
+      <div class="phases">
+        <div class="phase">
+          <div class="phase-num">PHASE 1</div>
+          <div class="phase-title">MVP</div>
+          <div class="phase-desc">验证核心流程</div>
+          <div class="phase-features">
+            <div>✓ 浏览器插件</div>
+            <div>✓ 截图 + 手动标注</div>
+            <div>✓ 问题列表 + 指派</div>
+            <div>✓ 基础状态管理</div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num">PHASE 2</div>
+          <div class="phase-title">智能化</div>
+          <div class="phase-desc">AI 能力加持</div>
+          <div class="phase-features">
+            <div>○ AI 自动检测差异</div>
+            <div>○ Tokens 规范校验</div>
+            <div>○ 智能修复建议</div>
+            <div>○ URL 自动截图</div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num">PHASE 3</div>
+          <div class="phase-title">协作化</div>
+          <div class="phase-desc">团队深度集成</div>
+          <div class="phase-features">
+            <div>○ 飞书/Linear 同步</div>
+            <div>○ 质量趋势看板</div>
+            <div>○ 团队协作评论</div>
+            <div>○ CI/CD 集成</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Design QA Agent · 2026.02.10 · 概念阶段</p>
+    </div>
+
+  </div>
+</body>
+</html>

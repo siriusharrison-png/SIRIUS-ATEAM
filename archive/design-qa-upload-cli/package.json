@@ -1,0 +1,16 @@
+{
+  "name": "design-qa",
+  "version": "0.1.0",
+  "description": "检测代码是否正确使用设计系统 tokens",
+  "main": "index.js",
+  "bin": {
+    "design-qa": "./bin/cli.js"
+  },
+  "scripts": {
+    "test": "node bin/cli.js check ./test"
+  },
+  "keywords": ["design-system", "lint", "tokens", "qa"],
+  "author": "转转",
+  "license": "MIT",
+  "type": "module"
+}

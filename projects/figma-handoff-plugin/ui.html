@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Design Handoff</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+      font-size: 12px;
+      color: #333;
+      background: #fff;
+    }
+
+    .container {
+      padding: 12px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .header-title {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    /* Language Switch */
+    .lang-switch {
+      display: flex;
+      background: #f0f0f0;
+      border-radius: 4px;
+      padding: 2px;
+      font-size: 10px;
+    }
+
+    .lang-btn {
+      padding: 4px 8px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 3px;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: #333;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e5e5e5;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      color: #666;
+    }
+
+    .tab.active {
+      color: #18a0fb;
+      border-bottom-color: #18a0fb;
+    }
+
+    .tab:hover {
+      color: #18a0fb;
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Code Panel */
+    .code-area {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 12px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      max-height: 300px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      position: relative;
+    }
+
+    /* Specs Form */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    .form-sublabel {
+      font-weight: normal;
+      color: #666;
+      font-size: 11px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #18a0fb;
+    }
+
+    textarea.form-input {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #18a0fb;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #0d8de8;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #e5e5e5;
+    }
+
+    /* Button Group */
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-group .btn {
+      flex: 1;
+    }
+
+    /* Status */
+    .status {
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      font-size: 11px;
+    }
+
+    .status-info {
+      background: #e8f4fd;
+      color: #0d8de8;
+    }
+
+    /* Section */
+    .section {
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(30, 30, 30, 0.95);
+      border-radius: 4px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #444;
+      border-top-color: #18a0fb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #d4d4d4;
+      font-size: 12px;
+    }
+
+    .loading-cancel {
+      padding: 6px 16px;
+      background: transparent;
+      border: 1px solid #666;
+      color: #999;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      margin-top: 8px;
+    }
+
+    .loading-cancel:hover {
+      border-color: #d93025;
+      color: #d93025;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 12px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success {
+      background: #1e8e3e;
+    }
+
+    .toast.error {
+      background: #d93025;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      display: none;
+      margin-top: 8px;
+    }
+
+    .progress-container.active {
+      display: block;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: #e5e5e5;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #18a0fb;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    .progress-text {
+      font-size: 10px;
+      color: #666;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .code-container {
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Toast -->
+    <div id="toast" class="toast">
+      <span class="toast-icon"></span>
+      <span class="toast-message"></span>
+    </div>
+
+    <!-- Header with Language Switch -->
+    <div class="header">
+      <span class="header-title" data-i18n="title">设计交付助手</span>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="zh">中文</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" data-tab="code" data-i18n="tabCode">代码</div>
+      <div class="tab" data-tab="specs" data-i18n="tabSpecs">规范</div>
+    </div>
+
+    <!-- Code Tab -->
+    <div id="codeTab" class="tab-content active">
+      <div id="codeEmpty" class="empty-state" data-i18n="emptyState">
+        请选择一个组件
+      </div>
+
+      <div id="codeContent" style="display: none;">
+        <div class="status status-info" id="nodeInfo">
+          <span data-i18n="selected">已选中：</span><span id="nodeName">-</span>
+        </div>
+
+        <div class="code-container">
+          <pre class="code-area" id="codeOutput">// 点击「生成代码」开始</pre>
+
+          <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text" data-i18n="generating">正在生成...</div>
+            <button class="loading-cancel" id="cancelBtn" data-i18n="cancel">取消</button>
+          </div>
+        </div>
+
+        <div id="progressContainer" class="progress-container">
+          <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+          <div id="progressText" class="progress-text" data-i18n="copying">复制中...</div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" id="generateBtn" data-i18n="generateCode">生成代码</button>
+          <button class="btn btn-secondary" id="copyBtn" data-i18n="copy">复制</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Specs Tab -->
+    <div id="specsTab" class="tab-content">
+      <div id="specsEmpty" class="empty-state" data-i18n="emptyState">
+        请选择一个组件
+      </div>
+
+      <div id="specsContent" style="display: none;">
+        <!-- 交互状态 -->
+        <div class="section">
+          <div class="section-title" data-i18n="sectionStates">交互状态</div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="stateDefault">默认状态</label>
+            <input type="text" class="form-input" id="stateDefault" data-placeholder-i18n="placeholderDefault">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="stateHover">悬停状态</label>
+            <input type="text" class="form-input" id="stateHover" data-placeholder-i18n="placeholderHover">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="stateActive">激活状态</label>
+            <input type="text" class="form-input" id="stateActive" data-placeholder-i18n="placeholderActive">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="stateDisabled">禁用状态</label>
+            <input type="text" class="form-input" id="stateDisabled" data-placeholder-i18n="placeholderDisabled">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="stateLoading">加载状态</label>
+            <input type="text" class="form-input" id="stateLoading" data-placeholder-i18n="placeholderLoading">
+          </div>
+        </div>
+
+        <!-- 内容边界 -->
+        <div class="section">
+          <div class="section-title" data-i18n="sectionContent">内容规则</div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="maxLines">最大行数</label>
+            <input type="number" class="form-input" id="maxLines" placeholder="例如：2">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="overflow">超出处理</label>
+            <select class="form-input" id="overflow">
+              <option value="" data-i18n="selectPlaceholder">请选择...</option>
+              <option value="ellipsis" data-i18n="overflowEllipsis">截断显示省略号</option>
+              <option value="wrap" data-i18n="overflowWrap">自动换行</option>
+              <option value="hidden" data-i18n="overflowHidden">隐藏溢出</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="emptyStateLabel">空状态</label>
+            <input type="text" class="form-input" id="emptyState" data-placeholder-i18n="placeholderEmpty">
+          </div>
+        </div>
+
+        <!-- 数据依赖 -->
+        <div class="section">
+          <div class="section-title" data-i18n="sectionData">数据绑定</div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span data-i18n="apiField">接口字段</span>
+              <span class="form-sublabel" data-i18n="apiFieldHint">（如：response.data.title）</span>
+            </label>
+            <textarea class="form-input" id="dataBinding" data-placeholder-i18n="placeholderBinding"></textarea>
+          </div>
+        </div>
+
+        <!-- 条件显示 -->
+        <div class="section">
+          <div class="section-title" data-i18n="sectionVisibility">显示条件</div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="condition">条件表达式</label>
+            <input type="text" class="form-input" id="visibilityCondition" data-placeholder-i18n="placeholderCondition">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="conditionDesc">条件说明</label>
+            <input type="text" class="form-input" id="visibilityDesc" data-placeholder-i18n="placeholderConditionDesc">
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="saveSpecsBtn" data-i18n="saveSpecs">保存规范</button>
+        <div class="btn-group">
+          <button class="btn btn-secondary" id="copyMarkdownBtn" data-i18n="copyMarkdown">复制 Markdown</button>
+          <button class="btn btn-secondary" id="exportSpecsBtn" data-i18n="exportJson">导出 JSON</button>
+        </div>
+        <button class="btn btn-secondary" id="addToFigmaBtn" data-i18n="addToFigma">生成到 Figma</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // i18n translations
+    const i18n = {
+      zh: {
+        title: '设计交付助手',
+        connected: '已连接 Claude',
+        disconnected: '未连接',
+        tabCode: '代码',
+        tabSpecs: '规范',
+        emptyState: '请选择一个组件',
+        selected: '已选中：',
+        generating: '正在生成...',
+        cancel: '取消',
+        copying: '复制中...',
+        copied: '已复制！',
+        generateCode: '生成代码',
+        copy: '复制',
+        sectionStates: '交互状态',
+        stateDefault: '默认状态',
+        stateHover: '悬停状态',
+        stateActive: '激活状态',
+        stateDisabled: '禁用状态',
+        stateLoading: '加载状态',
+        sectionContent: '内容规则',
+        maxLines: '最大行数',
+        overflow: '超出处理',
+        selectPlaceholder: '请选择...',
+        overflowEllipsis: '截断显示省略号',
+        overflowWrap: '自动换行',
+        overflowHidden: '隐藏溢出',
+        emptyStateLabel: '空状态',
+        sectionData: '数据绑定',
+        apiField: '接口字段',
+        apiFieldHint: '（如：response.data.title）',
+        sectionVisibility: '显示条件',
+        condition: '条件表达式',
+        conditionDesc: '条件说明',
+        saveSpecs: '保存规范',
+        copyMarkdown: '复制 Markdown',
+        exportJson: '导出 JSON',
+        addToFigma: '生成到 Figma',
+        // Placeholders
+        placeholderDefault: '描述默认展示状态',
+        placeholderHover: '鼠标悬停时的效果',
+        placeholderActive: '点击/激活时的状态',
+        placeholderDisabled: '禁用时的展示',
+        placeholderLoading: '加载中的展示',
+        placeholderEmpty: '数据为空时显示什么',
+        placeholderBinding: '字段映射，每行一个：\ntitle: api.response.title\nimage: api.response.coverUrl',
+        placeholderCondition: '如：user.isLoggedIn && status === "active"',
+        placeholderConditionDesc: '什么情况下显示/隐藏',
+        // Toasts
+        toastCopied: '已复制到剪贴板！',
+        toastCopyFailed: '复制失败',
+        toastGenerated: '代码已生成！',
+        toastCancelled: '已取消',
+        toastTimeout: '生成超时',
+        toastSaved: '规范已保存！',
+        toastExported: '已导出！',
+        toastMarkdownCopied: 'Markdown 已复制！',
+        toastAddedToFigma: '已添加到 Figma！',
+        toastNoSpecs: '请先填写规范内容',
+        toastNoCode: '没有可复制的代码',
+        codeHint: '// 点击「生成代码」开始',
+        codeCancelled: '// 已取消生成',
+        codeTimeout: '// 生成超时，请重试'
+      },
+      en: {
+        title: 'Design Handoff',
+        connected: 'Connected to Claude',
+        disconnected: 'Disconnected',
+        tabCode: 'Code',
+        tabSpecs: 'Specs',
+        emptyState: 'Select a component',
+        selected: 'Selected: ',
+        generating: 'Generating...',
+        cancel: 'Cancel',
+        copying: 'Copying...',
+        copied: 'Copied!',
+        generateCode: 'Generate Code',
+        copy: 'Copy',
+        sectionStates: 'Interaction States',
+        stateDefault: 'Default',
+        stateHover: 'Hover',
+        stateActive: 'Active',
+        stateDisabled: 'Disabled',
+        stateLoading: 'Loading',
+        sectionContent: 'Content Rules',
+        maxLines: 'Max Lines',
+        overflow: 'Overflow',
+        selectPlaceholder: 'Select...',
+        overflowEllipsis: 'Truncate with ellipsis',
+        overflowWrap: 'Wrap text',
+        overflowHidden: 'Hidden',
+        emptyStateLabel: 'Empty State',
+        sectionData: 'Data Binding',
+        apiField: 'API Field',
+        apiFieldHint: '(e.g., response.data.title)',
+        sectionVisibility: 'Visibility Condition',
+        condition: 'Condition',
+        conditionDesc: 'Description',
+        saveSpecs: 'Save Specs',
+        copyMarkdown: 'Copy Markdown',
+        exportJson: 'Export JSON',
+        addToFigma: 'Add to Figma',
+        // Placeholders
+        placeholderDefault: 'Default state description',
+        placeholderHover: 'Hover effect',
+        placeholderActive: 'Active/pressed state',
+        placeholderDisabled: 'When disabled',
+        placeholderLoading: 'Loading state',
+        placeholderEmpty: 'What to show when empty',
+        placeholderBinding: 'Field mapping, one per line:\ntitle: api.response.title\nimage: api.response.coverUrl',
+        placeholderCondition: 'e.g., user.isLoggedIn && status === "active"',
+        placeholderConditionDesc: 'When to show/hide',
+        // Toasts
+        toastCopied: 'Copied to clipboard!',
+        toastCopyFailed: 'Copy failed',
+        toastGenerated: 'Code generated!',
+        toastCancelled: 'Cancelled',
+        toastTimeout: 'Timed out',
+        toastSaved: 'Specs saved!',
+        toastExported: 'Exported!',
+        toastMarkdownCopied: 'Markdown copied!',
+        toastAddedToFigma: 'Added to Figma!',
+        toastNoSpecs: 'Please fill in specs first',
+        toastNoCode: 'No code to copy',
+        codeHint: '// Click "Generate Code" to start',
+        codeCancelled: '// Generation cancelled',
+        codeTimeout: '// Generation timed out. Please try again.'
+      }
+    };
+
+    let currentLang = 'zh';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('handoff-lang', lang);
+
+      // Update lang buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+
+      // Update all i18n elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (i18n[lang][key]) {
+          el.textContent = i18n[lang][key];
+        }
+      });
+
+      // Update placeholders
+      document.querySelectorAll('[data-placeholder-i18n]').forEach(el => {
+        const key = el.dataset.placeholderI18n;
+        if (i18n[lang][key]) {
+          el.placeholder = i18n[lang][key];
+        }
+      });
+
+      // Update select options
+      document.querySelectorAll('select option[data-i18n]').forEach(opt => {
+        const key = opt.dataset.i18n;
+        if (i18n[lang][key]) {
+          opt.textContent = i18n[lang][key];
+        }
+      });
+
+      // Update code hint if empty
+      if (codeOutput.textContent.startsWith('//')) {
+        codeOutput.textContent = i18n[lang].codeHint;
+      }
+    }
+
+    function t(key) {
+      return i18n[currentLang][key] || key;
+    }
+
+    // State
+    let currentNodeData = null;
+    let isConnected = false;
+    let ws = null;
+    let isGenerating = false;
+    let generateTimeout = null;
+
+    // DOM Elements
+    const tabs = document.querySelectorAll('.tab');
+    const codeTab = document.getElementById('codeTab');
+    const specsTab = document.getElementById('specsTab');
+    const codeEmpty = document.getElementById('codeEmpty');
+    const codeContent = document.getElementById('codeContent');
+    const specsEmpty = document.getElementById('specsEmpty');
+    const specsContent = document.getElementById('specsContent');
+    const codeOutput = document.getElementById('codeOutput');
+    const nodeName = document.getElementById('nodeName');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+
+    // Toast function
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const icon = toast.querySelector('.toast-icon');
+      const msg = toast.querySelector('.toast-message');
+
+      icon.textContent = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+      msg.textContent = message;
+      toast.className = `toast ${type}`;
+
+      setTimeout(() => toast.classList.add('show'), 10);
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // Language switch
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLanguage(btn.dataset.lang);
+      });
+    });
+
+    // Tab switching
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        const tabName = tab.dataset.tab;
+        codeTab.classList.toggle('active', tabName === 'code');
+        specsTab.classList.toggle('active', tabName === 'specs');
+      });
+    });
+
+    // Connect to Relay (for future Claude integration)
+    function connectToRelay() {
+      try {
+        ws = new WebSocket('ws://localhost:3055');
+
+        ws.onopen = () => {
+          isConnected = true;
+          ws.send(JSON.stringify({ type: 'join', channel: 'handoff' }));
+        };
+
+        ws.onclose = () => {
+          isConnected = false;
+          setTimeout(connectToRelay, 3000);
+        };
+
+        ws.onerror = () => {
+          isConnected = false;
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'code-result') {
+              hideLoading();
+              codeOutput.textContent = msg.code;
+              showToast(t('toastGenerated'));
+            }
+          } catch (e) {
+            console.error('Parse error:', e);
+          }
+        };
+      } catch (e) {
+        isConnected = false;
+      }
+    }
+
+    function showLoading() {
+      isGenerating = true;
+      loadingOverlay.classList.add('active');
+      generateBtn.disabled = true;
+      copyBtn.disabled = true;
+    }
+
+    function hideLoading() {
+      isGenerating = false;
+      loadingOverlay.classList.remove('active');
+      generateBtn.disabled = false;
+      copyBtn.disabled = false;
+      if (generateTimeout) {
+        clearTimeout(generateTimeout);
+        generateTimeout = null;
+      }
+    }
+
+    cancelBtn.addEventListener('click', () => {
+      hideLoading();
+      codeOutput.textContent = t('codeCancelled');
+      showToast(t('toastCancelled'), 'error');
+    });
+
+    generateBtn.addEventListener('click', () => {
+      if (!currentNodeData || isGenerating) return;
+
+      showLoading();
+
+      generateTimeout = setTimeout(() => {
+        hideLoading();
+        codeOutput.textContent = t('codeTimeout');
+        showToast(t('toastTimeout'), 'error');
+      }, 30000);
+
+      if (isConnected && ws) {
+        ws.send(JSON.stringify({
+          type: 'generate-code',
+          nodeData: currentNodeData,
+          specs: collectSpecs()
+        }));
+      } else {
+        parent.postMessage({ pluginMessage: { type: 'generate-code', specs: collectSpecs() } }, '*');
+      }
+    });
+
+    // 通用复制函数（兼容 Figma iframe）
+    function copyToClipboard(text) {
+      return new Promise(function(resolve, reject) {
+        // 方法1: 尝试 Clipboard API
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(resolve).catch(function() {
+            // 失败则用备用方法
+            fallbackCopy(text, resolve, reject);
+          });
+        } else {
+          fallbackCopy(text, resolve, reject);
+        }
+      });
+    }
+
+    function fallbackCopy(text, resolve, reject) {
+      var textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        var success = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        if (success) {
+          resolve();
+        } else {
+          reject(new Error('execCommand failed'));
+        }
+      } catch (e) {
+        document.body.removeChild(textarea);
+        reject(e);
+      }
+    }
+
+    copyBtn.addEventListener('click', function() {
+      var code = codeOutput.textContent;
+      // 检查是否是提示文本（而非真正的代码）
+      var hintTexts = [t('codeHint'), t('codeCancelled'), t('codeTimeout'), '// 请先选择一个组件'];
+      if (!code || hintTexts.indexOf(code.trim()) !== -1) {
+        showToast(t('toastNoCode'), 'error');
+        return;
+      }
+
+      progressContainer.classList.add('active');
+      progressFill.style.width = '0%';
+      progressText.textContent = t('copying');
+      copyBtn.disabled = true;
+
+      var progress = 0;
+      var interval = setInterval(function() {
+        progress += 20;
+        progressFill.style.width = progress + '%';
+        if (progress >= 100) clearInterval(interval);
+      }, 50);
+
+      copyToClipboard(code).then(function() {
+        progressText.textContent = t('copied');
+        showToast(t('toastCopied'));
+      }).catch(function() {
+        showToast(t('toastCopyFailed'), 'error');
+      });
+
+      setTimeout(function() {
+        progressContainer.classList.remove('active');
+        copyBtn.disabled = false;
+      }, 800);
+    });
+
+    document.getElementById('saveSpecsBtn').addEventListener('click', () => {
+      const specs = collectSpecs();
+      parent.postMessage({ pluginMessage: { type: 'save-specs', specs } }, '*');
+      showToast(t('toastSaved'));
+    });
+
+    document.getElementById('exportSpecsBtn').addEventListener('click', () => {
+      const specs = collectSpecs();
+      const json = JSON.stringify(specs, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentNodeData?.name || 'specs'}.json`;
+      a.click();
+      showToast(t('toastExported'));
+    });
+
+    // Copy Markdown
+    document.getElementById('copyMarkdownBtn').addEventListener('click', function() {
+      var specs = collectSpecs();
+      var markdown = generateMarkdown(specs);
+
+      if (!markdown.trim()) {
+        showToast(t('toastNoSpecs'), 'error');
+        return;
+      }
+
+      copyToClipboard(markdown).then(function() {
+        showToast(t('toastMarkdownCopied'));
+      }).catch(function() {
+        showToast(t('toastCopyFailed'), 'error');
+      });
+    });
+
+    // Add to Figma
+    document.getElementById('addToFigmaBtn').addEventListener('click', () => {
+      const specs = collectSpecs();
+      const markdown = generateMarkdown(specs);
+
+      if (!markdown.trim()) {
+        showToast(t('toastNoSpecs'), 'error');
+        return;
+      }
+
+      // Disable button while processing
+      const btn = document.getElementById('addToFigmaBtn');
+      btn.disabled = true;
+      btn.textContent = currentLang === 'zh' ? '正在添加...' : 'Adding...';
+
+      parent.postMessage({
+        pluginMessage: {
+          type: 'add-specs-to-figma',
+          markdown: markdown,
+          componentName: currentNodeData?.name || 'Component'
+        }
+      }, '*');
+    });
+
+    // Generate Markdown from specs
+    function generateMarkdown(specs) {
+      const componentName = currentNodeData?.name || 'Component';
+      let md = `# ${componentName} 设计规范\n\n`;
+
+      // 交互状态
+      const hasStates = Object.values(specs.states || {}).some(v => v);
+      if (hasStates) {
+        md += `## 交互状态\n\n`;
+        md += `| 状态 | 说明 |\n`;
+        md += `|------|------|\n`;
+        if (specs.states.default) md += `| 默认 | ${specs.states.default} |\n`;
+        if (specs.states.hover) md += `| 悬停 | ${specs.states.hover} |\n`;
+        if (specs.states.active) md += `| 激活 | ${specs.states.active} |\n`;
+        if (specs.states.disabled) md += `| 禁用 | ${specs.states.disabled} |\n`;
+        if (specs.states.loading) md += `| 加载 | ${specs.states.loading} |\n`;
+        md += `\n`;
+      }
+
+      // 内容规则
+      const hasContent = specs.contentRules?.maxLines || specs.contentRules?.overflow || specs.contentRules?.emptyState;
+      if (hasContent) {
+        md += `## 内容规则\n\n`;
+        if (specs.contentRules.maxLines) md += `- **最大行数**: ${specs.contentRules.maxLines}\n`;
+        if (specs.contentRules.overflow) {
+          const overflowMap = { ellipsis: '截断显示省略号', wrap: '自动换行', hidden: '隐藏溢出' };
+          md += `- **超出处理**: ${overflowMap[specs.contentRules.overflow] || specs.contentRules.overflow}\n`;
+        }
+        if (specs.contentRules.emptyState) md += `- **空状态**: ${specs.contentRules.emptyState}\n`;
+        md += `\n`;
+      }
+
+      // 数据绑定
+      if (specs.dataBinding) {
+        md += `## 数据绑定\n\n`;
+        md += `\`\`\`\n${specs.dataBinding}\n\`\`\`\n\n`;
+      }
+
+      // 显示条件
+      if (specs.visibility?.condition || specs.visibility?.description) {
+        md += `## 显示条件\n\n`;
+        if (specs.visibility.condition) md += `- **条件**: \`${specs.visibility.condition}\`\n`;
+        if (specs.visibility.description) md += `- **说明**: ${specs.visibility.description}\n`;
+        md += `\n`;
+      }
+
+      return md;
+    }
+
+    function collectSpecs() {
+      return {
+        states: {
+          default: document.getElementById('stateDefault').value,
+          hover: document.getElementById('stateHover').value,
+          active: document.getElementById('stateActive').value,
+          disabled: document.getElementById('stateDisabled').value,
+          loading: document.getElementById('stateLoading').value
+        },
+        contentRules: {
+          maxLines: parseInt(document.getElementById('maxLines').value) || null,
+          overflow: document.getElementById('overflow').value,
+          emptyState: document.getElementById('emptyState').value
+        },
+        dataBinding: document.getElementById('dataBinding').value,
+        visibility: {
+          condition: document.getElementById('visibilityCondition').value,
+          description: document.getElementById('visibilityDesc').value
+        }
+      };
+    }
+
+    function loadSpecs(specs) {
+      if (!specs) return;
+
+      if (specs.states) {
+        document.getElementById('stateDefault').value = specs.states.default || '';
+        document.getElementById('stateHover').value = specs.states.hover || '';
+        document.getElementById('stateActive').value = specs.states.active || '';
+        document.getElementById('stateDisabled').value = specs.states.disabled || '';
+        document.getElementById('stateLoading').value = specs.states.loading || '';
+      }
+
+      if (specs.contentRules) {
+        document.getElementById('maxLines').value = specs.contentRules.maxLines || '';
+        document.getElementById('overflow').value = specs.contentRules.overflow || '';
+        document.getElementById('emptyState').value = specs.contentRules.emptyState || '';
+      }
+
+      if (specs.dataBinding) {
+        document.getElementById('dataBinding').value = specs.dataBinding;
+      }
+
+      if (specs.visibility) {
+        document.getElementById('visibilityCondition').value = specs.visibility.condition || '';
+        document.getElementById('visibilityDesc').value = specs.visibility.description || '';
+      }
+    }
+
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      if (msg.type === 'selection' || msg.type === 'node-data') {
+        currentNodeData = msg.data;
+        nodeName.textContent = msg.data.name;
+
+        codeEmpty.style.display = 'none';
+        codeContent.style.display = 'block';
+        specsEmpty.style.display = 'none';
+        specsContent.style.display = 'block';
+
+        codeOutput.textContent = t('codeHint');
+        hideLoading();
+
+        parent.postMessage({ pluginMessage: { type: 'load-specs' } }, '*');
+      }
+
+      if (msg.type === 'specs-loaded') {
+        loadSpecs(msg.data);
+      }
+
+      if (msg.type === 'code-generated') {
+        hideLoading();
+        codeOutput.textContent = msg.code;
+        showToast(t('toastGenerated'));
+      }
+
+      if (msg.type === 'show-tab') {
+        tabs.forEach(t => t.classList.remove('active'));
+        document.querySelector(`[data-tab="${msg.tab}"]`).classList.add('active');
+        codeTab.classList.toggle('active', msg.tab === 'code');
+        specsTab.classList.toggle('active', msg.tab === 'specs');
+      }
+
+      if (msg.type === 'specs-added-success') {
+        const btn = document.getElementById('addToFigmaBtn');
+        btn.disabled = false;
+        btn.textContent = t('addToFigma');
+        showToast(t('toastAddedToFigma'));
+      }
+
+      if (msg.type === 'specs-added-error') {
+        const btn = document.getElementById('addToFigmaBtn');
+        btn.disabled = false;
+        btn.textContent = t('addToFigma');
+        showToast(currentLang === 'zh' ? '添加失败：' + msg.error : 'Failed: ' + msg.error, 'error');
+      }
+    };
+
+    // Initialize
+    const savedLang = localStorage.getItem('handoff-lang') || 'zh';
+    setLanguage(savedLang);
+    connectToRelay();
+  </script>
+</body>
+</html>
