@@ -728,6 +728,37 @@
       color: white;
     }
 
+    .push-btn {
+      padding: 6px 12px;
+      background: var(--blue);
+      border: 1px solid var(--blue);
+      color: white;
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .push-btn:hover {
+      background: var(--blue-light);
+      border-color: var(--blue-light);
+    }
+
+    .push-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .push-btn.success {
+      background: #10b981;
+      border-color: #10b981;
+    }
+
     /* Log Modal */
     .log-modal-body {
       padding: 30px;
@@ -1315,6 +1346,13 @@
                 </svg>
                 LOG
               </button>
+              <button class="push-btn" id="push-secretary" onclick="pushToFeishu('secretary-report')">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M8 1L3 6h3v6h4V6h3L8 1z"/>
+                  <rect x="3" y="13" width="10" height="2"/>
+                </svg>
+                推送日报
+              </button>
             </div>
           </div>
         </div>
@@ -1813,6 +1851,13 @@
                 </svg>
                 LOG
               </button>
+              <button class="push-btn" id="push-photographer" onclick="pushToFeishu('photographer-stats')">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M8 1L3 6h3v6h4V6h3L8 1z"/>
+                  <rect x="3" y="13" width="10" height="2"/>
+                </svg>
+                推送数据
+              </button>
             </div>
           </div>
         </div>
@@ -2191,6 +2236,81 @@
 
     // Run on page load
     initAgentStatus();
+
+    // API base URL (Vercel deployment)
+    const API_BASE = window.location.hostname === 'localhost'
+      ? 'http://localhost:3000'
+      : '';
+
+    // 推送到飞书
+    async function pushToFeishu(type) {
+      const btn = event.target.closest('.push-btn');
+      const originalText = btn.innerHTML;
+
+      // 显示加载状态
+      btn.disabled = true;
+      btn.innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" class="spin">
+          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="20" stroke-linecap="round"/>
+        </svg>
+        推送中...
+      `;
+
+      try {
+        const response = await fetch(`${API_BASE}/api/push-feishu`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          btn.classList.add('success');
+          btn.innerHTML = `
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M6.5 12L2 7.5 3.5 6l3 3 7-7L15 3.5z"/>
+            </svg>
+            已推送
+          `;
+
+          // 3秒后恢复
+          setTimeout(() => {
+            btn.classList.remove('success');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }, 3000);
+        } else {
+          throw new Error(result.error || '推送失败');
+        }
+      } catch (error) {
+        btn.innerHTML = `
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 10a1 1 0 110-2 1 1 0 010 2zm1-3H7V4h2v4z"/>
+          </svg>
+          失败
+        `;
+        console.error('Push error:', error);
+
+        // 2秒后恢复
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }, 2000);
+      }
+    }
+
+    // 添加旋转动画样式
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      .spin {
+        animation: spin 1s linear infinite;
+      }
+    `;
+    document.head.appendChild(style);
   </script>
 </body>
 </html>
