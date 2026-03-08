@@ -2237,10 +2237,10 @@
     // Run on page load
     initAgentStatus();
 
-    // API base URL (Vercel deployment)
+    // API base URL (Vercel for API, GitHub Pages for static)
     const API_BASE = window.location.hostname === 'localhost'
       ? 'http://localhost:3000'
-      : '';
+      : 'https://sirius-ateam.vercel.app';
 
     // 推送到飞书
     async function pushToFeishu(type) {
