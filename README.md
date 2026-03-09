@@ -8,6 +8,17 @@ https://siriusharrison-png.github.io/SIRIUS-ATEAM/
 
 ---
 
+## 部署架构
+
+采用**前后端分离**架构：
+
+| 部分 | 托管平台 | 地址 |
+|------|---------|------|
+| 页面（静态） | GitHub Pages | `siriusharrison-png.github.io/SIRIUS-ATEAM` |
+| API（推送） | Vercel | `sirius-ateam.vercel.app/api/push-feishu` |
+
+---
+
 ## 项目结构
 
 ```
@@ -68,6 +79,48 @@ SIRIUS-ATEAM/
 - Tag 切换查看各成员详情
 - WORKFLOW 按钮查看协作流程图
 - LOG 按钮查看各 Agent 更新日志
+- **推送日报** - 小秘书推送工作日报到飞书（含代码变更详情）
+- **推送数据** - 摄影师推送 Unsplash 数据到飞书（含统计数据）
+
+---
+
+## 飞书推送配置
+
+### 环境变量（Vercel）
+
+```
+FEISHU_WEBHOOK_URL=https://open.feishu.cn/open-apis/bot/v2/hook/xxxxx
+```
+
+### 推送内容更新
+
+编辑 `index.html` 顶部的 `agentData` 对象：
+
+```javascript
+// 小秘书日报 - 代码变更记录
+agentData.secretary.recentChanges = [
+  {
+    date: '2026-03-09',
+    author: 'Claude',
+    project: 'SIRIUS-ATEAM',
+    action: '修复推送功能',
+    repo: 'https://github.com/siriusharrison-png/SIRIUS-ATEAM'
+  }
+];
+
+// 摄影师 - Unsplash 统计数据
+agentData.photographer.unsplashStats = {
+  date: '2026-03-05',
+  downloads: 20459,
+  views: 2915382,
+  likes: 254,
+  weeklyChange: {
+    downloads: '+287',
+    views: '+35,000',
+    likes: '+5'
+  }
+};
+```
 
 ---
 
