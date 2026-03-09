@@ -87,13 +87,14 @@ function buildCard(type, data) {
           },
           {
             tag: 'div',
-            text: { tag: 'lark_md', content: '**📝 近期代码变更**' }
+            text: { tag: 'lark_md', content: '**📝 今日代码变更**' }
           },
           {
             tag: 'div',
             text: {
               tag: 'lark_md',
-              content: formatChanges(data?.changes)
+              // 支持直接传 content 字符串，或 changes 数组
+              content: data?.content || formatChanges(data?.changes)
             }
           },
           { tag: 'hr' },
