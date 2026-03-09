@@ -2038,12 +2038,36 @@
     const agentData = {
       secretary: {
         name: '小秘书',
-        lastUpdate: '2026-03-05',
+        lastUpdate: '2026-03-09',
         status: 'active', // active, idle, error
         logs: [
           { date: '2026-03-05', content: '每日 18:00 自动推送飞书日报' },
           { date: '2026-03-04', content: '优化日报页面样式，增加趋势图' },
           { date: '2026-03-01', content: '新增历史报告归档功能' }
+        ],
+        // 📌 最近代码变更 - 用于日报推送
+        recentChanges: [
+          {
+            date: '2026-03-09',
+            author: 'Claude',
+            project: 'SIRIUS-ATEAM',
+            action: '修复推送功能，GitHub Pages + Vercel API 分离部署',
+            repo: 'https://github.com/siriusharrison-png/SIRIUS-ATEAM'
+          },
+          {
+            date: '2026-03-08',
+            author: 'Claude',
+            project: 'SIRIUS-ATEAM',
+            action: '新增 Vercel Serverless API 支持飞书推送',
+            repo: 'https://github.com/siriusharrison-png/SIRIUS-ATEAM'
+          },
+          {
+            date: '2026-03-05',
+            author: 'Claude',
+            project: 'SIRIUS-ATEAM',
+            action: '重命名为 SIRIUS TEAM，添加 agents 配置',
+            repo: 'https://github.com/siriusharrison-png/SIRIUS-ATEAM'
+          }
         ]
       },
       designer: {
@@ -2093,7 +2117,20 @@
           { date: '2026-03-05', content: '每日 9:00 Unsplash 数据推送' },
           { date: '2026-03-01', content: '新增热门关键词抓取' },
           { date: '2026-02-20', content: 'GitLab CI/CD 部署完成' }
-        ]
+        ],
+        // 📌 Unsplash 数据 - 用于数据推送
+        unsplashStats: {
+          date: '2026-03-05',
+          downloads: 20459,
+          views: 2915382,
+          likes: 254,
+          // 近 7 天变化
+          weeklyChange: {
+            downloads: '+287',
+            views: '+35,000',
+            likes: '+5'
+          }
+        }
       }
     };
     // ========================================
@@ -2256,11 +2293,25 @@
         推送中...
       `;
 
+      // 根据类型准备数据
+      let data = {};
+      if (type === 'secretary-report') {
+        // 小秘书日报：最近代码变更
+        data = {
+          changes: agentData.secretary.recentChanges || []
+        };
+      } else if (type === 'photographer-stats') {
+        // 摄影师：Unsplash 数据
+        data = {
+          stats: agentData.photographer.unsplashStats || {}
+        };
+      }
+
       try {
         const response = await fetch(`${API_BASE}/api/push-feishu`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type })
+          body: JSON.stringify({ type, data })
         });
 
         const result = await response.json();

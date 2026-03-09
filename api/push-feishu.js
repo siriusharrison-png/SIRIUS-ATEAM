@@ -45,17 +45,39 @@ export default async function handler(req, res) {
   }
 }
 
+// 格式化数字（加千位分隔符）
+function formatNumber(num) {
+  if (!num) return '0';
+  return num.toLocaleString('zh-CN');
+}
+
+// 格式化代码变更列表
+function formatChanges(changes) {
+  if (!changes || changes.length === 0) {
+    return '暂无近期变更记录';
+  }
+  return changes.map(c =>
+    `• **${c.date}** ${c.author} 在 [${c.project}](${c.repo})\n  ${c.action}`
+  ).join('\n\n');
+}
+
+// 格式化周变化
+function formatWeeklyChange(change) {
+  if (!change) return '';
+  return `**📈 近 7 天变化**\n下载 ${change.downloads} · 浏览 ${change.views} · 点赞 ${change.likes}`;
+}
+
 // 构建飞书卡片消息
 function buildCard(type, data) {
   const now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
 
   const templates = {
-    // 小秘书日报
+    // 小秘书日报 - 展示最近代码变更
     'secretary-report': {
       msg_type: 'interactive',
       card: {
         header: {
-          title: { tag: 'plain_text', content: '📋 SIRIUS TEAM 日报' },
+          title: { tag: 'plain_text', content: '📋 SIRIUS TEAM 工作日报' },
           template: 'blue'
         },
         elements: [
@@ -65,7 +87,14 @@ function buildCard(type, data) {
           },
           {
             tag: 'div',
-            text: { tag: 'lark_md', content: data?.content || '今日团队状态正常，各 Agent 运行良好。' }
+            text: { tag: 'lark_md', content: '**📝 近期代码变更**' }
+          },
+          {
+            tag: 'div',
+            text: {
+              tag: 'lark_md',
+              content: formatChanges(data?.changes)
+            }
           },
           { tag: 'hr' },
           {
@@ -76,24 +105,58 @@ function buildCard(type, data) {
       }
     },
 
-    // 摄影师数据推送
+    // 摄影师数据推送 - 展示具体数据
     'photographer-stats': {
       msg_type: 'interactive',
       card: {
         header: {
-          title: { tag: 'plain_text', content: '📸 Unsplash 数据日报' },
+          title: { tag: 'plain_text', content: '📸 Unsplash 数据更新' },
           template: 'green'
         },
         elements: [
           {
             tag: 'div',
-            text: { tag: 'lark_md', content: `**推送时间**: ${now}` }
+            text: { tag: 'lark_md', content: `**统计日期**: ${data?.stats?.date || now}` }
+          },
+          {
+            tag: 'column_set',
+            flex_mode: 'none',
+            background_style: 'grey',
+            columns: [
+              {
+                tag: 'column',
+                width: 'weighted',
+                weight: 1,
+                elements: [{
+                  tag: 'div',
+                  text: { tag: 'lark_md', content: `**下载量**\n${formatNumber(data?.stats?.downloads)}` }
+                }]
+              },
+              {
+                tag: 'column',
+                width: 'weighted',
+                weight: 1,
+                elements: [{
+                  tag: 'div',
+                  text: { tag: 'lark_md', content: `**浏览量**\n${formatNumber(data?.stats?.views)}` }
+                }]
+              },
+              {
+                tag: 'column',
+                width: 'weighted',
+                weight: 1,
+                elements: [{
+                  tag: 'div',
+                  text: { tag: 'lark_md', content: `**点赞数**\n${formatNumber(data?.stats?.likes)}` }
+                }]
+              }
+            ]
           },
           {
             tag: 'div',
             text: {
               tag: 'lark_md',
-              content: data?.content || '📊 今日 Unsplash 数据已更新\n\n[查看详情](https://unsplash.com/@siriusharrison/stats)'
+              content: formatWeeklyChange(data?.stats?.weeklyChange)
             }
           },
           { tag: 'hr' },
