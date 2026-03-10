@@ -139,6 +139,27 @@ space/16          →  --space-16         →  .p-16
 
 ---
 
+## ⛔ 绝对禁止（必须遵守）
+
+> **NEVER SET SPECIFIC PIXEL OR COLOR VALUES DIRECTLY.**
+> **ALWAYS USE EXISTING DESIGN TOKENS.**
+> **IF A TOKEN DOESN'T EXIST, TELL ME FIRST OR PROPOSE A NEW ONE.**
+> **DO NOT CREATE ONE-OFF VALUES.**
+
+| 规则 | 说明 |
+|------|------|
+| ❌ 禁止硬编码数值 | 不要直接写 `16px`、`#FF5500`、`400` 等具体值 |
+| ✅ 必须使用 Token | 用 `--space-16`、`--brand-primary-1`、`--font-weight-regular` |
+| 🚨 Token 不存在时 | **先告诉转转**，或提议新增一个 Token |
+| ❌ 禁止一次性数值 | 不要创建只用一次的临时值（如 `17px`、`#F4F4F5`） |
+
+**为什么这么严格？**
+- 硬编码值无法响应主题切换
+- 一次性值会破坏设计系统的一致性
+- 后期维护困难，改一个值要改很多地方
+
+---
+
 ## 当前版本
 
 **v1.0.3** 包含：
