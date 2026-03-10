@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Style Variable Binder v2.0</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 12px;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    .header {
+      background: white;
+      color: #666;
+      padding: 8px 16px;
+      border-bottom: 1px solid #e5e5e5;
+      font-size: 11px;
+      position: sticky;
+      top: 0;
+      z-index: 102;
+    }
+
+    .tabs {
+      display: flex;
+      background: white;
+      border-bottom: 1px solid #e5e5e5;
+      position: sticky;
+      top: 33px;
+      z-index: 101;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover { color: #1161fe; }
+    .tab.active { color: #1161fe; border-bottom-color: #1161fe; }
+
+    .tab-badge {
+      display: inline-block;
+      background: #e5e5e5;
+      color: #666;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 4px;
+    }
+
+    .tab.active .tab-badge { background: #e6f0ff; color: #1161fe; }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      background: white;
+      border-bottom: 1px solid #e5e5e5;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 79px;
+      z-index: 100;
+    }
+
+    .btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary { background: #1161fe; color: white; }
+    .btn-primary:hover { background: #0052cc; }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-secondary { background: #e5e5e5; color: #333; }
+    .btn-secondary:hover { background: #d5d5d5; }
+    .btn-danger { background: #ff4d4f; color: white; }
+    .btn-danger:hover { background: #d9363e; }
+    .btn-danger:disabled { background: #ccc; cursor: not-allowed; }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      margin-left: auto;
+      align-items: center;
+      font-size: 10px;
+      color: #666;
+    }
+
+    .stat { display: flex; align-items: center; gap: 4px; }
+    .stat-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .stat-dot.exact { background: #00b42a; }
+    .stat-dot.close { background: #ff9500; }
+    .stat-dot.bound { background: #1161fe; }
+
+    .list { padding: 8px; }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #333;
+      padding: 10px 12px;
+      background: #eee;
+      margin: 0 -8px 8px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .value-tag {
+      font-family: Monaco, monospace;
+      font-size: 9px;
+      color: #666;
+      background: #f5f5f5;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      border: 1px solid #e5e5e5;
+      transition: all 0.2s;
+    }
+
+    .item:hover { border-color: #1161fe; box-shadow: 0 2px 8px rgba(17, 97, 254, 0.1); }
+    .item.selected { border-color: #1161fe; background: #f0f7ff; }
+    .item.bound { background: #f0fff4; border-color: #00b42a; }
+    .item.skip { opacity: 0.5; }
+
+    .checkbox { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+
+    .style-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+
+    .info { flex: 1; min-width: 0; }
+    .name {
+      font-weight: 500;
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .meta {
+      font-size: 10px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    .field-tag {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #f0f0f0;
+      color: #666;
+    }
+
+    .arrow { color: #ccc; font-size: 14px; flex-shrink: 0; }
+
+    .var-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .match-tag {
+      font-size: 9px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .match-tag.exact { background: #e6f9ed; color: #00b42a; }
+    .match-tag.exact_name { background: #d4f4e2; color: #00994d; }
+    .match-tag.close { background: #fff7e6; color: #ff9500; }
+    .match-tag.close_name { background: #ffeccc; color: #cc7700; }
+    .match-tag.far { background: #ffebe6; color: #ff4d4f; }
+    .match-tag.bound { background: #e6f0ff; color: #1161fe; }
+    .match-tag.skip { background: #f0f0f0; color: #999; }
+
+    .name-match-icon {
+      font-size: 10px;
+      color: #00b42a;
+      margin-left: 4px;
+    }
+
+    .empty, .loading {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 12px;
+      z-index: 1000;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    将 Style 的属性值绑定到对应的 Variable，支持颜色样式和文字样式
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="paint">
+      颜色样式 <span class="tab-badge" id="paintCount">0</span>
+    </button>
+    <button class="tab" data-tab="text">
+      文字样式 <span class="tab-badge" id="textCount">0</span>
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn btn-primary" id="bindSelected" disabled>绑定选中 (0)</button>
+    <button class="btn btn-danger" id="unbindSelected" disabled>解除绑定 (0)</button>
+    <button class="btn btn-secondary" id="selectAll">全选</button>
+    <button class="btn btn-secondary" id="selectNone">取消</button>
+    <button class="btn btn-secondary" id="selectExact">精确匹配</button>
+    <button class="btn btn-secondary" id="selectNameMatch">名称匹配</button>
+    <button class="btn btn-secondary" id="selectBound">已绑定</button>
+    <button class="btn btn-secondary" id="refresh">刷新</button>
+    <div class="stats">
+      <div class="stat"><div class="stat-dot exact"></div><span id="exactCount">0</span></div>
+      <div class="stat"><div class="stat-dot close"></div><span id="closeCount">0</span></div>
+      <div class="stat"><div class="stat-dot bound"></div><span id="boundCount">0</span></div>
+    </div>
+  </div>
+
+  <div class="list" id="list">
+    <div class="loading">加载中...</div>
+  </div>
+
+  <div id="toast" class="toast" style="display: none;"></div>
+
+  <script>
+    var paintMatches = [];
+    var textMatches = [];
+    var selected = {};
+    var currentTab = 'paint';
+
+    function showToast(message) {
+      var toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.style.display = 'block';
+      setTimeout(function() { toast.style.display = 'none'; }, 3000);
+    }
+
+    function getMatchLabel(matchType) {
+      var labels = {
+        'exact': '精确',
+        'exact_name': '精确+名称',
+        'close': '相近',
+        'close_name': '相近+名称',
+        'far': '差异大',
+        'bound': '已绑定',
+        'skip': '跳过'
+      };
+      return labels[matchType] || matchType;
+    }
+
+    function getFieldLabel(field) {
+      var labels = {
+        'color': '颜色',
+        'fontSize': '字号',
+        'lineHeight': '行高',
+        'letterSpacing': '字间距',
+        'radius': '模糊'
+      };
+      return labels[field] || field;
+    }
+
+    function getCurrentMatches() {
+      if (currentTab === 'paint') return paintMatches;
+      if (currentTab === 'text') return textMatches;
+      return [];
+    }
+
+    function getItemKey(match) {
+      return match.style.id + '_' + match.field;
+    }
+
+    function getGroupName(styleName) {
+      var parts = styleName.split('/');
+      return parts.length > 1 ? parts[0] : '其他';
+    }
+
+    function groupMatches(matches) {
+      var groups = {};
+      for (var i = 0; i < matches.length; i++) {
+        var m = matches[i];
+        var groupName = getGroupName(m.style.name);
+        if (!groups[groupName]) {
+          groups[groupName] = [];
+        }
+        groups[groupName].push(m);
+      }
+      return groups;
+    }
+
+    function renderList() {
+      var list = document.getElementById('list');
+      var matches = getCurrentMatches();
+
+      if (matches.length === 0) {
+        list.innerHTML = '<div class="empty">没有匹配项</div>';
+        updateStats();
+        return;
+      }
+
+      var groups = groupMatches(matches);
+      var groupNames = Object.keys(groups).sort();
+      var html = '';
+
+      for (var g = 0; g < groupNames.length; g++) {
+        var groupName = groupNames[g];
+        var groupItems = groups[groupName];
+
+        // 分组标题
+        html += '<div class="section-title">' + groupName + ' (' + groupItems.length + ')</div>';
+
+        for (var i = 0; i < groupItems.length; i++) {
+          var match = groupItems[i];
+          var style = match.style;
+          var variable = match.variable;
+          var key = getItemKey(match);
+          var isSelected = selected[key];
+          var isBound = match.matchType === 'bound';
+          var isSkip = match.matchType === 'skip';
+          var canSelect = !isSkip;
+
+          var itemClass = 'item';
+          if (isBound) itemClass += ' bound';
+          if (isSkip) itemClass += ' skip';
+          if (isSelected) itemClass += ' selected';
+
+          html += '<div class="' + itemClass + '" data-key="' + key + '">';
+          html += '<input type="checkbox" class="checkbox" ' + (isSelected ? 'checked' : '') + ' ' + (canSelect ? '' : 'disabled') + '>';
+
+          // Style 信息
+          html += '<div class="style-info">';
+          if (style.hex) {
+            html += '<div class="color-box" style="background:' + style.hex + '"></div>';
+          }
+          html += '<div class="info">';
+          // 显示简化名称（去掉分组前缀）
+          var displayName = style.name.indexOf('/') > 0 ? style.name.split('/').slice(1).join('/') : style.name;
+          html += '<div class="name" title="' + style.name + '">' + displayName + '</div>';
+          html += '<div class="meta">';
+          if (match.field !== 'color') {
+            html += '<span class="field-tag">' + getFieldLabel(match.field) + '</span> ';
+          }
+          if (match.fieldValue !== undefined && match.fieldValue !== null) {
+            html += '<span class="value-tag">' + match.fieldValue + '</span>';
+          } else if (style.hex) {
+            html += '<span class="value-tag">' + style.hex + '</span>';
+          }
+          html += '</div></div></div>';
+
+          html += '<span class="arrow">→</span>';
+
+          // Variable 信息
+          html += '<div class="var-info">';
+          if (variable) {
+            if (variable.hex) {
+              html += '<div class="color-box" style="background:' + variable.hex + '"></div>';
+            }
+            html += '<div class="info">';
+            html += '<div class="name" title="' + variable.name + '">' + variable.name;
+            if (match.nameMatched) {
+              html += '<span class="name-match-icon">✓</span>';
+            }
+            html += '</div>';
+            html += '<div class="meta">' + (variable.collectionName || '');
+            if (variable.value !== null && variable.value !== undefined) {
+              html += ' · <strong>' + variable.value + '</strong>';
+            } else if (variable.hex) {
+              html += ' · <strong>' + variable.hex + '</strong>';
+            }
+            html += '</div></div>';
+          } else {
+            html += '<div class="info"><div class="name" style="color:#999">' + (match.reason || '无匹配') + '</div></div>';
+          }
+          html += '</div>';
+
+          // 匹配标签
+          html += '<span class="match-tag ' + match.matchType + '">' + getMatchLabel(match.matchType) + '</span>';
+
+          html += '</div>';
+        }
+      }
+
+      list.innerHTML = html;
+
+      // 绑定 checkbox 事件
+      var items = document.querySelectorAll('.item');
+      for (var j = 0; j < items.length; j++) {
+        (function(item) {
+          var checkbox = item.querySelector('.checkbox');
+          if (!checkbox.disabled) {
+            checkbox.addEventListener('change', function(e) {
+              var key = item.dataset.key;
+              if (e.target.checked) {
+                selected[key] = true;
+                item.classList.add('selected');
+              } else {
+                delete selected[key];
+                item.classList.remove('selected');
+              }
+              updateBindButton();
+            });
+          }
+        })(items[j]);
+      }
+
+      updateStats();
+    }
+
+    function updateBindButton() {
+      var allMatches = paintMatches.concat(textMatches);
+      var bindCount = 0;
+      var unbindCount = 0;
+
+      for (var key in selected) {
+        for (var i = 0; i < allMatches.length; i++) {
+          var m = allMatches[i];
+          if (getItemKey(m) === key) {
+            if (m.matchType === 'bound') {
+              unbindCount++;
+            } else if (m.variable) {
+              bindCount++;
+            }
+            break;
+          }
+        }
+      }
+
+      var bindBtn = document.getElementById('bindSelected');
+      var unbindBtn = document.getElementById('unbindSelected');
+
+      bindBtn.textContent = '绑定选中 (' + bindCount + ')';
+      bindBtn.disabled = bindCount === 0;
+
+      unbindBtn.textContent = '解除绑定 (' + unbindCount + ')';
+      unbindBtn.disabled = unbindCount === 0;
+    }
+
+    function updateStats() {
+      var matches = getCurrentMatches();
+      var exact = 0, close = 0, bound = 0;
+
+      for (var i = 0; i < matches.length; i++) {
+        var m = matches[i];
+        if (m.matchType === 'bound') bound++;
+        else if (m.matchType.indexOf('exact') >= 0) exact++;
+        else if (m.matchType.indexOf('close') >= 0) close++;
+      }
+
+      document.getElementById('exactCount').textContent = exact;
+      document.getElementById('closeCount').textContent = close;
+      document.getElementById('boundCount').textContent = bound;
+    }
+
+    function updateTabCounts() {
+      document.getElementById('paintCount').textContent = paintMatches.length;
+      document.getElementById('textCount').textContent = textMatches.length;
+    }
+
+    // Tab 切换
+    var tabs = document.querySelectorAll('.tab');
+    for (var t = 0; t < tabs.length; t++) {
+      tabs[t].addEventListener('click', function() {
+        for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+        this.classList.add('active');
+        currentTab = this.dataset.tab;
+        selected = {};
+        renderList();
+        updateBindButton();
+      });
+    }
+
+    // 全选
+    document.getElementById('selectAll').addEventListener('click', function() {
+      var matches = getCurrentMatches();
+      for (var i = 0; i < matches.length; i++) {
+        var m = matches[i];
+        if (m.variable && m.matchType !== 'bound' && m.matchType !== 'skip') {
+          selected[getItemKey(m)] = true;
+        }
+      }
+      renderList();
+      updateBindButton();
+    });
+
+    // 取消全选
+    document.getElementById('selectNone').addEventListener('click', function() {
+      selected = {};
+      renderList();
+      updateBindButton();
+    });
+
+    // 选择精确匹配
+    document.getElementById('selectExact').addEventListener('click', function() {
+      selected = {};
+      var matches = getCurrentMatches();
+      for (var i = 0; i < matches.length; i++) {
+        var m = matches[i];
+        if (m.variable && m.matchType.indexOf('exact') >= 0) {
+          selected[getItemKey(m)] = true;
+        }
+      }
+      renderList();
+      updateBindButton();
+    });
+
+    // 选择名称匹配
+    document.getElementById('selectNameMatch').addEventListener('click', function() {
+      selected = {};
+      var matches = getCurrentMatches();
+      for (var i = 0; i < matches.length; i++) {
+        var m = matches[i];
+        if (m.variable && m.nameMatched && m.matchType !== 'bound') {
+          selected[getItemKey(m)] = true;
+        }
+      }
+      renderList();
+      updateBindButton();
+    });
+
+    // 选择已绑定
+    document.getElementById('selectBound').addEventListener('click', function() {
+      selected = {};
+      var matches = getCurrentMatches();
+      for (var i = 0; i < matches.length; i++) {
+        var m = matches[i];
+        if (m.matchType === 'bound') {
+          selected[getItemKey(m)] = true;
+        }
+      }
+      renderList();
+      updateBindButton();
+    });
+
+    // 绑定选中
+    document.getElementById('bindSelected').addEventListener('click', function() {
+      var items = [];
+      var allMatches = paintMatches.concat(textMatches);
+
+      for (var key in selected) {
+        for (var i = 0; i < allMatches.length; i++) {
+          var m = allMatches[i];
+          if (getItemKey(m) === key && m.variable && m.matchType !== 'bound') {
+            items.push({
+              styleId: m.style.id,
+              styleType: m.style.styleType,
+              field: m.field,
+              variableId: m.variable.id
+            });
+            break;
+          }
+        }
+      }
+
+      if (items.length > 0) {
+        parent.postMessage({ pluginMessage: { type: 'bind-all', items: items } }, '*');
+        showToast('正在绑定 ' + items.length + ' 个项目...');
+      }
+    });
+
+    // 解除绑定选中
+    document.getElementById('unbindSelected').addEventListener('click', function() {
+      var items = [];
+      var allMatches = paintMatches.concat(textMatches);
+
+      for (var key in selected) {
+        for (var i = 0; i < allMatches.length; i++) {
+          var m = allMatches[i];
+          if (getItemKey(m) === key && m.matchType === 'bound') {
+            items.push({
+              styleId: m.style.id,
+              styleType: m.style.styleType,
+              field: m.field
+            });
+            break;
+          }
+        }
+      }
+
+      if (items.length > 0) {
+        parent.postMessage({ pluginMessage: { type: 'unbind-all', items: items } }, '*');
+        showToast('正在解除绑定 ' + items.length + ' 个项目...');
+      }
+    });
+
+    // 刷新
+    document.getElementById('refresh').addEventListener('click', function() {
+      parent.postMessage({ pluginMessage: { type: 'refresh' } }, '*');
+      document.getElementById('list').innerHTML = '<div class="loading">加载中...</div>';
+    });
+
+    // 接收消息
+    window.onmessage = function(event) {
+      var msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      if (msg.type === 'init') {
+        paintMatches = msg.data.paintMatches || [];
+        textMatches = msg.data.textMatches || [];
+        selected = {};
+        updateTabCounts();
+        renderList();
+        updateBindButton();
+        if (msg.data.error) {
+          showToast('加载出错: ' + msg.data.error);
+        }
+      }
+      else if (msg.type === 'bind-all-result') {
+        var success = 0;
+        for (var i = 0; i < msg.results.length; i++) {
+          if (msg.results[i].success) success++;
+        }
+        var fail = msg.results.length - success;
+        showToast('绑定完成: ' + success + ' 成功, ' + fail + ' 失败');
+        selected = {};
+        updateBindButton();
+      }
+      else if (msg.type === 'unbind-all-result') {
+        var success = 0;
+        for (var i = 0; i < msg.results.length; i++) {
+          if (msg.results[i].success) success++;
+        }
+        var fail = msg.results.length - success;
+        showToast('解除绑定完成: ' + success + ' 成功, ' + fail + ' 失败');
+        selected = {};
+        updateBindButton();
+      }
+    };
+
+    // UI 准备好后通知插件
+    parent.postMessage({ pluginMessage: { type: 'ready' } }, '*');
+  </script>
+</body>
+</html>
