@@ -1,7 +1,7 @@
-// Style Variable Binder v2.0 - 支持 Paint/Text/Effect Style 绑定
+// Style Variable Binder v2.1 - 孤儿绑定检测 + 智能名称匹配
 // SIRIUS ATEAM
 
-figma.showUI(__html__, { width: 700, height: 750 });
+figma.showUI(__html__, { width: 720, height: 800 });
 
 // ========== 工具函数 ==========
 
@@ -20,41 +20,90 @@ function colorDistance(c1, c2) {
   return Math.sqrt(dr * dr + dg * dg + db * db);
 }
 
-// 提取名称前缀（第一个 / 之前的部分，或整个名称）
-function getNamePrefix(name) {
-  var parts = name.split('/');
-  return parts[0].toLowerCase().trim();
+// ========== 智能名称匹配 v2.1 ==========
+
+// 标准化名称：移除所有分隔符，转小写
+function normalizeName(name) {
+  return name.toLowerCase().replace(/[\/\-_\s\.]/g, '');
 }
 
-// 提取名称后缀（最后一个 / 之后的部分）
-function getNameSuffix(name) {
-  var parts = name.split('/');
-  return parts[parts.length - 1].toLowerCase().trim();
+// 提取名称关键词
+function extractKeywords(name) {
+  return name.toLowerCase()
+    .replace(/[\/\-_\.]/g, ' ')
+    .split(' ')
+    .filter(function(k) { return k.length > 0; });
 }
 
-// 检查两个名称是否匹配（前缀或后缀相似）
-function namesMatch(styleName, varName) {
-  var stylePrefix = getNamePrefix(styleName);
-  var varPrefix = getNamePrefix(varName);
-  var styleSuffix = getNameSuffix(styleName);
-  var varSuffix = getNameSuffix(varName);
+// 计算名称相似度分数 (0-100)
+function calculateNameSimilarity(styleName, varName) {
+  // 1. 完全标准化匹配
+  var normalizedStyle = normalizeName(styleName);
+  var normalizedVar = normalizeName(varName);
 
-  // 检查是否包含相同的关键词
-  var styleKeywords = styleName.toLowerCase().replace(/[\/\-_]/g, ' ').split(' ');
-  var varKeywords = varName.toLowerCase().replace(/[\/\-_]/g, ' ').split(' ');
+  if (normalizedStyle === normalizedVar) {
+    return 100; // 完全匹配
+  }
+
+  // 2. 包含关系
+  if (normalizedStyle.indexOf(normalizedVar) >= 0 || normalizedVar.indexOf(normalizedStyle) >= 0) {
+    return 80;
+  }
+
+  // 3. 关键词匹配
+  var styleKeywords = extractKeywords(styleName);
+  var varKeywords = extractKeywords(varName);
 
   var matchCount = 0;
+  var totalKeywords = Math.max(styleKeywords.length, varKeywords.length);
+
   for (var i = 0; i < styleKeywords.length; i++) {
-    if (styleKeywords[i].length > 1) {
-      for (var j = 0; j < varKeywords.length; j++) {
-        if (varKeywords[j].length > 1 && styleKeywords[i] === varKeywords[j]) {
-          matchCount++;
-        }
+    for (var j = 0; j < varKeywords.length; j++) {
+      if (styleKeywords[i] === varKeywords[j]) {
+        matchCount++;
+        break;
       }
     }
   }
 
-  return matchCount > 0;
+  if (totalKeywords > 0) {
+    return Math.round((matchCount / totalKeywords) * 60); // 最高60分
+  }
+
+  return 0;
+}
+
+// 检查两个名称是否匹配（兼容旧接口）
+function namesMatch(styleName, varName) {
+  return calculateNameSimilarity(styleName, varName) >= 40;
+}
+
+// ========== 孤儿绑定检测与清理 ==========
+
+function cleanOrphanBinding(style, field) {
+  try {
+    if (style.type === 'PAINT') {
+      var paints = style.paints.slice();
+      if (paints.length > 0 && paints[0].type === 'SOLID') {
+        var currentPaint = paints[0];
+        var newPaint = {
+          type: 'SOLID',
+          color: { r: currentPaint.color.r, g: currentPaint.color.g, b: currentPaint.color.b },
+          opacity: currentPaint.opacity !== undefined ? currentPaint.opacity : 1,
+          visible: currentPaint.visible !== undefined ? currentPaint.visible : true,
+          blendMode: currentPaint.blendMode || 'NORMAL'
+        };
+        style.paints = [newPaint];
+        return true;
+      }
+    } else if (style.type === 'TEXT' && field) {
+      style.setBoundVariable(field, null);
+      return true;
+    }
+  } catch (e) {
+    console.error('清理孤儿绑定失败:', e);
+  }
+  return false;
 }
 
 // ========== 获取 Styles ==========
@@ -62,6 +111,7 @@ function namesMatch(styleName, varName) {
 function getPaintStyles() {
   var styles = figma.getLocalPaintStyles();
   var result = [];
+  var orphansCleared = 0;
 
   for (var i = 0; i < styles.length; i++) {
     var style = styles[i];
@@ -70,17 +120,22 @@ function getPaintStyles() {
     var hex = null;
     var hasBoundVariable = false;
     var boundVarInfo = null;
+    var wasOrphan = false;
 
     if (paint && paint.type === 'SOLID') {
       color = paint.color;
       hex = rgbToHex(color.r, color.g, color.b);
-      hasBoundVariable = paint.boundVariables && paint.boundVariables.color;
 
-      // 获取已绑定的 Variable 信息
-      if (hasBoundVariable) {
+      // 检查绑定状态
+      var hasBinding = paint.boundVariables && paint.boundVariables.color;
+
+      if (hasBinding) {
         var boundVarId = paint.boundVariables.color.id;
         var boundVar = figma.variables.getVariableById(boundVarId);
+
         if (boundVar) {
+          // 正常绑定
+          hasBoundVariable = true;
           var collection = figma.variables.getVariableCollectionById(boundVar.variableCollectionId);
           var modeId = collection ? collection.defaultModeId : null;
           var varValue = modeId ? boundVar.valuesByMode[modeId] : null;
@@ -94,6 +149,16 @@ function getPaintStyles() {
             collectionName: collection ? collection.name : '',
             hex: varHex
           };
+        } else {
+          // 孤儿绑定：Variable 已被删除
+          wasOrphan = true;
+          if (cleanOrphanBinding(style, 'color')) {
+            orphansCleared++;
+            // 重新读取 paint（已经清理过了）
+            paint = style.paints[0];
+            color = paint.color;
+            hex = rgbToHex(color.r, color.g, color.b);
+          }
         }
       }
     }
@@ -107,8 +172,14 @@ function getPaintStyles() {
       hex: hex,
       hasBoundVariable: !!hasBoundVariable,
       boundVarInfo: boundVarInfo,
-      bindableFields: paint && paint.type === 'SOLID' ? ['color'] : []
+      bindableFields: paint && paint.type === 'SOLID' ? ['color'] : [],
+      wasOrphan: wasOrphan
     });
+  }
+
+  // 返回清理统计
+  if (orphansCleared > 0) {
+    console.log('已自动清理 ' + orphansCleared + ' 个孤儿绑定');
   }
 
   return result;
@@ -117,20 +188,26 @@ function getPaintStyles() {
 function getTextStyles() {
   var styles = figma.getLocalTextStyles();
   var result = [];
+  var orphansCleared = 0;
 
   for (var i = 0; i < styles.length; i++) {
     var style = styles[i];
     var boundVars = style.boundVariables || {};
 
-    // 获取已绑定的 Variable 详细信息
+    // 获取已绑定的 Variable 详细信息，同时检测孤儿绑定
     var boundVarInfos = {};
+    var actualBoundVars = {};
     var fields = ['fontSize', 'lineHeight', 'letterSpacing'];
+
     for (var f = 0; f < fields.length; f++) {
       var field = fields[f];
       if (boundVars[field]) {
         var boundVarId = boundVars[field].id;
         var boundVar = figma.variables.getVariableById(boundVarId);
+
         if (boundVar) {
+          // 正常绑定
+          actualBoundVars[field] = true;
           var collection = figma.variables.getVariableCollectionById(boundVar.variableCollectionId);
           var modeId = collection ? collection.defaultModeId : null;
           var varValue = modeId ? boundVar.valuesByMode[modeId] : null;
@@ -140,6 +217,14 @@ function getTextStyles() {
             collectionName: collection ? collection.name : '',
             value: varValue
           };
+        } else {
+          // 孤儿绑定：自动清理
+          try {
+            style.setBoundVariable(field, null);
+            orphansCleared++;
+          } catch (e) {
+            console.error('清理 Text Style 孤儿绑定失败:', e);
+          }
         }
       }
     }
@@ -153,14 +238,18 @@ function getTextStyles() {
       lineHeight: style.lineHeight,
       letterSpacing: style.letterSpacing,
       boundVariables: {
-        fontSize: !!boundVars.fontSize,
-        fontWeight: !!boundVars.fontWeight,
-        lineHeight: !!boundVars.lineHeight,
-        letterSpacing: !!boundVars.letterSpacing
+        fontSize: !!actualBoundVars.fontSize,
+        fontWeight: !!actualBoundVars.fontWeight,
+        lineHeight: !!actualBoundVars.lineHeight,
+        letterSpacing: !!actualBoundVars.letterSpacing
       },
       boundVarInfos: boundVarInfos,
       bindableFields: ['fontSize', 'lineHeight', 'letterSpacing']
     });
+  }
+
+  if (orphansCleared > 0) {
+    console.log('已自动清理 ' + orphansCleared + ' 个 Text Style 孤儿绑定');
   }
 
   return result;
@@ -279,29 +368,41 @@ function findPaintMatches(styles, colorVars) {
       continue;
     }
 
-    // 先按颜色值找最接近的
+    // 综合颜色距离和名称相似度进行匹配
     var bestMatch = null;
     var minDistance = Infinity;
-    var nameMatched = false;
+    var bestNameSimilarity = 0;
 
     for (var j = 0; j < colorVars.length; j++) {
       var variable = colorVars[j];
       var dist = colorDistance(style.color, variable.color);
+      var nameSim = calculateNameSimilarity(style.name, variable.name);
 
-      // 优先选择名称匹配的
-      var isNameMatch = namesMatch(style.name, variable.name);
+      // 计算综合评分：颜色权重 70%，名称权重 30%
+      // 颜色距离转换为分数（0距离=100分，20距离=0分）
+      var colorScore = Math.max(0, 100 - dist * 5);
+      var totalScore = colorScore * 0.7 + nameSim * 0.3;
 
-      if (dist < minDistance || (dist === minDistance && isNameMatch && !nameMatched)) {
+      // 优先选择综合分数最高的
+      var currentBestScore = bestMatch ? (Math.max(0, 100 - minDistance * 5) * 0.7 + bestNameSimilarity * 0.3) : 0;
+
+      if (totalScore > currentBestScore || bestMatch === null) {
         minDistance = dist;
         bestMatch = variable;
-        nameMatched = isNameMatch;
+        bestNameSimilarity = nameSim;
       }
     }
 
+    var nameMatched = bestNameSimilarity >= 40;
     var matchType = 'none';
-    if (minDistance < 1) matchType = nameMatched ? 'exact_name' : 'exact';
-    else if (minDistance < 20) matchType = nameMatched ? 'close_name' : 'close';
-    else matchType = 'far';
+
+    if (minDistance < 1) {
+      matchType = nameMatched ? 'exact_name' : 'exact';
+    } else if (minDistance < 20) {
+      matchType = nameMatched ? 'close_name' : 'close';
+    } else {
+      matchType = 'far';
+    }
 
     matches.push({
       style: style,
@@ -310,6 +411,7 @@ function findPaintMatches(styles, colorVars) {
       distance: minDistance,
       matchType: matchType,
       nameMatched: nameMatched,
+      nameSimilarity: bestNameSimilarity,
       reason: null
     });
   }
@@ -333,7 +435,7 @@ function findTextMatches(styles, floatVars) {
         if (styleValue.unit === 'PIXELS') {
           styleValue = styleValue.value;
         } else if (styleValue.unit === 'PERCENT') {
-          styleValue = styleValue.value; // 百分比值
+          styleValue = styleValue.value;
         } else {
           styleValue = null; // AUTO
         }
@@ -369,7 +471,7 @@ function findTextMatches(styles, floatVars) {
       // 找值最接近且名称匹配的 Variable
       var bestMatch = null;
       var minDistance = Infinity;
-      var nameMatched = false;
+      var bestNameSimilarity = 0;
 
       for (var j = 0; j < floatVars.length; j++) {
         var variable = floatVars[j];
@@ -388,16 +490,23 @@ function findTextMatches(styles, floatVars) {
         if (!isRelevant) continue;
 
         var dist = Math.abs(styleValue - variable.value);
-        var isNameMatch = namesMatch(style.name, variable.name);
+        var nameSim = calculateNameSimilarity(style.name, variable.name);
 
-        if (dist < minDistance) {
+        // 值距离权重更高（80%），因为数值匹配更重要
+        var valueScore = Math.max(0, 100 - dist * 10);
+        var totalScore = valueScore * 0.8 + nameSim * 0.2;
+
+        var currentBestScore = bestMatch ? (Math.max(0, 100 - minDistance * 10) * 0.8 + bestNameSimilarity * 0.2) : 0;
+
+        if (totalScore > currentBestScore || bestMatch === null) {
           minDistance = dist;
           bestMatch = variable;
-          nameMatched = isNameMatch;
+          bestNameSimilarity = nameSim;
         }
       }
 
       if (bestMatch) {
+        var nameMatched = bestNameSimilarity >= 40;
         var matchType = minDistance < 0.5 ? 'exact' : (minDistance < 5 ? 'close' : 'far');
         if (nameMatched) matchType += '_name';
 
@@ -409,6 +518,7 @@ function findTextMatches(styles, floatVars) {
           distance: minDistance,
           matchType: matchType,
           nameMatched: nameMatched,
+          nameSimilarity: bestNameSimilarity,
           reason: null
         });
       }
@@ -613,11 +723,18 @@ function unbindEffectStyle(styleId, field, effectIndex) {
 
 function init() {
   try {
+    // 获取样式和变量（孤儿绑定会在这里自动清理）
     var paintStyles = getPaintStyles();
     var textStyles = getTextStyles();
 
     var colorVars = getVariablesByType('COLOR');
     var floatVars = getVariablesByType('FLOAT');
+
+    // 统计孤儿绑定（已被清理的）
+    var orphansCleared = 0;
+    for (var i = 0; i < paintStyles.length; i++) {
+      if (paintStyles[i].wasOrphan) orphansCleared++;
+    }
 
     var paintMatches = findPaintMatches(paintStyles, colorVars);
     var textMatches = findTextMatches(textStyles, floatVars);
@@ -631,7 +748,8 @@ function init() {
           paintStyles: paintStyles.length,
           textStyles: textStyles.length,
           colorVars: colorVars.length,
-          floatVars: floatVars.length
+          floatVars: floatVars.length,
+          orphansCleared: orphansCleared
         }
       }
     });
