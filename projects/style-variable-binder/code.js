@@ -20,6 +20,65 @@ function colorDistance(c1, c2) {
   return Math.sqrt(dr * dr + dg * dg + db * db);
 }
 
+// ========== 字重解析 ==========
+
+// 从 fontName.style 解析字重数值
+function parseFontWeight(fontStyle) {
+  if (!fontStyle) return null;
+
+  var style = fontStyle.toLowerCase();
+
+  // 常见字重名称映射
+  var weightMap = {
+    'thin': 100,
+    'hairline': 100,
+    'extralight': 200,
+    'extra light': 200,
+    'ultralight': 200,
+    'ultra light': 200,
+    'light': 300,
+    'regular': 400,
+    'normal': 400,
+    'book': 400,
+    'medium': 500,
+    'semibold': 600,
+    'semi bold': 600,
+    'demibold': 600,
+    'demi bold': 600,
+    'bold': 700,
+    'extrabold': 800,
+    'extra bold': 800,
+    'ultrabold': 800,
+    'ultra bold': 800,
+    'black': 900,
+    'heavy': 900
+  };
+
+  // 先尝试精确匹配
+  for (var key in weightMap) {
+    if (style === key) {
+      return weightMap[key];
+    }
+  }
+
+  // 再尝试包含匹配（处理 "Bold Italic" 等情况）
+  // 按优先级从高到低检查
+  var priorities = ['black', 'heavy', 'extrabold', 'extra bold', 'ultrabold', 'ultra bold',
+                    'bold', 'semibold', 'semi bold', 'demibold', 'demi bold',
+                    'medium', 'regular', 'normal', 'book',
+                    'light', 'extralight', 'extra light', 'ultralight', 'ultra light',
+                    'thin', 'hairline'];
+
+  for (var i = 0; i < priorities.length; i++) {
+    if (style.indexOf(priorities[i]) >= 0) {
+      return weightMap[priorities[i]];
+    }
+  }
+
+  // 默认返回 400 (Regular)
+  return 400;
+}
+
 // ========== 智能名称匹配 v2.1 ==========
 
 // 标准化名称：移除所有分隔符，转小写
@@ -150,15 +209,9 @@ function getPaintStyles() {
             hex: varHex
           };
         } else {
-          // 孤儿绑定：Variable 已被删除
+          // 孤儿绑定：Variable 已被删除，标记但不自动清理
           wasOrphan = true;
-          if (cleanOrphanBinding(style, 'color')) {
-            orphansCleared++;
-            // 重新读取 paint（已经清理过了）
-            paint = style.paints[0];
-            color = paint.color;
-            hex = rgbToHex(color.r, color.g, color.b);
-          }
+          orphansCleared++;
         }
       }
     }
@@ -197,7 +250,9 @@ function getTextStyles() {
     // 获取已绑定的 Variable 详细信息，同时检测孤儿绑定
     var boundVarInfos = {};
     var actualBoundVars = {};
-    var fields = ['fontSize', 'lineHeight', 'letterSpacing'];
+    var fields = ['fontSize', 'fontWeight', 'lineHeight', 'letterSpacing'];
+
+    var orphanFields = {}; // 记录失效的绑定字段
 
     for (var f = 0; f < fields.length; f++) {
       var field = fields[f];
@@ -218,23 +273,23 @@ function getTextStyles() {
             value: varValue
           };
         } else {
-          // 孤儿绑定：自动清理
-          try {
-            style.setBoundVariable(field, null);
-            orphansCleared++;
-          } catch (e) {
-            console.error('清理 Text Style 孤儿绑定失败:', e);
-          }
+          // 孤儿绑定：标记为失效，不自动清理
+          orphanFields[field] = true;
+          orphansCleared++;
         }
       }
     }
+
+    // 从 fontName.style 解析字重
+    var fontWeight = parseFontWeight(style.fontName ? style.fontName.style : null);
 
     result.push({
       id: style.id,
       name: style.name,
       styleType: 'TEXT',
       fontSize: style.fontSize,
-      fontWeight: style.fontWeight,
+      fontWeight: fontWeight,
+      fontStyle: style.fontName ? style.fontName.style : null,
       lineHeight: style.lineHeight,
       letterSpacing: style.letterSpacing,
       boundVariables: {
@@ -243,8 +298,9 @@ function getTextStyles() {
         lineHeight: !!actualBoundVars.lineHeight,
         letterSpacing: !!actualBoundVars.letterSpacing
       },
+      orphanBindings: orphanFields, // 失效的绑定
       boundVarInfos: boundVarInfos,
-      bindableFields: ['fontSize', 'lineHeight', 'letterSpacing']
+      bindableFields: ['fontSize', 'fontWeight', 'lineHeight', 'letterSpacing']
     });
   }
 
@@ -356,6 +412,41 @@ function findPaintMatches(styles, colorVars) {
       continue;
     }
 
+    // 检查是否是孤儿绑定 - 仍然为其推荐新的 Variable
+    if (style.wasOrphan) {
+      // 为孤儿绑定找最佳匹配
+      var bestMatch = null;
+      var minDistance = Infinity;
+      var bestNameSimilarity = 0;
+
+      for (var j = 0; j < colorVars.length; j++) {
+        var variable = colorVars[j];
+        var dist = colorDistance(style.color, variable.color);
+        var nameSim = calculateNameSimilarity(style.name, variable.name);
+        var colorScore = Math.max(0, 100 - dist * 5);
+        var totalScore = colorScore * 0.7 + nameSim * 0.3;
+        var currentBestScore = bestMatch ? (Math.max(0, 100 - minDistance * 5) * 0.7 + bestNameSimilarity * 0.3) : 0;
+
+        if (totalScore > currentBestScore || bestMatch === null) {
+          minDistance = dist;
+          bestMatch = variable;
+          bestNameSimilarity = nameSim;
+        }
+      }
+
+      matches.push({
+        style: style,
+        field: 'color',
+        variable: bestMatch,
+        distance: minDistance,
+        matchType: 'orphan',
+        nameMatched: bestNameSimilarity >= 40,
+        nameSimilarity: bestNameSimilarity,
+        reason: '绑定失效'
+      });
+      continue;
+    }
+
     if (style.hasBoundVariable) {
       matches.push({
         style: style,
@@ -421,7 +512,7 @@ function findPaintMatches(styles, colorVars) {
 
 function findTextMatches(styles, floatVars) {
   var matches = [];
-  var fields = ['fontSize', 'lineHeight', 'letterSpacing'];
+  var fields = ['fontSize', 'fontWeight', 'lineHeight', 'letterSpacing'];
 
   for (var i = 0; i < styles.length; i++) {
     var style = styles[i];
@@ -454,6 +545,69 @@ function findTextMatches(styles, floatVars) {
         continue;
       }
 
+      // 检查是否是孤儿绑定（绑定的 Variable 已被删除）- 仍然推荐新 Variable
+      if (style.orphanBindings && style.orphanBindings[field]) {
+        // 为孤儿绑定找最佳匹配
+        var bestMatch = null;
+        var minDistance = Infinity;
+        var bestNameSimilarity = 0;
+
+        for (var j = 0; j < floatVars.length; j++) {
+          var variable = floatVars[j];
+          var varName = variable.name.toLowerCase();
+          var collectionName = (variable.collectionName || '').toLowerCase();
+          var fullPath = collectionName + '/' + varName;
+
+          // 检查字段相关性
+          var isRelevant = false;
+          if (field === 'fontSize' && (fullPath.indexOf('font') >= 0 || fullPath.indexOf('size') >= 0 || fullPath.indexOf('text') >= 0)) {
+            isRelevant = true;
+          } else if (field === 'fontWeight') {
+            var weightKeywords = ['weight', 'bold', 'semibold', 'medium', 'regular', 'light', 'thin', 'black', 'extralight'];
+            for (var k = 0; k < weightKeywords.length; k++) {
+              if (fullPath.indexOf(weightKeywords[k]) >= 0) {
+                isRelevant = true;
+                break;
+              }
+            }
+            if (isRelevant && (variable.value < 100 || variable.value > 900)) {
+              isRelevant = false;
+            }
+          } else if (field === 'lineHeight' && (fullPath.indexOf('line') >= 0 || fullPath.indexOf('height') >= 0)) {
+            isRelevant = true;
+          } else if (field === 'letterSpacing' && (fullPath.indexOf('letter') >= 0 || fullPath.indexOf('spacing') >= 0 || fullPath.indexOf('tracking') >= 0)) {
+            isRelevant = true;
+          }
+
+          if (!isRelevant) continue;
+
+          var dist = Math.abs(styleValue - variable.value);
+          var nameSim = calculateNameSimilarity(style.name, variable.name);
+          var valueScore = Math.max(0, 100 - dist * 10);
+          var totalScore = valueScore * 0.8 + nameSim * 0.2;
+          var currentBestScore = bestMatch ? (Math.max(0, 100 - minDistance * 10) * 0.8 + bestNameSimilarity * 0.2) : 0;
+
+          if (totalScore > currentBestScore || bestMatch === null) {
+            minDistance = dist;
+            bestMatch = variable;
+            bestNameSimilarity = nameSim;
+          }
+        }
+
+        matches.push({
+          style: style,
+          field: field,
+          fieldValue: styleValue,
+          variable: bestMatch,
+          distance: minDistance,
+          matchType: 'orphan',
+          nameMatched: bestNameSimilarity >= 40,
+          nameSimilarity: bestNameSimilarity,
+          reason: '绑定失效'
+        });
+        continue;
+      }
+
       if (style.boundVariables && style.boundVariables[field]) {
         var boundInfo = style.boundVarInfos ? style.boundVarInfos[field] : null;
         matches.push({
@@ -477,13 +631,32 @@ function findTextMatches(styles, floatVars) {
         var variable = floatVars[j];
         var varName = variable.name.toLowerCase();
 
-        // 检查 Variable 名称是否与字段相关
+        // 检查 Variable 名称或 Collection 路径是否与字段相关
         var isRelevant = false;
-        if (field === 'fontSize' && (varName.indexOf('font') >= 0 || varName.indexOf('size') >= 0 || varName.indexOf('text') >= 0)) {
+        var collectionName = (variable.collectionName || '').toLowerCase();
+        var fullPath = collectionName + '/' + varName;
+
+        if (field === 'fontSize' && (fullPath.indexOf('font') >= 0 || fullPath.indexOf('size') >= 0 || fullPath.indexOf('text') >= 0)) {
           isRelevant = true;
-        } else if (field === 'lineHeight' && (varName.indexOf('line') >= 0 || varName.indexOf('height') >= 0)) {
+        } else if (field === 'fontWeight') {
+          // 支持多种命名方式：
+          // 1. 名称或路径包含 weight
+          // 2. 名称包含 bold/semibold/medium/regular/light/thin/black
+          // 3. 变量值在字重范围内 (100-900)
+          var weightKeywords = ['weight', 'bold', 'semibold', 'medium', 'regular', 'light', 'thin', 'black', 'extralight'];
+          var hasWeightKeyword = false;
+          for (var k = 0; k < weightKeywords.length; k++) {
+            if (fullPath.indexOf(weightKeywords[k]) >= 0) {
+              hasWeightKeyword = true;
+              break;
+            }
+          }
+          if (hasWeightKeyword && variable.value >= 100 && variable.value <= 900) {
+            isRelevant = true;
+          }
+        } else if (field === 'lineHeight' && (fullPath.indexOf('line') >= 0 || fullPath.indexOf('height') >= 0)) {
           isRelevant = true;
-        } else if (field === 'letterSpacing' && (varName.indexOf('letter') >= 0 || varName.indexOf('spacing') >= 0 || varName.indexOf('tracking') >= 0)) {
+        } else if (field === 'letterSpacing' && (fullPath.indexOf('letter') >= 0 || fullPath.indexOf('spacing') >= 0 || fullPath.indexOf('tracking') >= 0)) {
           isRelevant = true;
         }
 

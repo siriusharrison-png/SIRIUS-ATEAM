@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Style Variable Binder v2.0</title>
+  <title>Style Variable Binder v2.1</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -13,23 +13,48 @@
       background: #f5f5f5;
     }
 
-    .header {
+    /* ========== 顶部统计卡片 ========== */
+    .stats-bar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
       background: white;
-      color: #666;
-      padding: 8px 16px;
       border-bottom: 1px solid #e5e5e5;
-      font-size: 11px;
-      position: sticky;
-      top: 0;
-      z-index: 102;
     }
 
+    .stat-card {
+      flex: 1;
+      padding: 10px 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-card .number {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1161fe;
+    }
+
+    .stat-card .label {
+      font-size: 10px;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    .stat-card.success .number { color: #00b42a; }
+    .stat-card.warning .number { color: #ff9500; }
+    .stat-card.info .number { color: #1161fe; }
+    .stat-card.danger .number { color: #ff4d4f; }
+    .stat-card.danger { background: #fff0f0; }
+
+    /* ========== 标签页 ========== */
     .tabs {
       display: flex;
       background: white;
       border-bottom: 1px solid #e5e5e5;
       position: sticky;
-      top: 33px;
+      top: 0;
       z-index: 101;
     }
 
@@ -61,20 +86,21 @@
 
     .tab.active .tab-badge { background: #e6f0ff; color: #1161fe; }
 
+    /* ========== 工具栏 ========== */
     .toolbar {
       display: flex;
       gap: 8px;
-      padding: 12px 16px;
+      padding: 10px 16px;
       background: white;
       border-bottom: 1px solid #e5e5e5;
       flex-wrap: wrap;
       position: sticky;
-      top: 79px;
+      top: 46px;
       z-index: 100;
     }
 
     .btn {
-      padding: 8px 12px;
+      padding: 6px 12px;
       border: none;
       border-radius: 6px;
       font-size: 11px;
@@ -86,68 +112,191 @@
     .btn-primary { background: #1161fe; color: white; }
     .btn-primary:hover { background: #0052cc; }
     .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
-    .btn-secondary { background: #e5e5e5; color: #333; }
-    .btn-secondary:hover { background: #d5d5d5; }
+    .btn-secondary { background: #f0f0f0; color: #333; }
+    .btn-secondary:hover { background: #e0e0e0; }
     .btn-danger { background: #ff4d4f; color: white; }
     .btn-danger:hover { background: #d9363e; }
     .btn-danger:disabled { background: #ccc; cursor: not-allowed; }
 
-    .stats {
+    .toolbar-spacer { flex: 1; }
+
+    /* ========== 字段筛选栏 ========== */
+    .filter-bar {
       display: flex;
-      gap: 12px;
-      margin-left: auto;
       align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: #fafafa;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .filter-label {
+      font-size: 11px;
+      color: #666;
+      margin-right: 4px;
+    }
+
+    .filter-btn {
+      padding: 4px 10px;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      background: white;
       font-size: 10px;
       color: #666;
-    }
-
-    .stat { display: flex; align-items: center; gap: 4px; }
-    .stat-dot { width: 6px; height: 6px; border-radius: 50%; }
-    .stat-dot.exact { background: #00b42a; }
-    .stat-dot.close { background: #ff9500; }
-    .stat-dot.bound { background: #1161fe; }
-
-    .list { padding: 8px; }
-
-    .section-title {
-      font-size: 11px;
-      font-weight: 600;
-      color: #333;
-      padding: 10px 12px;
-      background: #eee;
-      margin: 0 -8px 8px;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .value-tag {
-      font-family: Monaco, monospace;
-      font-size: 9px;
-      color: #666;
-      background: #f5f5f5;
-      padding: 1px 4px;
-      border-radius: 3px;
-    }
-
-    .item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      background: white;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      border: 1px solid #e5e5e5;
+      cursor: pointer;
       transition: all 0.2s;
     }
 
-    .item:hover { border-color: #1161fe; box-shadow: 0 2px 8px rgba(17, 97, 254, 0.1); }
-    .item.selected { border-color: #1161fe; background: #f0f7ff; }
-    .item.bound { background: #f0fff4; border-color: #00b42a; }
+    .filter-btn:hover { border-color: #1161fe; color: #1161fe; }
+    .filter-btn.active { background: #1161fe; color: white; border-color: #1161fe; }
+
+    /* ========== 列表区域 ========== */
+    .list { padding: 8px 12px; }
+
+    /* ========== 分组 ========== */
+    .group {
+      margin-bottom: 8px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e5e5e5;
+    }
+
+    .group-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #fafafa;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .group-header:hover { background: #f5f5f5; }
+
+    .group-select-all {
+      padding: 2px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: white;
+      font-size: 10px;
+      color: #666;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+
+    .group-select-all:hover { border-color: #1161fe; color: #1161fe; }
+
+    .group-toggle {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      transition: transform 0.2s;
+    }
+
+    .group.collapsed .group-toggle { transform: rotate(-90deg); }
+
+    .group-name {
+      font-weight: 600;
+      font-size: 11px;
+      color: #333;
+    }
+
+    .group-count {
+      font-size: 10px;
+      color: #999;
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+
+    .group-stats {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+      font-size: 10px;
+    }
+
+    .group-stat {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .group-stat-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .group-stat-dot.exact { background: #00b42a; }
+    .group-stat-dot.close { background: #ff9500; }
+    .group-stat-dot.bound { background: #1161fe; }
+    .group-stat-dot.orphan { background: #ff4d4f; }
+
+    .group-items { }
+    .group.collapsed .group-items { display: none; }
+
+    /* ========== 列表项（紧凑布局）========== */
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.15s;
+    }
+
+    .item:last-child { border-bottom: none; }
+    .item:hover { background: #fafafa; }
+    .item.selected { background: #f0f7ff; }
+    .item.bound { background: #f0fff4; }
+    .item.orphan { background: #fff0f0; border-left: 3px solid #ff4d4f; }
     .item.skip { opacity: 0.5; }
 
-    .checkbox { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+    .checkbox { width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; }
 
-    .style-info {
+    /* ========== 颜色对比条 ========== */
+    .color-compare {
+      width: 60px;
+      height: 24px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .color-compare .from {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 50%;
+      height: 100%;
+    }
+
+    .color-compare .to {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 50%;
+      height: 100%;
+    }
+
+    .color-compare .divider {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 1px;
+      height: 100%;
+      background: rgba(255,255,255,0.5);
+    }
+
+    /* ========== 信息区域 ========== */
+    .info-section {
       flex: 1;
       min-width: 0;
       display: flex;
@@ -155,53 +304,65 @@
       gap: 8px;
     }
 
-    .color-box {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      border: 1px solid rgba(0,0,0,0.1);
-      flex-shrink: 0;
-    }
-
-    .info { flex: 1; min-width: 0; }
-    .name {
+    .style-name {
       font-weight: 500;
       font-size: 11px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 140px;
     }
 
-    .meta {
-      font-size: 10px;
-      color: #999;
-      margin-top: 2px;
+    .arrow {
+      color: #ccc;
+      font-size: 12px;
+      flex-shrink: 0;
     }
 
-    .field-tag {
-      font-size: 9px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: #f0f0f0;
+    .var-name {
+      font-size: 11px;
       color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
     }
 
-    .arrow { color: #ccc; font-size: 14px; flex-shrink: 0; }
+    .var-name.none { color: #999; font-style: italic; }
 
-    .var-info {
-      flex: 1;
-      min-width: 0;
+    /* ========== 匹配度指示器 ========== */
+    .match-indicator {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      flex-shrink: 0;
     }
+
+    .match-bar {
+      width: 40px;
+      height: 4px;
+      background: #eee;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .match-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    .match-bar-fill.exact { background: #00b42a; }
+    .match-bar-fill.close { background: #ff9500; }
+    .match-bar-fill.far { background: #ff4d4f; }
+    .match-bar-fill.bound { background: #1161fe; }
 
     .match-tag {
       font-size: 9px;
-      padding: 2px 8px;
-      border-radius: 10px;
+      padding: 2px 6px;
+      border-radius: 8px;
       font-weight: 500;
-      flex-shrink: 0;
+      white-space: nowrap;
     }
 
     .match-tag.exact { background: #e6f9ed; color: #00b42a; }
@@ -210,20 +371,35 @@
     .match-tag.close_name { background: #ffeccc; color: #cc7700; }
     .match-tag.far { background: #ffebe6; color: #ff4d4f; }
     .match-tag.bound { background: #e6f0ff; color: #1161fe; }
+    .match-tag.orphan { background: #ff4d4f; color: white; }
     .match-tag.skip { background: #f0f0f0; color: #999; }
 
-    .name-match-icon {
-      font-size: 10px;
+    .name-match-badge {
+      font-size: 8px;
       color: #00b42a;
-      margin-left: 4px;
+      margin-left: 2px;
     }
 
-    .empty, .loading {
-      text-align: center;
-      padding: 40px;
-      color: #999;
+    /* ========== 字段标签（Text Style）========== */
+    .field-tag {
+      font-size: 9px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #f0f0f0;
+      color: #666;
+      flex-shrink: 0;
     }
 
+    .value-tag {
+      font-family: Monaco, monospace;
+      font-size: 9px;
+      color: #666;
+      background: #f5f5f5;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    /* ========== Toast ========== */
     .toast {
       position: fixed;
       bottom: 20px;
@@ -231,24 +407,55 @@
       transform: translateX(-50%);
       background: #333;
       color: white;
-      padding: 12px 24px;
+      padding: 10px 20px;
       border-radius: 8px;
       font-size: 12px;
       z-index: 1000;
       animation: fadeIn 0.3s;
     }
 
+    .toast.success { background: #00b42a; }
+    .toast.warning { background: #ff9500; }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateX(-50%) translateY(10px); }
       to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
+
+    /* ========== 空状态 ========== */
+    .empty, .loading {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
   </style>
 </head>
 <body>
-  <div class="header">
-    将 Style 的属性值绑定到对应的 Variable，支持颜色样式和文字样式
+  <!-- 统计卡片 -->
+  <div class="stats-bar">
+    <div class="stat-card danger" id="orphanCard" style="display:none;">
+      <div class="number" id="orphanTotal">0</div>
+      <div class="label">绑定失效</div>
+    </div>
+    <div class="stat-card success">
+      <div class="number" id="exactTotal">0</div>
+      <div class="label">精确匹配</div>
+    </div>
+    <div class="stat-card warning">
+      <div class="number" id="closeTotal">0</div>
+      <div class="label">相近匹配</div>
+    </div>
+    <div class="stat-card info">
+      <div class="number" id="boundTotal">0</div>
+      <div class="label">已绑定</div>
+    </div>
+    <div class="stat-card">
+      <div class="number" id="totalStyles">0</div>
+      <div class="label">Style 总数</div>
+    </div>
   </div>
 
+  <!-- 标签页 -->
   <div class="tabs">
     <button class="tab active" data-tab="paint">
       颜色样式 <span class="tab-badge" id="paintCount">0</span>
@@ -258,22 +465,32 @@
     </button>
   </div>
 
+  <!-- 工具栏 -->
   <div class="toolbar">
-    <button class="btn btn-primary" id="bindSelected" disabled>绑定选中 (0)</button>
-    <button class="btn btn-danger" id="unbindSelected" disabled>解除绑定 (0)</button>
-    <button class="btn btn-secondary" id="selectAll">全选</button>
-    <button class="btn btn-secondary" id="selectNone">取消</button>
-    <button class="btn btn-secondary" id="selectExact">精确匹配</button>
-    <button class="btn btn-secondary" id="selectNameMatch">名称匹配</button>
-    <button class="btn btn-secondary" id="selectBound">已绑定</button>
+    <button class="btn btn-primary" id="bindSelected" disabled>绑定 (0)</button>
+    <button class="btn btn-danger" id="unbindSelected" disabled>解绑 (0)</button>
+    <button class="btn btn-secondary" id="selectOrphan">选失效</button>
+    <button class="btn btn-secondary" id="selectExact">选精确</button>
+    <button class="btn btn-secondary" id="selectNameMatch">选名称</button>
+    <button class="btn btn-secondary" id="selectBound">选已绑</button>
+    <button class="btn btn-secondary" id="selectNone">清除</button>
+    <div class="toolbar-spacer"></div>
+    <button class="btn btn-secondary" id="expandAll">展开</button>
+    <button class="btn btn-secondary" id="collapseAll">折叠</button>
     <button class="btn btn-secondary" id="refresh">刷新</button>
-    <div class="stats">
-      <div class="stat"><div class="stat-dot exact"></div><span id="exactCount">0</span></div>
-      <div class="stat"><div class="stat-dot close"></div><span id="closeCount">0</span></div>
-      <div class="stat"><div class="stat-dot bound"></div><span id="boundCount">0</span></div>
-    </div>
   </div>
 
+  <!-- 字段筛选（仅 Text Style） -->
+  <div class="filter-bar" id="filterBar" style="display:none;">
+    <span class="filter-label">筛选字段：</span>
+    <button class="filter-btn active" data-field="all">全部</button>
+    <button class="filter-btn" data-field="fontSize">字号</button>
+    <button class="filter-btn" data-field="fontWeight">字重</button>
+    <button class="filter-btn" data-field="lineHeight">行高</button>
+    <button class="filter-btn" data-field="letterSpacing">字间距</button>
+  </div>
+
+  <!-- 列表 -->
   <div class="list" id="list">
     <div class="loading">加载中...</div>
   </div>
@@ -285,10 +502,13 @@
     var textMatches = [];
     var selected = {};
     var currentTab = 'paint';
+    var collapsedGroups = {};
+    var currentFilter = 'all'; // 字段筛选
 
-    function showToast(message) {
+    function showToast(message, type) {
       var toast = document.getElementById('toast');
       toast.textContent = message;
+      toast.className = 'toast' + (type ? ' ' + type : '');
       toast.style.display = 'block';
       setTimeout(function() { toast.style.display = 'none'; }, 3000);
     }
@@ -301,6 +521,7 @@
         'close_name': '相近+名称',
         'far': '差异大',
         'bound': '已绑定',
+        'orphan': '绑定失效',
         'skip': '跳过'
       };
       return labels[matchType] || matchType;
@@ -310,17 +531,41 @@
       var labels = {
         'color': '颜色',
         'fontSize': '字号',
+        'fontWeight': '字重',
         'lineHeight': '行高',
-        'letterSpacing': '字间距',
-        'radius': '模糊'
+        'letterSpacing': '字间距'
       };
       return labels[field] || field;
     }
 
+    function getMatchBarWidth(matchType, distance) {
+      if (matchType === 'bound') return 100;
+      if (matchType.indexOf('exact') >= 0) return 100;
+      if (matchType.indexOf('close') >= 0) return 70;
+      if (matchType === 'far') return 30;
+      return 0;
+    }
+
+    function getMatchBarClass(matchType) {
+      if (matchType === 'bound') return 'bound';
+      if (matchType.indexOf('exact') >= 0) return 'exact';
+      if (matchType.indexOf('close') >= 0) return 'close';
+      return 'far';
+    }
+
     function getCurrentMatches() {
-      if (currentTab === 'paint') return paintMatches;
-      if (currentTab === 'text') return textMatches;
-      return [];
+      var matches = currentTab === 'paint' ? paintMatches : textMatches;
+      // 应用字段筛选（仅 Text Style）
+      if (currentTab === 'text' && currentFilter !== 'all') {
+        var filtered = [];
+        for (var i = 0; i < matches.length; i++) {
+          if (matches[i].field === currentFilter) {
+            filtered.push(matches[i]);
+          }
+        }
+        return filtered;
+      }
+      return matches;
     }
 
     function getItemKey(match) {
@@ -345,6 +590,18 @@
       return groups;
     }
 
+    function getGroupStats(items) {
+      var stats = { exact: 0, close: 0, bound: 0, orphan: 0 };
+      for (var i = 0; i < items.length; i++) {
+        var m = items[i];
+        if (m.matchType === 'orphan') stats.orphan++;
+        else if (m.matchType === 'bound') stats.bound++;
+        else if (m.matchType.indexOf('exact') >= 0) stats.exact++;
+        else if (m.matchType.indexOf('close') >= 0) stats.close++;
+      }
+      return stats;
+    }
+
     function renderList() {
       var list = document.getElementById('list');
       var matches = getCurrentMatches();
@@ -362,89 +619,110 @@
       for (var g = 0; g < groupNames.length; g++) {
         var groupName = groupNames[g];
         var groupItems = groups[groupName];
+        var groupStats = getGroupStats(groupItems);
+        var isCollapsed = collapsedGroups[currentTab + '_' + groupName];
 
-        // 分组标题
-        html += '<div class="section-title">' + groupName + ' (' + groupItems.length + ')</div>';
+        html += '<div class="group' + (isCollapsed ? ' collapsed' : '') + '" data-group="' + groupName + '">';
 
+        // 分组头部
+        html += '<div class="group-header">';
+        html += '<div class="group-toggle">▼</div>';
+        html += '<div class="group-name">' + groupName + '</div>';
+        html += '<div class="group-count">' + groupItems.length + '</div>';
+        html += '<button class="group-select-all" data-group="' + groupName + '">全选</button>';
+        html += '<div class="group-stats">';
+        if (groupStats.orphan > 0) html += '<div class="group-stat"><div class="group-stat-dot orphan"></div>' + groupStats.orphan + '</div>';
+        if (groupStats.exact > 0) html += '<div class="group-stat"><div class="group-stat-dot exact"></div>' + groupStats.exact + '</div>';
+        if (groupStats.close > 0) html += '<div class="group-stat"><div class="group-stat-dot close"></div>' + groupStats.close + '</div>';
+        if (groupStats.bound > 0) html += '<div class="group-stat"><div class="group-stat-dot bound"></div>' + groupStats.bound + '</div>';
+        html += '</div></div>';
+
+        // 分组内容
+        html += '<div class="group-items">';
         for (var i = 0; i < groupItems.length; i++) {
-          var match = groupItems[i];
-          var style = match.style;
-          var variable = match.variable;
-          var key = getItemKey(match);
-          var isSelected = selected[key];
-          var isBound = match.matchType === 'bound';
-          var isSkip = match.matchType === 'skip';
-          var canSelect = !isSkip;
-
-          var itemClass = 'item';
-          if (isBound) itemClass += ' bound';
-          if (isSkip) itemClass += ' skip';
-          if (isSelected) itemClass += ' selected';
-
-          html += '<div class="' + itemClass + '" data-key="' + key + '">';
-          html += '<input type="checkbox" class="checkbox" ' + (isSelected ? 'checked' : '') + ' ' + (canSelect ? '' : 'disabled') + '>';
-
-          // Style 信息
-          html += '<div class="style-info">';
-          if (style.hex) {
-            html += '<div class="color-box" style="background:' + style.hex + '"></div>';
-          }
-          html += '<div class="info">';
-          // 显示简化名称（去掉分组前缀）
-          var displayName = style.name.indexOf('/') > 0 ? style.name.split('/').slice(1).join('/') : style.name;
-          html += '<div class="name" title="' + style.name + '">' + displayName + '</div>';
-          html += '<div class="meta">';
-          if (match.field !== 'color') {
-            html += '<span class="field-tag">' + getFieldLabel(match.field) + '</span> ';
-          }
-          if (match.fieldValue !== undefined && match.fieldValue !== null) {
-            html += '<span class="value-tag">' + match.fieldValue + '</span>';
-          } else if (style.hex) {
-            html += '<span class="value-tag">' + style.hex + '</span>';
-          }
-          html += '</div></div></div>';
-
-          html += '<span class="arrow">→</span>';
-
-          // Variable 信息
-          html += '<div class="var-info">';
-          if (variable) {
-            if (variable.hex) {
-              html += '<div class="color-box" style="background:' + variable.hex + '"></div>';
-            }
-            html += '<div class="info">';
-            html += '<div class="name" title="' + variable.name + '">' + variable.name;
-            if (match.nameMatched) {
-              html += '<span class="name-match-icon">✓</span>';
-            }
-            html += '</div>';
-            html += '<div class="meta">' + (variable.collectionName || '');
-            if (variable.value !== null && variable.value !== undefined) {
-              html += ' · <strong>' + variable.value + '</strong>';
-            } else if (variable.hex) {
-              html += ' · <strong>' + variable.hex + '</strong>';
-            }
-            html += '</div></div>';
-          } else {
-            html += '<div class="info"><div class="name" style="color:#999">' + (match.reason || '无匹配') + '</div></div>';
-          }
-          html += '</div>';
-
-          // 匹配标签
-          html += '<span class="match-tag ' + match.matchType + '">' + getMatchLabel(match.matchType) + '</span>';
-
-          html += '</div>';
+          html += renderItem(groupItems[i]);
         }
+        html += '</div></div>';
       }
 
       list.innerHTML = html;
+      bindEvents();
+      updateStats();
+    }
 
-      // 绑定 checkbox 事件
+    function renderItem(match) {
+      var style = match.style;
+      var variable = match.variable;
+      var key = getItemKey(match);
+      var isSelected = selected[key];
+      var isBound = match.matchType === 'bound';
+      var isOrphan = match.matchType === 'orphan';
+      var isSkip = match.matchType === 'skip';
+      var canSelect = !isSkip; // orphan 可以选中
+
+      var itemClass = 'item';
+      if (isBound) itemClass += ' bound';
+      if (isOrphan) itemClass += ' orphan';
+      if (isSkip) itemClass += ' skip';
+      if (isSelected) itemClass += ' selected';
+
+      var html = '<div class="' + itemClass + '" data-key="' + key + '">';
+      html += '<input type="checkbox" class="checkbox" ' + (isSelected ? 'checked' : '') + ' ' + (canSelect ? '' : 'disabled') + '>';
+
+      // 颜色对比条（仅 Paint Style）
+      if (currentTab === 'paint' && style.hex) {
+        var varHex = variable && variable.hex ? variable.hex : style.hex;
+        html += '<div class="color-compare">';
+        html += '<div class="from" style="background:' + style.hex + '"></div>';
+        html += '<div class="to" style="background:' + varHex + '"></div>';
+        html += '<div class="divider"></div>';
+        html += '</div>';
+      }
+
+      // 字段标签（仅 Text Style）
+      if (currentTab === 'text') {
+        html += '<span class="field-tag">' + getFieldLabel(match.field) + '</span>';
+        if (match.fieldValue !== undefined && match.fieldValue !== null) {
+          html += '<span class="value-tag">' + match.fieldValue + '</span>';
+        }
+      }
+
+      // 信息区域
+      html += '<div class="info-section">';
+      var displayName = style.name.indexOf('/') > 0 ? style.name.split('/').slice(1).join('/') : style.name;
+      html += '<span class="style-name" title="' + style.name + '">' + displayName + '</span>';
+      html += '<span class="arrow">→</span>';
+
+      if (variable) {
+        html += '<span class="var-name" title="' + variable.name + '">' + variable.name;
+        if (match.nameMatched) {
+          html += '<span class="name-match-badge">✓</span>';
+        }
+        html += '</span>';
+      } else {
+        html += '<span class="var-name none">' + (match.reason || '无匹配') + '</span>';
+      }
+      html += '</div>';
+
+      // 匹配度指示器
+      html += '<div class="match-indicator">';
+      var barWidth = getMatchBarWidth(match.matchType, match.distance);
+      var barClass = getMatchBarClass(match.matchType);
+      html += '<div class="match-bar"><div class="match-bar-fill ' + barClass + '" style="width:' + barWidth + '%"></div></div>';
+      html += '<span class="match-tag ' + match.matchType + '">' + getMatchLabel(match.matchType) + '</span>';
+      html += '</div>';
+
+      html += '</div>';
+      return html;
+    }
+
+    function bindEvents() {
+      // Checkbox 事件
       var items = document.querySelectorAll('.item');
       for (var j = 0; j < items.length; j++) {
         (function(item) {
           var checkbox = item.querySelector('.checkbox');
-          if (!checkbox.disabled) {
+          if (checkbox && !checkbox.disabled) {
             checkbox.addEventListener('change', function(e) {
               var key = item.dataset.key;
               if (e.target.checked) {
@@ -460,8 +738,61 @@
         })(items[j]);
       }
 
-      updateStats();
+      // 分组折叠事件
+      var groupHeaders = document.querySelectorAll('.group-header');
+      for (var g = 0; g < groupHeaders.length; g++) {
+        (function(header) {
+          header.addEventListener('click', function(e) {
+            // 如果点击的是全选按钮，不处理折叠
+            if (e.target.classList.contains('group-select-all')) return;
+            var group = header.parentElement;
+            var groupName = group.dataset.group;
+            group.classList.toggle('collapsed');
+            collapsedGroups[currentTab + '_' + groupName] = group.classList.contains('collapsed');
+          });
+        })(groupHeaders[g]);
+      }
     }
+
+    // 使用事件委托处理分组全选（在 list 容器上绑定一次）
+    document.getElementById('list').addEventListener('click', function(e) {
+      if (e.target.classList.contains('group-select-all')) {
+        e.stopPropagation();
+        var groupName = e.target.dataset.group;
+        var matches = getCurrentMatches();
+
+        // 检查该分组是否已全选
+        var allSelected = true;
+        var selectableCount = 0;
+        for (var i = 0; i < matches.length; i++) {
+          var m = matches[i];
+          var mGroupName = getGroupName(m.style.name);
+          if (mGroupName === groupName && m.matchType !== 'skip') {
+            selectableCount++;
+            if (!selected[getItemKey(m)]) {
+              allSelected = false;
+            }
+          }
+        }
+
+        // 切换选择状态
+        for (var i = 0; i < matches.length; i++) {
+          var m = matches[i];
+          var mGroupName = getGroupName(m.style.name);
+          if (mGroupName === groupName && m.matchType !== 'skip') {
+            if (allSelected && selectableCount > 0) {
+              // 全部已选，点击则取消
+              delete selected[getItemKey(m)];
+            } else {
+              // 未全选，点击则全选
+              selected[getItemKey(m)] = true;
+            }
+          }
+        }
+        renderList();
+        updateBindButton();
+      }
+    });
 
     function updateBindButton() {
       var allMatches = paintMatches.concat(textMatches);
@@ -474,7 +805,10 @@
           if (getItemKey(m) === key) {
             if (m.matchType === 'bound') {
               unbindCount++;
-            } else if (m.variable) {
+            } else if (m.matchType === 'orphan' && m.variable) {
+              // orphan 有推荐变量时可以重新绑定
+              bindCount++;
+            } else if (m.variable && m.matchType !== 'bound') {
               bindCount++;
             }
             break;
@@ -485,33 +819,41 @@
       var bindBtn = document.getElementById('bindSelected');
       var unbindBtn = document.getElementById('unbindSelected');
 
-      bindBtn.textContent = '绑定选中 (' + bindCount + ')';
+      bindBtn.textContent = '绑定 (' + bindCount + ')';
       bindBtn.disabled = bindCount === 0;
 
-      unbindBtn.textContent = '解除绑定 (' + unbindCount + ')';
+      unbindBtn.textContent = '解绑 (' + unbindCount + ')';
       unbindBtn.disabled = unbindCount === 0;
     }
 
     function updateStats() {
-      var matches = getCurrentMatches();
-      var exact = 0, close = 0, bound = 0;
+      var allMatches = paintMatches.concat(textMatches);
+      var exact = 0, close = 0, bound = 0, orphan = 0;
 
-      for (var i = 0; i < matches.length; i++) {
-        var m = matches[i];
-        if (m.matchType === 'bound') bound++;
+      for (var i = 0; i < allMatches.length; i++) {
+        var m = allMatches[i];
+        if (m.matchType === 'orphan') orphan++;
+        else if (m.matchType === 'bound') bound++;
         else if (m.matchType.indexOf('exact') >= 0) exact++;
         else if (m.matchType.indexOf('close') >= 0) close++;
       }
 
-      document.getElementById('exactCount').textContent = exact;
-      document.getElementById('closeCount').textContent = close;
-      document.getElementById('boundCount').textContent = bound;
+      document.getElementById('orphanTotal').textContent = orphan;
+      document.getElementById('exactTotal').textContent = exact;
+      document.getElementById('closeTotal').textContent = close;
+      document.getElementById('boundTotal').textContent = bound;
+      document.getElementById('totalStyles').textContent = paintMatches.length + textMatches.length;
+
+      // 只有有失效绑定时才显示
+      document.getElementById('orphanCard').style.display = orphan > 0 ? 'block' : 'none';
     }
 
     function updateTabCounts() {
       document.getElementById('paintCount').textContent = paintMatches.length;
       document.getElementById('textCount').textContent = textMatches.length;
     }
+
+    // ========== 事件绑定 ==========
 
     // Tab 切换
     var tabs = document.querySelectorAll('.tab');
@@ -520,75 +862,179 @@
         for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
         this.classList.add('active');
         currentTab = this.dataset.tab;
+        currentFilter = 'all';
+        selected = {};
+        // 只在 Text 标签页显示筛选栏
+        document.getElementById('filterBar').style.display = currentTab === 'text' ? 'flex' : 'none';
+        // 重置筛选按钮状态
+        var filterBtns = document.querySelectorAll('.filter-btn');
+        for (var i = 0; i < filterBtns.length; i++) {
+          filterBtns[i].classList.toggle('active', filterBtns[i].dataset.field === 'all');
+        }
+        renderList();
+        updateBindButton();
+      });
+    }
+
+    // 选择失效（切换模式）
+    document.getElementById('selectOrphan').addEventListener('click', function() {
+      var matches = getCurrentMatches();
+      var orphanKeys = [];
+      var selectedCount = 0;
+
+      // 统计失效项
+      for (var i = 0; i < matches.length; i++) {
+        var m = matches[i];
+        if (m.matchType === 'orphan' && m.variable) {
+          orphanKeys.push(getItemKey(m));
+          if (selected[orphanKeys[orphanKeys.length - 1]]) {
+            selectedCount++;
+          }
+        }
+      }
+
+      // 切换选择
+      if (selectedCount === orphanKeys.length && orphanKeys.length > 0) {
+        // 已全选，则取消
+        for (var i = 0; i < orphanKeys.length; i++) {
+          delete selected[orphanKeys[i]];
+        }
+      } else {
+        // 未全选，则全选
+        for (var i = 0; i < orphanKeys.length; i++) {
+          selected[orphanKeys[i]] = true;
+        }
+      }
+      renderList();
+      updateBindButton();
+    });
+
+    // 字段筛选
+    var filterBtns = document.querySelectorAll('.filter-btn');
+    for (var f = 0; f < filterBtns.length; f++) {
+      filterBtns[f].addEventListener('click', function() {
+        for (var i = 0; i < filterBtns.length; i++) filterBtns[i].classList.remove('active');
+        this.classList.add('active');
+        currentFilter = this.dataset.field;
         selected = {};
         renderList();
         updateBindButton();
       });
     }
 
-    // 全选
-    document.getElementById('selectAll').addEventListener('click', function() {
+    // 选择精确匹配（切换模式）
+    document.getElementById('selectExact').addEventListener('click', function() {
       var matches = getCurrentMatches();
+      var exactKeys = [];
+      var selectedCount = 0;
+
       for (var i = 0; i < matches.length; i++) {
         var m = matches[i];
-        if (m.variable && m.matchType !== 'bound' && m.matchType !== 'skip') {
-          selected[getItemKey(m)] = true;
+        if (m.variable && m.matchType.indexOf('exact') >= 0) {
+          exactKeys.push(getItemKey(m));
+          if (selected[exactKeys[exactKeys.length - 1]]) {
+            selectedCount++;
+          }
+        }
+      }
+
+      if (selectedCount === exactKeys.length && exactKeys.length > 0) {
+        for (var i = 0; i < exactKeys.length; i++) {
+          delete selected[exactKeys[i]];
+        }
+      } else {
+        for (var i = 0; i < exactKeys.length; i++) {
+          selected[exactKeys[i]] = true;
         }
       }
       renderList();
       updateBindButton();
     });
 
-    // 取消全选
+    // 选择名称匹配（切换模式）
+    document.getElementById('selectNameMatch').addEventListener('click', function() {
+      var matches = getCurrentMatches();
+      var nameMatchKeys = [];
+      var selectedCount = 0;
+
+      for (var i = 0; i < matches.length; i++) {
+        var m = matches[i];
+        if (m.variable && m.nameMatched && m.matchType !== 'bound') {
+          nameMatchKeys.push(getItemKey(m));
+          if (selected[nameMatchKeys[nameMatchKeys.length - 1]]) {
+            selectedCount++;
+          }
+        }
+      }
+
+      if (selectedCount === nameMatchKeys.length && nameMatchKeys.length > 0) {
+        for (var i = 0; i < nameMatchKeys.length; i++) {
+          delete selected[nameMatchKeys[i]];
+        }
+      } else {
+        for (var i = 0; i < nameMatchKeys.length; i++) {
+          selected[nameMatchKeys[i]] = true;
+        }
+      }
+      renderList();
+      updateBindButton();
+    });
+
+    // 选择已绑定（切换模式）
+    document.getElementById('selectBound').addEventListener('click', function() {
+      var matches = getCurrentMatches();
+      var boundKeys = [];
+      var selectedCount = 0;
+
+      for (var i = 0; i < matches.length; i++) {
+        var m = matches[i];
+        if (m.matchType === 'bound') {
+          boundKeys.push(getItemKey(m));
+          if (selected[boundKeys[boundKeys.length - 1]]) {
+            selectedCount++;
+          }
+        }
+      }
+
+      if (selectedCount === boundKeys.length && boundKeys.length > 0) {
+        for (var i = 0; i < boundKeys.length; i++) {
+          delete selected[boundKeys[i]];
+        }
+      } else {
+        for (var i = 0; i < boundKeys.length; i++) {
+          selected[boundKeys[i]] = true;
+        }
+      }
+      renderList();
+      updateBindButton();
+    });
+
+    // 清除选择
     document.getElementById('selectNone').addEventListener('click', function() {
       selected = {};
       renderList();
       updateBindButton();
     });
 
-    // 选择精确匹配
-    document.getElementById('selectExact').addEventListener('click', function() {
-      selected = {};
-      var matches = getCurrentMatches();
-      for (var i = 0; i < matches.length; i++) {
-        var m = matches[i];
-        if (m.variable && m.matchType.indexOf('exact') >= 0) {
-          selected[getItemKey(m)] = true;
-        }
+    // 展开全部
+    document.getElementById('expandAll').addEventListener('click', function() {
+      collapsedGroups = {};
+      var groups = document.querySelectorAll('.group');
+      for (var i = 0; i < groups.length; i++) {
+        groups[i].classList.remove('collapsed');
       }
-      renderList();
-      updateBindButton();
     });
 
-    // 选择名称匹配
-    document.getElementById('selectNameMatch').addEventListener('click', function() {
-      selected = {};
-      var matches = getCurrentMatches();
-      for (var i = 0; i < matches.length; i++) {
-        var m = matches[i];
-        if (m.variable && m.nameMatched && m.matchType !== 'bound') {
-          selected[getItemKey(m)] = true;
-        }
+    // 折叠全部
+    document.getElementById('collapseAll').addEventListener('click', function() {
+      var groups = document.querySelectorAll('.group');
+      for (var i = 0; i < groups.length; i++) {
+        groups[i].classList.add('collapsed');
+        collapsedGroups[currentTab + '_' + groups[i].dataset.group] = true;
       }
-      renderList();
-      updateBindButton();
     });
 
-    // 选择已绑定
-    document.getElementById('selectBound').addEventListener('click', function() {
-      selected = {};
-      var matches = getCurrentMatches();
-      for (var i = 0; i < matches.length; i++) {
-        var m = matches[i];
-        if (m.matchType === 'bound') {
-          selected[getItemKey(m)] = true;
-        }
-      }
-      renderList();
-      updateBindButton();
-    });
-
-    // 绑定选中
+    // 绑定选中（包括 orphan 重新绑定）
     document.getElementById('bindSelected').addEventListener('click', function() {
       var items = [];
       var allMatches = paintMatches.concat(textMatches);
@@ -596,13 +1042,16 @@
       for (var key in selected) {
         for (var i = 0; i < allMatches.length; i++) {
           var m = allMatches[i];
-          if (getItemKey(m) === key && m.variable && m.matchType !== 'bound') {
-            items.push({
-              styleId: m.style.id,
-              styleType: m.style.styleType,
-              field: m.field,
-              variableId: m.variable.id
-            });
+          if (getItemKey(m) === key && m.variable) {
+            // orphan 和普通未绑定项都可以绑定
+            if (m.matchType === 'orphan' || m.matchType !== 'bound') {
+              items.push({
+                styleId: m.style.id,
+                styleType: m.style.styleType,
+                field: m.field,
+                variableId: m.variable.id
+              });
+            }
             break;
           }
         }
@@ -610,11 +1059,11 @@
 
       if (items.length > 0) {
         parent.postMessage({ pluginMessage: { type: 'bind-all', items: items } }, '*');
-        showToast('正在绑定 ' + items.length + ' 个项目...');
+        showToast('正在绑定 ' + items.length + ' 项...');
       }
     });
 
-    // 解除绑定选中
+    // 解除绑定
     document.getElementById('unbindSelected').addEventListener('click', function() {
       var items = [];
       var allMatches = paintMatches.concat(textMatches);
@@ -635,7 +1084,7 @@
 
       if (items.length > 0) {
         parent.postMessage({ pluginMessage: { type: 'unbind-all', items: items } }, '*');
-        showToast('正在解除绑定 ' + items.length + ' 个项目...');
+        showToast('正在解除绑定 ' + items.length + ' 项...');
       }
     });
 
@@ -657,8 +1106,14 @@
         updateTabCounts();
         renderList();
         updateBindButton();
+
+        // 显示孤儿清理提示
+        if (msg.data.stats && msg.data.stats.orphansCleared > 0) {
+          showToast('已自动清理 ' + msg.data.stats.orphansCleared + ' 个无效绑定', 'success');
+        }
+
         if (msg.data.error) {
-          showToast('加载出错: ' + msg.data.error);
+          showToast('加载出错: ' + msg.data.error, 'warning');
         }
       }
       else if (msg.type === 'bind-all-result') {
@@ -667,7 +1122,7 @@
           if (msg.results[i].success) success++;
         }
         var fail = msg.results.length - success;
-        showToast('绑定完成: ' + success + ' 成功, ' + fail + ' 失败');
+        showToast('绑定完成: ' + success + ' 成功' + (fail > 0 ? ', ' + fail + ' 失败' : ''), success > 0 ? 'success' : 'warning');
         selected = {};
         updateBindButton();
       }
@@ -677,7 +1132,7 @@
           if (msg.results[i].success) success++;
         }
         var fail = msg.results.length - success;
-        showToast('解除绑定完成: ' + success + ' 成功, ' + fail + ' 失败');
+        showToast('解除绑定完成: ' + success + ' 成功' + (fail > 0 ? ', ' + fail + ' 失败' : ''), success > 0 ? 'success' : 'warning');
         selected = {};
         updateBindButton();
       }
