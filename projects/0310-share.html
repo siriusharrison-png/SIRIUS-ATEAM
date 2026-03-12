@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0310 Design Share — Think, Create & Share</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --border: #21262d;
+      --border-hover: #30363d;
+      --text-1: #e6edf3;
+      --text-2: #8b949e;
+      --text-3: #484f58;
+      --blue: #64c8ff;
+      --purple: #b464ff;
+      --green: #3fb950;
+      --orange: #f78166;
+      --nav-h: 56px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ─────────────────── NAV ─────────────────── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: rgba(13, 17, 23, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+    }
+    .nav-logo {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--text-1);
+      letter-spacing: 1px;
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--blue); }
+    .nav-links {
+      display: flex;
+      gap: 0.25rem;
+    }
+    .nav-link {
+      padding: 0.35rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      color: var(--text-2);
+      text-decoration: none;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-link:hover,
+    .nav-link.active {
+      background: rgba(100, 200, 255, 0.1);
+      color: var(--blue);
+    }
+
+    /* ─────────────────── LAYOUT ─────────────────── */
+    main { padding-top: var(--nav-h); }
+    section { padding: 5rem 0; }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* ─────────────────── HERO ─────────────────── */
+    #hero {
+      position: relative;
+      padding: 6rem 0 5rem;
+      overflow: hidden;
+    }
+    .hero-dots {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(100,200,255,0.1) 1px, transparent 1px);
+      background-size: 22px 22px;
+      pointer-events: none;
+    }
+    .hero-glow-a {
+      position: absolute;
+      right: 10%; top: -60px;
+      width: 340px; height: 340px;
+      background: radial-gradient(circle, rgba(100,200,255,0.16), transparent 65%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero-glow-b {
+      position: absolute;
+      right: 22%; top: 40px;
+      width: 240px; height: 240px;
+      background: radial-gradient(circle, rgba(180,100,255,0.14), transparent 65%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; }
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      color: var(--blue);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 0.3rem 0.8rem;
+      border: 1px solid rgba(100,200,255,0.3);
+      border-radius: 20px;
+      margin-bottom: 1.25rem;
+    }
+    .hero-title {
+      font-size: clamp(2.4rem, 6vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 1rem;
+    }
+    .hero-title .grad {
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--text-2);
+      max-width: 460px;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 2.5rem;
+    }
+    .stat-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-1);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-2);
+      margin-top: 0.3rem;
+    }
+
+    /* ─────────────────── SECTION HEADER ─────────────────── */
+    .sec-header {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sec-num {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700; color: white;
+      flex-shrink: 0;
+    }
+    .sec-title { font-size: 1.1rem; font-weight: 700; }
+    .sec-sub {
+      font-size: 0.75rem;
+      color: var(--text-2);
+      margin-left: auto;
+    }
+
+    /* ─────────────────── PROJECT CARDS ─────────────────── */
+    .projects { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 2.5rem; }
+
+    .proj-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .proj-card:hover { border-color: var(--border-hover); }
+    .proj-card.is-open { border-color: rgba(100,200,255,0.35); }
+
+    .proj-header {
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+    .proj-left { display: flex; align-items: center; gap: 0.85rem; }
+    .proj-icon {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .proj-name { font-size: 0.9rem; font-weight: 600; }
+    .proj-desc { font-size: 0.75rem; color: var(--text-2); margin-top: 0.1rem; }
+    .proj-badge {
+      display: inline-block;
+      padding: 0.18rem 0.55rem;
+      border-radius: 10px;
+      font-size: 0.62rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    .badge-released { background: rgba(100,200,255,0.1); color: var(--blue); }
+    .badge-open     { background: rgba(180,100,255,0.1); color: var(--purple); }
+    .badge-wip      { background: rgba(100,255,180,0.08); color: #64ffb4; }
+    .badge-explore  { background: rgba(247,129,102,0.1); color: var(--orange); }
+
+    .proj-toggle {
+      font-size: 0.65rem;
+      color: var(--text-3);
+      padding: 0.22rem 0.55rem;
+      background: var(--bg);
+      border-radius: 5px;
+      transition: color 0.15s;
+      flex-shrink: 0;
+    }
+    .proj-card.is-open .proj-toggle { color: var(--blue); }
+
+    .proj-body {
+      display: none;
+      border-top: 1px solid var(--border);
+    }
+    .proj-card.is-open .proj-body { display: block; }
+
+    .proj-body-inner { padding: 1.25rem 1.5rem; }
+
+    /* code block */
+    .code-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+      font-size: 0.75rem;
+      line-height: 1.75;
+      color: var(--text-2);
+      margin-top: 0.75rem;
+      overflow-x: auto;
+    }
+    .code-block + .code-label { margin-top: 1rem; }
+    .code-label {
+      font-size: 0.68rem;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.4rem;
+    }
+    .c-comment { color: var(--green); }
+    .c-key     { color: #79c0ff; }
+    .c-val     { color: #a5d6ff; }
+    .c-path    { color: #ffa657; }
+    .c-arrow   { color: var(--text-3); }
+
+    /* table in proj body */
+    .qa-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      margin-top: 0.5rem;
+    }
+    .qa-table th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg);
+      color: var(--text-2);
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+    .qa-table td {
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-1);
+      vertical-align: top;
+    }
+    .qa-table tr:last-child td { border-bottom: none; }
+    .qa-table td:first-child { font-weight: 600; color: var(--blue); }
+    .qa-table td:last-child { color: var(--text-2); font-size: 0.74rem; }
+
+    /* proj body link */
+    .proj-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--blue);
+      font-size: 0.78rem;
+      text-decoration: none;
+      margin-top: 0.75rem;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid rgba(100,200,255,0.25);
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+    .proj-link:hover { background: rgba(100,200,255,0.08); }
+
+    /* ─────────────────── REFLECTIONS ─────────────────── */
+    .reflections { display: flex; flex-direction: column; gap: 0.5rem; }
+    .refl-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid rgba(100,200,255,0.35);
+      border-radius: 0 8px 8px 0;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+    .refl-item strong { color: var(--text-1); }
+
+    /* ─────────────────── SECTION 2 ─────────────────── */
+    .sec2-intro {
+      font-size: 0.88rem;
+      color: var(--text-2);
+      line-height: 1.8;
+      margin-bottom: 1.75rem;
+      max-width: 640px;
+    }
+    .sec2-intro strong { color: var(--text-1); }
+
+    .designer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+    .designer-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      transition: border-color 0.15s;
+    }
+    .designer-card:hover { border-color: var(--border-hover); }
+    .dc-num {
+      font-size: 0.6rem;
+      color: var(--text-3);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .dc-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .dc-role { font-size: 0.75rem; color: var(--text-2); margin-bottom: 0.6rem; }
+    .dc-output {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 0.2rem 0.55rem;
+      background: rgba(100,200,255,0.07);
+      color: var(--blue);
+      border-radius: 5px;
+    }
+
+    .quote-block {
+      background: linear-gradient(135deg, rgba(100,200,255,0.04), rgba(180,100,255,0.04));
+      border: 1px solid rgba(180,100,255,0.2);
+      border-radius: 12px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .quote-text {
+      font-size: 0.88rem;
+      color: var(--text-1);
+      line-height: 1.9;
+    }
+    .quote-text .bullet {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-2);
+    }
+    .quote-text .bullet::before { content: "›"; color: var(--purple); flex-shrink: 0; }
+
+    .sec2-closing {
+      font-size: 0.85rem;
+      color: var(--text-2);
+      line-height: 1.8;
+      padding: 1rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .sec2-closing strong { color: var(--text-1); }
+
+    /* ─────────────────── TOOLS ─────────────────── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .tool-card:hover {
+      border-color: rgba(100,200,255,0.35);
+      transform: translateY(-2px);
+    }
+    .tool-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .tool-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+    .tool-desc {
+      font-size: 0.75rem;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+    .tool-tag {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-size: 0.62rem;
+      padding: 0.18rem 0.5rem;
+      background: rgba(100,200,255,0.08);
+      color: var(--blue);
+      border-radius: 5px;
+    }
+
+    /* ─────────────────── THINKING ─────────────────── */
+    #thinking {
+      border-top: 1px solid var(--border);
+    }
+    .thinking-hero {
+      background: linear-gradient(135deg, rgba(100,200,255,0.05), rgba(180,100,255,0.05));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 3rem 2.5rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .thinking-headline {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 2rem;
+    }
+    .thinking-headline .grad {
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .thinking-points {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      text-align: left;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+    .thinking-point {
+      display: flex;
+      gap: 0.85rem;
+      align-items: flex-start;
+    }
+    .tp-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0;
+      margin-top: 0.5rem;
+    }
+    .tp-text {
+      font-size: 0.88rem;
+      color: var(--text-2);
+      line-height: 1.75;
+    }
+    .tp-text strong { color: var(--text-1); }
+
+    .thinking-footer {
+      text-align: center;
+      padding: 2rem 0 1rem;
+    }
+    .thinking-sig {
+      font-size: 0.72rem;
+      color: var(--text-3);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .thinking-sig span { color: var(--blue); }
+
+    /* ─────────────────── RESPONSIVE ─────────────────── */
+    @media (max-width: 640px) {
+      .nav-links { gap: 0; }
+      .nav-link { padding: 0.3rem 0.6rem; font-size: 0.72rem; }
+      .hero-stats { gap: 1.5rem; }
+      .designer-grid { grid-template-columns: 1fr; }
+      .tools-grid { grid-template-columns: 1fr; }
+      section { padding: 3.5rem 0; }
+    }
+
+    /* ─────────────────── SCROLLSPY ─────────────────── */
+    .nav-link.active {
+      background: rgba(100, 200, 255, 0.1);
+      color: var(--blue);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a class="nav-logo" href="#hero">SIRIUS <span>A-TEAM</span></a>
+    <div class="nav-links">
+      <a class="nav-link active" href="#topic1">话题 1</a>
+      <a class="nav-link" href="#topic2">话题 2</a>
+      <a class="nav-link" href="#tools">工具</a>
+      <a class="nav-link" href="#thinking">Thinking</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ── HERO ── -->
+    <section id="hero">
+      <div class="hero-dots"></div>
+      <div class="hero-glow-a"></div>
+      <div class="hero-glow-b"></div>
+      <div class="container hero-inner">
+        <div class="hero-tag">0310 Design Share</div>
+        <h1 class="hero-title">
+          Think,<br>
+          <span class="grad">Create</span> &amp; Share.
+        </h1>
+        <p class="hero-sub">2个月 Vibe Coding 实验复盘<br>每个人都是设计师</p>
+        <div class="hero-stats">
+          <div>
+            <div class="stat-val">2</div>
+            <div class="stat-label">核心话题</div>
+          </div>
+          <div>
+            <div class="stat-val">5+</div>
+            <div class="stat-label">实验项目</div>
+          </div>
+          <div>
+            <div class="stat-val">4</div>
+            <div class="stat-label">设计师类型</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TOPIC 1 ── -->
+    <section id="topic1">
+      <div class="container">
+        <div class="sec-header">
+          <div class="sec-num">1</div>
+          <div class="sec-title">我在尝试做什么</div>
+          <div class="sec-sub">SIRIUS A-TEAM · Vibe Coding 实验</div>
+        </div>
+
+        <div class="projects">
+
+          <!-- Figma Plugin -->
+          <div class="proj-card" id="card-plugin">
+            <div class="proj-header" onclick="toggleCard('card-plugin')">
+              <div class="proj-left">
+                <div class="proj-icon" style="background:rgba(100,200,255,0.1);">🔌</div>
+                <div>
+                  <div class="proj-name">Figma Plugin — Style Variable Binder
+                    <span class="proj-badge badge-released">已发布</span>
+                  </div>
+                  <div class="proj-desc">将 Figma Variables / Styles 绑定到代码变量的插件</div>
+                </div>
+              </div>
+              <div class="proj-toggle">展开 ▾</div>
+            </div>
+            <div class="proj-body">
+              <div class="proj-body-inner">
+                <p style="font-size:0.82rem;color:var(--text-2);line-height:1.7;">
+                  已上架 Figma Community。帮助设计师将 Figma 中的 Variables 和 Styles 与代码端的 Design Token 变量直接绑定，减少手动对照的成本。
+                </p>
+                <a class="proj-link" href="https://www.figma.com/community/plugin/1613459021219908263" target="_blank">
+                  ↗ 在 Figma Community 查看
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- design-token -->
+          <div class="proj-card" id="card-dt">
+            <div class="proj-header" onclick="toggleCard('card-dt')">
+              <div class="proj-left">
+                <div class="proj-icon" style="background:rgba(180,100,255,0.1);">🎨</div>
+                <div>
+                  <div class="proj-name">design-token
+                    <span class="proj-badge badge-open">开源</span>
+                  </div>
+                  <div class="proj-desc">Figma Variables/Styles → SCSS/CSS 变量自动转换工具</div>
+                </div>
+              </div>
+              <div class="proj-toggle">展开 ▾</div>
+            </div>
+            <div class="proj-body">
+              <div class="proj-body-inner">
+                <p style="font-size:0.82rem;color:var(--text-2);line-height:1.7;margin-bottom:0.75rem;">
+                  Style 的管理和更新工具。通过 Token Studio 导出 tokens.json，再经 design-token 工具转换，自动生成标准化的 SCSS 文件体系。
+                </p>
+
+                <div class="code-label">转换流程</div>
+                <div class="code-block">
+<span class="c-val">Figma Variables/Styles</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-arrow">↓</span> Token Studio 导出 <span class="c-path">tokens.json</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-arrow">↓</span> design-token 工具转换<br>
+<br>
+<span class="c-path">output/{项目名}/</span><br>
+&nbsp;&nbsp;<span class="c-val">_variables.scss</span>&nbsp;&nbsp;<span class="c-comment">← 基础变量 $blue-1: #1161fe</span><br>
+&nbsp;&nbsp;<span class="c-val">_theme.scss</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-comment">← 语义变量 $font-color-blue: $blue-0</span><br>
+&nbsp;&nbsp;<span class="c-val">_layout.scss</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-comment">← 布局系统</span><br>
+&nbsp;&nbsp;<span class="c-val">_animation.scss</span>&nbsp;<span class="c-comment">← 动画系统</span><br>
+&nbsp;&nbsp;<span class="c-val">index.scss</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-comment">← 统一入口</span>
+                </div>
+
+                <div class="code-label" style="margin-top:1rem;">本地文件结构</div>
+                <div class="code-block">
+<span class="c-path">~/Desktop/设计系统/</span><br>
+&nbsp;&nbsp;<span class="c-val">tokens.json</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-comment">← Figma 导出的源文件</span><br>
+&nbsp;&nbsp;<span class="c-val">design-tokens.css</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-comment">← CSS 变量定义</span><br>
+&nbsp;&nbsp;<span class="c-val">design-tokens-mapping.md</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-comment">← 映射对照表（最重要）</span><br>
+&nbsp;&nbsp;<span class="c-val">design-system-preview.html</span>&nbsp;&nbsp;<span class="c-comment">← 可交互预览页面</span><br>
+<br>
+<span class="c-path">~/.claude/design-system/</span><br>
+&nbsp;&nbsp;<span class="c-val">tailwind.config.js</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-comment">← Tailwind 配置</span><br>
+&nbsp;&nbsp;<span class="c-val">CHANGELOG.md</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-comment">← 版本变更日志</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- design-QA -->
+          <div class="proj-card" id="card-qa">
+            <div class="proj-header" onclick="toggleCard('card-qa')">
+              <div class="proj-left">
+                <div class="proj-icon" style="background:rgba(100,255,180,0.08);">🔍</div>
+                <div>
+                  <div class="proj-name">design-QA
+                    <span class="proj-badge badge-wip">进行中</span>
+                  </div>
+                  <div class="proj-desc">项目开发完成后对比样式，生成还原度检测报告</div>
+                </div>
+              </div>
+              <div class="proj-toggle">展开 ▾</div>
+            </div>
+            <div class="proj-body">
+              <div class="proj-body-inner">
+                <p style="font-size:0.82rem;color:var(--text-2);line-height:1.7;margin-bottom:1rem;">
+                  目前只在本地跑过，等待 design-token 分支提交完成后会继续推进。
+                </p>
+                <table class="qa-table">
+                  <thead>
+                    <tr>
+                      <th>任务</th>
+                      <th>说明</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>设计走查</td>
+                      <td>检查代码是否正确使用 Design Tokens</td>
+                    </tr>
+                    <tr>
+                      <td>问题发现</td>
+                      <td>找出硬编码的颜色、间距、字号</td>
+                    </tr>
+                    <tr>
+                      <td>报告生成</td>
+                      <td>输出还原度检测报告</td>
+                    </tr>
+                    <tr>
+                      <td>自动修复</td>
+                      <td style="color:var(--text-3);">开发中 — 自动替换为正确的 CSS 变量</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- vibma -->
+          <div class="proj-card" id="card-vibma">
+            <div class="proj-header" onclick="toggleCard('card-vibma')">
+              <div class="proj-left">
+                <div class="proj-icon" style="background:rgba(255,180,100,0.1);">✨</div>
+                <div>
+                  <div class="proj-name">vibma
+                    <span class="proj-badge badge-explore">探索中</span>
+                  </div>
+                  <div class="proj-desc">Claude + Figma 协作，设计稿命名整理与导出</div>
+                </div>
+              </div>
+              <div class="proj-toggle">展开 ▾</div>
+            </div>
+            <div class="proj-body">
+              <div class="proj-body-inner">
+                <p style="font-size:0.82rem;color:var(--text-2);line-height:1.7;">
+                  探索通过 Claude + Figma MCP 协作，完成设计稿的图层命名整理、资源批量导出、标注生成等重复性工作，释放设计师的执行时间。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- interaction-md -->
+          <div class="proj-card" id="card-imd">
+            <div class="proj-header" onclick="toggleCard('card-imd')">
+              <div class="proj-left">
+                <div class="proj-icon" style="background:rgba(255,100,180,0.08);">📋</div>
+                <div>
+                  <div class="proj-name">interaction-md
+                    <span class="proj-badge badge-explore">探索中</span>
+                  </div>
+                  <div class="proj-desc">交互说明如何描述并归档的方法论探索</div>
+                </div>
+              </div>
+              <div class="proj-toggle">展开 ▾</div>
+            </div>
+            <div class="proj-body">
+              <div class="proj-body-inner">
+                <p style="font-size:0.82rem;color:var(--text-2);line-height:1.7;">
+                  探索一套标准化的交互说明写作和归档方式。目标是让交互文档能被 AI 准确解析，作为开发实现的可靠参考，减少设计与研发之间的信息损耗。
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /projects -->
+
+        <!-- Reflections -->
+        <div style="margin-bottom:0.75rem;">
+          <div style="font-size:0.68rem;color:var(--text-3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.85rem;">失败 &amp; 反思</div>
+          <div class="reflections">
+            <div class="refl-item">
+              <strong>基础知识缺失</strong> — 需要学习和了解很多理论知识，来保证「我的决策和我的预期一致」
+            </div>
+            <div class="refl-item">
+              <strong>表达的准确性</strong> — prompt、skill.md、project-mapping，更准确的表达 = 更精准的定位
+            </div>
+            <div class="refl-item">
+              <strong>垃圾产出过多</strong> — 整理真正会 review 的复盘信息，管理自己的上下文
+            </div>
+            <div class="refl-item">
+              <strong>找到真正的问题</strong> — 比起拥有各种看似合理的解决方案，找到一个真正需要解决的问题更有价值。解决真正的问题，拒绝为伪需求做消耗。
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── TOPIC 2 ── -->
+    <section id="topic2">
+      <div class="container">
+        <div class="sec-header">
+          <div class="sec-num">2</div>
+          <div class="sec-title">每个人都是设计师</div>
+          <div class="sec-sub">Design Thinking · AI 赋能全栈</div>
+        </div>
+
+        <p class="sec2-intro">
+          设计师从广义上理解，是<strong>具备解决问题能力和系统化思考的创作者</strong>。也就是说任何参与规划、决策并为某种需求产出解决方案的人。<br><br>
+          核心是 Design Thinking —— 以人为中心，结合技术可行性和商业策略来满足人类需求。每个人都承载了 System Design 的一部分。
+        </p>
+
+        <div class="designer-grid">
+          <div class="designer-card">
+            <div class="dc-num">01</div>
+            <div class="dc-title">功能设计师</div>
+            <div class="dc-role">产品 · 平台 · 功能规划</div>
+            <div class="dc-output">需求文档 · 功能规范</div>
+          </div>
+          <div class="designer-card">
+            <div class="dc-num">02</div>
+            <div class="dc-title">交互体验设计师</div>
+            <div class="dc-role">UED · 用户体验</div>
+            <div class="dc-output">Demo 演示 · 交互流程</div>
+          </div>
+          <div class="designer-card">
+            <div class="dc-num">03</div>
+            <div class="dc-title">工程设计师</div>
+            <div class="dc-role">架构 · 开发</div>
+            <div class="dc-output">代码规范 · 系统架构</div>
+          </div>
+          <div class="designer-card">
+            <div class="dc-num">04</div>
+            <div class="dc-title">视觉设计师</div>
+            <div class="dc-role">品牌 · 平面</div>
+            <div class="dc-output">视觉产出 · 品牌系统</div>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          <div style="font-size:0.68rem;color:var(--purple);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.85rem;">设计师最重要的特性</div>
+          <div class="quote-text">
+            <div class="bullet">结构性思维 —— 习惯性了解上下文，以补全视角看问题</div>
+            <div class="bullet">根据经验和直觉判断，建立设计触感和设计品味（agent 依靠算法或函数，我们有时需要直感）</div>
+            <div class="bullet">主动发起讨论，减少独断（头脑风暴，人 + agent）</div>
+          </div>
+        </div>
+
+        <div class="sec2-closing">
+          掌握 AI 能力是为了给自己赋予<strong>全栈的能力</strong>。有了准确的指令确实能够帮助每一个角色解放重复和简单的执行。<br><br>
+          这个时候更需要明确自己的 <strong>deepthinking 是基于什么角色</strong>。
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── TOOLS ── -->
+    <section id="tools">
+      <div class="container">
+        <div class="sec-header">
+          <div class="sec-num" style="background:linear-gradient(135deg,#3fb950,#64c8ff);">✦</div>
+          <div class="sec-title">好用的工具推荐</div>
+          <div class="sec-sub">实践中筛选出来的</div>
+        </div>
+
+        <div class="tools-grid">
+          <div class="tool-card">
+            <div class="tool-icon">🎨</div>
+            <div class="tool-name">Stitch + AI Studio</div>
+            <div class="tool-desc">页面生成利器，适合落地页项目、0→1 项目的实践探索、快速 Demo 验证</div>
+            <div class="tool-tag">页面生成</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-icon">📓</div>
+            <div class="tool-name">NotebookLM</div>
+            <div class="tool-desc">思考和信息归总。把多个文档、链接、笔记丢进去，自动建立知识关联</div>
+            <div class="tool-tag">信息整理</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-icon">🎙️</div>
+            <div class="tool-name">Typeless</div>
+            <div class="tool-desc">语音导文本的总结记录工具。说话就能生成结构化笔记，适合碎片时间整理想法</div>
+            <div class="tool-tag">语音记录</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── THINKING ── -->
+    <section id="thinking">
+      <div class="container">
+        <div class="sec-header">
+          <div class="sec-num" style="background:linear-gradient(135deg,var(--purple),var(--blue));">→</div>
+          <div class="sec-title">Thinking</div>
+          <div class="sec-sub">attention is all we have</div>
+        </div>
+
+        <div class="thinking-hero">
+          <h2 class="thinking-headline">
+            <span class="grad">Attention</span> is<br>All We Have
+          </h2>
+          <div class="thinking-points">
+            <div class="thinking-point">
+              <div class="tp-dot"></div>
+              <div class="tp-text">
+                不要让你的注意力被分散，或者说要让你<strong>最 deepthinking 的资源放到核心问题解决上</strong>。我们常说价值最大化，其实就是有没有把 core-issue 解决掉。
+              </div>
+            </div>
+            <div class="thinking-point">
+              <div class="tp-dot" style="background:var(--purple);"></div>
+              <div class="tp-text">
+                解决真正的问题就是最大价值。当多维度的能力赋予、技术栈打通同时出现在单个个体上，<strong>thinking 就变得更值钱</strong>。
+              </div>
+            </div>
+            <div class="thinking-point">
+              <div class="tp-dot" style="background:var(--green);"></div>
+              <div class="tp-text">
+                <strong>起点和方向很重要，动起来也很重要。</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="thinking-footer">
+          <div class="thinking-sig">SIRIUS <span>A-TEAM</span> · 2026.03.10</div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ── Expand / Collapse ──
+    function toggleCard(id) {
+      const card = document.getElementById(id);
+      const isOpen = card.classList.toggle('is-open');
+      const toggle = card.querySelector('.proj-toggle');
+      toggle.textContent = isOpen ? '收起 ▴' : '展开 ▾';
+    }
+
+    // ── Scroll Spy ──
+    const sections = ['hero','topic1','topic2','tools','thinking'];
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          navLinks.forEach(link => {
+            const href = link.getAttribute('href').replace('#','');
+            const match = id === 'hero' ? href === 'topic1' : href === id;
+            link.classList.toggle('active', match);
+          });
+        }
+      });
+    }, { threshold: 0.3, rootMargin: '-56px 0px 0px 0px' });
+
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  </script>
+
+</body>
+</html>
