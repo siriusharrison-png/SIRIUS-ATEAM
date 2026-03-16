@@ -2,3 +2,5 @@
 .DS_Store
 node_modules/
 projects/design-qa-cli/
+projects/design-token/
+projects/learn-to-notion/
