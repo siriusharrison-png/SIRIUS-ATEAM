@@ -5,6 +5,7 @@
 """
 
 import os
+import sys
 import json
 import requests
 import time
@@ -148,9 +149,17 @@ def push_to_feishu(stats, trending):
 def main():
     print(f"影像守门员 - 云端任务开始 ({datetime.now().strftime('%Y-%m-%d %H:%M')})")
 
+    # 检查必需的环境变量
+    missing = []
     if not ACCESS_KEY:
-        print("错误: 未配置 UNSPLASH_ACCESS_KEY")
-        return
+        missing.append("UNSPLASH_ACCESS_KEY")
+    if not FEISHU_WEBHOOK:
+        missing.append("FEISHU_WEBHOOK")
+
+    if missing:
+        print(f"错误: 缺少必需的环境变量: {', '.join(missing)}")
+        print("请在 GitHub Settings > Secrets and variables > Actions 中配置")
+        sys.exit(1)  # 非零退出码，让 GitHub Actions 显示失败
 
     # 1. 获取统计
     print("获取 Unsplash 统计...")
