@@ -19,5 +19,5 @@ jobs:
         env:
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
           UNSPLASH_USERNAME: ${{ secrets.UNSPLASH_USERNAME }}
-          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK_PHOTOGRAPHER }}
         run: python agents/image-guardian/scripts/run-daily-cloud.py
