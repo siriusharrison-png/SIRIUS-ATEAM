@@ -15,13 +15,21 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const webhookUrl = process.env.FEISHU_WEBHOOK_URL;
-  if (!webhookUrl) {
-    return res.status(500).json({ error: 'Webhook URL not configured' });
-  }
-
   try {
     const { type, data } = req.body;
+
+    // 根据推送类型选择对应的飞书机器人
+    const webhookMap = {
+      'secretary-report': process.env.FEISHU_WEBHOOK_SECRETARY,
+      'photographer-stats': process.env.FEISHU_WEBHOOK_PHOTOGRAPHER,
+      'knowledge-weekly': process.env.FEISHU_WEBHOOK_KNOWLEDGE,
+      'test': process.env.FEISHU_WEBHOOK_SECRETARY,
+    };
+    const webhookUrl = webhookMap[type] || process.env.FEISHU_WEBHOOK_SECRETARY;
+
+    if (!webhookUrl) {
+      return res.status(500).json({ error: `Webhook not configured for type: ${type}` });
+    }
 
     // 根据类型构建飞书卡片消息
     const card = buildCard(type, data);
