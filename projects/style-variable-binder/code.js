@@ -348,8 +348,8 @@ async function getEffectStyles() {
 
 // ========== 获取 Variables ==========
 
-function getVariablesByType(type) {
-  var collections = figma.variables.getLocalVariableCollections();
+async function getVariablesByType(type) {
+  var collections = await figma.variables.getLocalVariableCollectionsAsync();
   var variables = [];
 
   for (var i = 0; i < collections.length; i++) {
@@ -751,7 +751,7 @@ function findEffectMatches(styles, floatVars, colorVars) {
 
 // ========== 绑定操作 ==========
 
-function bindPaintStyle(styleId, variableId) {
+async function bindPaintStyle(styleId, variableId) {
   var style = await figma.getStyleByIdAsync(styleId);
   var variable = await figma.variables.getVariableByIdAsync(variableId);
 
@@ -774,7 +774,7 @@ function bindPaintStyle(styleId, variableId) {
   }
 }
 
-function bindTextStyle(styleId, field, variableId) {
+async function bindTextStyle(styleId, field, variableId) {
   var style = await figma.getStyleByIdAsync(styleId);
   var variable = await figma.variables.getVariableByIdAsync(variableId);
 
@@ -790,7 +790,7 @@ function bindTextStyle(styleId, field, variableId) {
   }
 }
 
-function bindEffectStyle(styleId, field, variableId, effectIndex) {
+async function bindEffectStyle(styleId, field, variableId, effectIndex) {
   var style = await figma.getStyleByIdAsync(styleId);
   var variable = await figma.variables.getVariableByIdAsync(variableId);
 
@@ -817,7 +817,7 @@ function bindEffectStyle(styleId, field, variableId, effectIndex) {
 
 // ========== 解除绑定 ==========
 
-function unbindPaintStyle(styleId) {
+async function unbindPaintStyle(styleId) {
   var style = await figma.getStyleByIdAsync(styleId);
   if (!style) {
     return { success: false, error: 'Style 不存在' };
@@ -848,7 +848,7 @@ function unbindPaintStyle(styleId) {
   }
 }
 
-function unbindTextStyle(styleId, field) {
+async function unbindTextStyle(styleId, field) {
   var style = await figma.getStyleByIdAsync(styleId);
   if (!style) {
     return { success: false, error: 'Style 不存在' };
@@ -862,7 +862,7 @@ function unbindTextStyle(styleId, field) {
   }
 }
 
-function unbindEffectStyle(styleId, field, effectIndex) {
+async function unbindEffectStyle(styleId, field, effectIndex) {
   var style = await figma.getStyleByIdAsync(styleId);
   if (!style) {
     return { success: false, error: 'Style 不存在' };
@@ -948,11 +948,11 @@ figma.ui.onmessage = async function(msg) {
       var result;
 
       if (item.styleType === 'PAINT') {
-        result = unbindPaintStyle(item.styleId);
+        result = await unbindPaintStyle(item.styleId);
       } else if (item.styleType === 'TEXT') {
-        result = unbindTextStyle(item.styleId, item.field);
+        result = await unbindTextStyle(item.styleId, item.field);
       } else if (item.styleType === 'EFFECT') {
-        result = unbindEffectStyle(item.styleId, item.field, 0);
+        result = await unbindEffectStyle(item.styleId, item.field, 0);
       }
 
       results.push({
@@ -978,11 +978,11 @@ figma.ui.onmessage = async function(msg) {
       var result;
 
       if (item.styleType === 'PAINT') {
-        result = bindPaintStyle(item.styleId, item.variableId);
+        result = await bindPaintStyle(item.styleId, item.variableId);
       } else if (item.styleType === 'TEXT') {
-        result = bindTextStyle(item.styleId, item.field, item.variableId);
+        result = await bindTextStyle(item.styleId, item.field, item.variableId);
       } else if (item.styleType === 'EFFECT') {
-        result = bindEffectStyle(item.styleId, item.field, item.variableId, 0);
+        result = await bindEffectStyle(item.styleId, item.field, item.variableId, 0);
       }
 
       results.push({
