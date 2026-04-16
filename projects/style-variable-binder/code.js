@@ -190,12 +190,12 @@ async function getPaintStyles() {
 
       if (hasBinding) {
         var boundVarId = paint.boundVariables.color.id;
-        var boundVar = figma.variables.getVariableById(boundVarId);
+        var boundVar = await figma.variables.getVariableByIdAsync(boundVarId);
 
         if (boundVar) {
           // 正常绑定
           hasBoundVariable = true;
-          var collection = figma.variables.getVariableCollectionById(boundVar.variableCollectionId);
+          var collection = await figma.variables.getVariableCollectionByIdAsync(boundVar.variableCollectionId);
           var modeId = collection ? collection.defaultModeId : null;
           var varValue = modeId ? boundVar.valuesByMode[modeId] : null;
           var varHex = null;
@@ -258,12 +258,12 @@ async function getTextStyles() {
       var field = fields[f];
       if (boundVars[field]) {
         var boundVarId = boundVars[field].id;
-        var boundVar = figma.variables.getVariableById(boundVarId);
+        var boundVar = await figma.variables.getVariableByIdAsync(boundVarId);
 
         if (boundVar) {
           // 正常绑定
           actualBoundVars[field] = true;
-          var collection = figma.variables.getVariableCollectionById(boundVar.variableCollectionId);
+          var collection = await figma.variables.getVariableCollectionByIdAsync(boundVar.variableCollectionId);
           var modeId = collection ? collection.defaultModeId : null;
           var varValue = modeId ? boundVar.valuesByMode[modeId] : null;
           boundVarInfos[field] = {
@@ -358,7 +358,7 @@ function getVariablesByType(type) {
 
     for (var j = 0; j < varIds.length; j++) {
       var varId = varIds[j];
-      var variable = figma.variables.getVariableById(varId);
+      var variable = await figma.variables.getVariableByIdAsync(varId);
 
       if (variable && variable.resolvedType === type) {
         var modeId = collection.defaultModeId;
@@ -752,8 +752,8 @@ function findEffectMatches(styles, floatVars, colorVars) {
 // ========== 绑定操作 ==========
 
 function bindPaintStyle(styleId, variableId) {
-  var style = figma.getStyleById(styleId);
-  var variable = figma.variables.getVariableById(variableId);
+  var style = await figma.getStyleByIdAsync(styleId);
+  var variable = await figma.variables.getVariableByIdAsync(variableId);
 
   if (!style || !variable) {
     return { success: false, error: 'Style 或 Variable 不存在' };
@@ -775,8 +775,8 @@ function bindPaintStyle(styleId, variableId) {
 }
 
 function bindTextStyle(styleId, field, variableId) {
-  var style = figma.getStyleById(styleId);
-  var variable = figma.variables.getVariableById(variableId);
+  var style = await figma.getStyleByIdAsync(styleId);
+  var variable = await figma.variables.getVariableByIdAsync(variableId);
 
   if (!style || !variable) {
     return { success: false, error: 'Style 或 Variable 不存在' };
@@ -791,8 +791,8 @@ function bindTextStyle(styleId, field, variableId) {
 }
 
 function bindEffectStyle(styleId, field, variableId, effectIndex) {
-  var style = figma.getStyleById(styleId);
-  var variable = figma.variables.getVariableById(variableId);
+  var style = await figma.getStyleByIdAsync(styleId);
+  var variable = await figma.variables.getVariableByIdAsync(variableId);
 
   if (!style || !variable) {
     return { success: false, error: 'Style 或 Variable 不存在' };
@@ -818,7 +818,7 @@ function bindEffectStyle(styleId, field, variableId, effectIndex) {
 // ========== 解除绑定 ==========
 
 function unbindPaintStyle(styleId) {
-  var style = figma.getStyleById(styleId);
+  var style = await figma.getStyleByIdAsync(styleId);
   if (!style) {
     return { success: false, error: 'Style 不存在' };
   }
@@ -849,7 +849,7 @@ function unbindPaintStyle(styleId) {
 }
 
 function unbindTextStyle(styleId, field) {
-  var style = figma.getStyleById(styleId);
+  var style = await figma.getStyleByIdAsync(styleId);
   if (!style) {
     return { success: false, error: 'Style 不存在' };
   }
@@ -863,7 +863,7 @@ function unbindTextStyle(styleId, field) {
 }
 
 function unbindEffectStyle(styleId, field, effectIndex) {
-  var style = figma.getStyleById(styleId);
+  var style = await figma.getStyleByIdAsync(styleId);
   if (!style) {
     return { success: false, error: 'Style 不存在' };
   }
