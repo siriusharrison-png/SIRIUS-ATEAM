@@ -167,8 +167,8 @@ function cleanOrphanBinding(style, field) {
 
 // ========== 获取 Styles ==========
 
-function getPaintStyles() {
-  var styles = figma.getLocalPaintStyles();
+async function getPaintStyles() {
+  var styles = await figma.getLocalPaintStylesAsync();
   var result = [];
   var orphansCleared = 0;
 
@@ -238,8 +238,8 @@ function getPaintStyles() {
   return result;
 }
 
-function getTextStyles() {
-  var styles = figma.getLocalTextStyles();
+async function getTextStyles() {
+  var styles = await figma.getLocalTextStylesAsync();
   var result = [];
   var orphansCleared = 0;
 
@@ -311,8 +311,8 @@ function getTextStyles() {
   return result;
 }
 
-function getEffectStyles() {
-  var styles = figma.getLocalEffectStyles();
+async function getEffectStyles() {
+  var styles = await figma.getLocalEffectStylesAsync();
   var result = [];
 
   for (var i = 0; i < styles.length; i++) {
@@ -894,11 +894,11 @@ function unbindEffectStyle(styleId, field, effectIndex) {
 
 // ========== 初始化和消息处理 ==========
 
-function init() {
+async function init() {
   try {
     // 获取样式和变量（孤儿绑定会在这里自动清理）
-    var paintStyles = getPaintStyles();
-    var textStyles = getTextStyles();
+    var paintStyles = await getPaintStyles();
+    var textStyles = await getTextStyles();
 
     var colorVars = getVariablesByType('COLOR');
     var floatVars = getVariablesByType('FLOAT');
@@ -939,7 +939,7 @@ function init() {
   }
 }
 
-figma.ui.onmessage = function(msg) {
+figma.ui.onmessage = async function(msg) {
   if (msg.type === 'unbind-all') {
     var results = [];
 
@@ -968,7 +968,7 @@ figma.ui.onmessage = function(msg) {
       results: results
     });
 
-    init();
+    await init();
   }
   else if (msg.type === 'bind-all') {
     var results = [];
@@ -998,13 +998,13 @@ figma.ui.onmessage = function(msg) {
       results: results
     });
 
-    init();
+    await init();
   }
   else if (msg.type === 'refresh') {
-    init();
+    await init();
   }
   else if (msg.type === 'ready') {
-    init();
+    await init();
   }
   else if (msg.type === 'close') {
     figma.closePlugin();
