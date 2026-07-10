@@ -1757,35 +1757,38 @@
     let mouseX = 0;
     let mouseY = 0;
 
-    function createTrail(x, y) {
-      const trail = document.createElement('div');
-      trail.className = 'cursor-trail';
-      trail.style.left = x - 2 + 'px';
-      trail.style.top = y - 2 + 'px';
-      document.body.appendChild(trail);
-      let opacity = 1;
-      const interval = setInterval(() => {
-        opacity -= 0.1;
-        trail.style.opacity = opacity;
-        if (opacity <= 0) {
-          clearInterval(interval);
-          trail.remove();
-        }
-      }, 30);
-    }
-
+    // 大光点（cursorOutline）代表实时位置，小光点（cursor）作为拖尾
     document.addEventListener('mousemove', (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      cursor.style.left = mouseX - 4 + 'px';
-      cursor.style.top = mouseY - 4 + 'px';
+
+      // 大光点实时跟踪（20px，代表实际光标位置）
       cursorOutline.style.left = mouseX - 10 + 'px';
       cursorOutline.style.top = mouseY - 10 + 'px';
 
-      if (Math.random() > 0.7) {
-        createTrail(e.clientX, e.clientY);
+      // 创建小光点作为拖尾
+      if (Math.random() > 0.8) {
+        const trail = document.createElement('div');
+        trail.className = 'cursor-dot';
+        trail.style.left = mouseX - 4 + 'px';
+        trail.style.top = mouseY - 4 + 'px';
+        trail.style.opacity = '0.4';
+        document.body.appendChild(trail);
+
+        let opacity = 0.4;
+        const interval = setInterval(() => {
+          opacity -= 0.05;
+          trail.style.opacity = opacity;
+          if (opacity <= 0) {
+            clearInterval(interval);
+            trail.remove();
+          }
+        }, 40);
       }
     });
+
+    // 隐藏原来的小光点（cursor），不再用作主光标
+    cursor.style.display = 'none';
 
     document.addEventListener('click', (e) => {
       const ripple = document.createElement('div');
