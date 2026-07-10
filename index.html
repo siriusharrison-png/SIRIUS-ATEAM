@@ -1773,7 +1773,7 @@
 
     setInterval(createRipple, 2000);
 
-    // ===== 自定义光标 =====
+    // ===== 自定义光标（优化版本） =====
     const cursor = document.createElement('div');
     cursor.className = 'cursor-dot';
     document.body.appendChild(cursor);
@@ -1784,17 +1784,10 @@
 
     let mouseX = 0;
     let mouseY = 0;
+    let isClickable = false;
 
-    document.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-
-      // 检测鼠标是否在可点击元素上
-      const target = e.target;
-      const isClickable = target.closest('a') || target.closest('button') ||
-                         target.closest('.card-btn') || target.closest('.modal-link') ||
-                         target.closest('.dropdown-item');
-
+    // 更新光标位置（使用 requestAnimationFrame 确保同步）
+    function updateCursorPosition() {
       if (isClickable) {
         // 十字架模式（红色，1.4倍大小）
         cursor.classList.add('crosshair');
@@ -1811,6 +1804,22 @@
 
       cursorOutline.style.left = mouseX - 10 + 'px';
       cursorOutline.style.top = mouseY - 10 + 'px';
+
+      requestAnimationFrame(updateCursorPosition);
+    }
+
+    // 启动光标更新循环
+    requestAnimationFrame(updateCursorPosition);
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      // 检测鼠标是否在可点击元素上
+      const target = e.target;
+      isClickable = !!(target.closest('a') || target.closest('button') ||
+                       target.closest('.card-btn') || target.closest('.modal-link') ||
+                       target.closest('.dropdown-item'));
     });
 
     function createTrail(x, y) {
