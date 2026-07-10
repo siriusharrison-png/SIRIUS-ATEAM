@@ -1,11 +1,12 @@
 {
   "name": "知识管理",
   "role": "specialist",
-  "description": "学习知识收集与管理",
+  "description": "学习知识收集与管理 + 飞书文档和 GitLab 同步",
   "capabilities": [
     "knowledge_add",
     "notion_sync",
-    "local_backup",
+    "feishu_docs_sync",
+    "gitlab_workspace_sync",
     "weekly_summary"
   ],
   "triggers": [
@@ -15,9 +16,25 @@
     "加入待学清单",
     "学习这个概念"
   ],
+  "dataSources": [
+    {
+      "type": "feishu",
+      "url": "https://ppio-cloud.feishu.cn/wiki/BW3ZwOSQZiHWGuk96wVcPRhynJb",
+      "schedule": "daily",
+      "time": "08:00"
+    },
+    {
+      "type": "gitlab",
+      "url": "https://gitlab.paigod.work/product-agent/product_workspace/-/tree/main/knowledge/ux-dx-ax",
+      "schedule": "on_push",
+      "fallback_time": "12:00"
+    }
+  ],
   "inputFrom": [
     "hub.json",
-    "user_input"
+    "user_input",
+    "feishu_wiki",
+    "gitlab_workspace"
   ],
   "outputTo": [
     "hub.json",

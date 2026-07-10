@@ -1,27 +1,79 @@
 {
   "name": "设计师",
   "role": "specialist",
-  "description": "设计系统基础设施维护",
+  "description": "设计系统基础设施维护 + Astra 知识库 + Design System Token 规范",
   "capabilities": [
     "design_token_manage",
     "figma_sync",
     "mapping_maintain",
-    "version_control"
+    "version_control",
+    "astra_based_design",
+    "multi_agent_collaboration"
+  ],
+  "knowledge_bases": [
+    {
+      "name": "Astra Foundation",
+      "type": "local_git",
+      "url": "https://github.com/siriusharrison-png/astra",
+      "local_path": "~/astra",
+      "core_files": [
+        "README.md",
+        "principles.md",
+        "standards.md",
+        "patterns.md",
+        "workflow.md",
+        "memory.md",
+        "convergence.md",
+        "templates.md",
+        "protocols/handoff-protocol.md",
+        "protocols/reference-analysis-protocol.md"
+      ],
+      "purpose": "设计系统决策、质量标准、工作流程、协作规范",
+      "sync_frequency": "manual"
+    },
+    {
+      "name": "Design System Token Standard",
+      "type": "gitlab_workspace",
+      "url": "https://gitlab.paigod.work/product-agent/product_workspace/-/tree/main/knowledge/ux-dx-ax/Standard%20Design%20System",
+      "path": "knowledge/ux-dx-ax/Standard Design System",
+      "purpose": "Token 命名规范、映射规则、使用标准",
+      "sync_frequency": "daily"
+    }
   ],
   "triggers": [
     "/design-system",
     "同步设计 Token",
     "更新设计规范",
-    "设计系统"
+    "设计系统",
+    "multi-agent 设计",
+    "设计咨询"
   ],
+  "multi_agent_roles": {
+    "position": "specialist_designer",
+    "responsibilities": [
+      "设计系统评审",
+      "设计决策咨询",
+      "Token 规范审查",
+      "Astra 最佳实践应用"
+    ],
+    "collaborators": [
+      "小秘书",
+      "知识管理",
+      "摄影师"
+    ]
+  },
   "inputFrom": [
     "hub.json",
-    "tokens.json"
+    "tokens.json",
+    "astra_knowledge",
+    "design_token_standard",
+    "multi_agent_context"
   ],
   "outputTo": [
     "hub.json",
     "CHANGELOG.md",
-    "tailwind.config.js"
+    "tailwind.config.js",
+    "design_decisions.md"
   ],
   "reportTo": "小秘书"
 }

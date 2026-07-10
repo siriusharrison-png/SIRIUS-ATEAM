@@ -1616,19 +1616,7 @@
           </span>
           设计师
         </div>
-        <div class="tag" data-num="03" data-target="figma">
-          <span class="tag-icon">
-            <svg viewBox="0 0 16 16" style="image-rendering: pixelated;">
-              <rect x="4" y="2" width="4" height="4" class="pixel"/>
-              <rect x="8" y="2" width="4" height="4" class="pixel"/>
-              <rect x="4" y="6" width="4" height="4" class="pixel"/>
-              <rect x="8" y="6" width="4" height="4" class="pixel"/>
-              <rect x="4" y="10" width="4" height="4" class="pixel"/>
-            </svg>
-          </span>
-          Figma
-        </div>
-        <div class="tag" data-num="04" data-target="knowledge">
+        <div class="tag" data-num="03" data-target="knowledge">
           <span class="tag-icon">
             <svg viewBox="0 0 16 16" style="image-rendering: pixelated;">
               <rect x="3" y="3" width="10" height="10" class="pixel"/>
@@ -1640,18 +1628,7 @@
           </span>
           知识管理
         </div>
-        <div class="tag" data-num="05" data-target="qa">
-          <span class="tag-icon">
-            <svg viewBox="0 0 16 16" style="image-rendering: pixelated;">
-              <rect x="4" y="3" width="7" height="7" class="pixel"/>
-              <rect x="5" y="4" width="5" height="5" class="pixel-light"/>
-              <rect x="6" y="5" width="3" height="3" class="pixel"/>
-              <rect x="10" y="9" width="2" height="4" class="pixel"/>
-            </svg>
-          </span>
-          测试QA
-        </div>
-        <div class="tag" data-num="06" data-target="photographer">
+        <div class="tag" data-num="04" data-target="photographer">
           <span class="tag-icon">
             <svg viewBox="0 0 16 16" style="image-rendering: pixelated;">
               <rect x="3" y="4" width="10" height="8" class="pixel"/>
@@ -2060,17 +2037,7 @@
           </div>
         </div>
 
-        <!-- 05 测试QA -->
-        <div class="member-card" id="qa">
-          <span class="card-corner tl">(05)</span>
-          <span class="card-corner tr">⊕</span>
-          <span class="card-corner bl">⊕</span>
-          <span class="card-corner br">QA</span>
-          <span class="card-number">05</span>
-
-          <div class="card-left">
-            <div class="avatar-container">
-              <!-- 测试QA：侦探帽 + 单片眼镜，检查员/侦探形象 -->
+        <!-- 测试QA：侦探帽 + 单片眼镜，检查员/侦探形象 -->
               <svg class="avatar-3d" viewBox="0 0 32 32" style="image-rendering: pixelated;">
                 <!-- Detective hat -->
                 <rect x="8" y="6" width="16" height="2" class="pixel"/>
@@ -2137,13 +2104,7 @@
             </div>
             <div class="status-row">
               <span class="status-tag opensource">OPEN SOURCE</span>
-              <a href="https://github.com/siriusharrison-png/design-qa-cli" class="github-link" target="_blank">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                </svg>
-                design-qa-cli
-              </a>
-            </div>
+</div>
             <div class="card-status">
               <div class="status-info">
                 <div class="status-dot" id="status-dot-qa"></div>
@@ -2462,93 +2423,82 @@
     const agentData = {
       secretary: {
         name: '小秘书',
-        lastUpdate: '2026-03-09',
+        lastUpdate: '2026-07-10',
         status: 'active', // active, idle, error
+        role: '协调中枢',
+        description: '任务分配、信息汇总、飞书推送',
         logs: [
-          { date: '2026-03-05', content: '每日 18:00 自动推送飞书日报' },
-          { date: '2026-03-04', content: '优化日报页面样式，增加趋势图' },
-          { date: '2026-03-01', content: '新增历史报告归档功能' }
+          { date: '2026-07-10', content: '完成项目优化和流程更新' },
+          { date: '2026-04-16', content: '修复所有 async/await 关键字缺失' },
+          { date: '2026-04-16', content: 'Figma 插件 API 全面迁移为异步版本' }
         ],
-        // 📌 最近代码变更 - 用于日报推送
         recentChanges: [
           {
-            date: '2026-03-09',
+            date: '2026-07-10',
             author: 'Claude',
             project: 'SIRIUS-ATEAM',
-            action: '修复推送功能，GitHub Pages + Vercel API 分离部署',
+            action: '项目优化：删除不活跃 Agent，完整化核心系统',
             repo: 'https://github.com/siriusharrison-png/SIRIUS-ATEAM'
           },
           {
-            date: '2026-03-08',
+            date: '2026-04-16',
             author: 'Claude',
             project: 'SIRIUS-ATEAM',
-            action: '新增 Vercel Serverless API 支持飞书推送',
-            repo: 'https://github.com/siriusharrison-png/SIRIUS-ATEAM'
-          },
-          {
-            date: '2026-03-05',
-            author: 'Claude',
-            project: 'SIRIUS-ATEAM',
-            action: '重命名为 SIRIUS TEAM，添加 agents 配置',
+            action: 'Figma 插件 API 全面迁移为异步版本',
             repo: 'https://github.com/siriusharrison-png/SIRIUS-ATEAM'
           }
         ]
       },
       designer: {
         name: '设计师',
-        lastUpdate: '2026-03-03',
+        lastUpdate: '2026-07-10',
         status: 'active',
+        role: '设计系统专家',
+        description: 'Design Token 维护 + Astra 知识体系 + Multi-Agent 协作',
+        knowledge: [
+          'Astra Foundation（设计原则、工作流、协作规范）',
+          'Design System Token Standard（Token 规范）',
+          '6 个设计质量维度（Clarity, Refinement, Responsiveness, Composability, Generativity, Criticality）'
+        ],
         logs: [
-          { date: '2026-03-03', content: 'Design Token v1.0.3 发布' },
-          { date: '2026-02-28', content: '新增 Text Styles 映射' },
-          { date: '2026-02-20', content: '完成颜色系统 Tailwind 配置' }
-        ]
-      },
-      figma: {
-        name: 'Figma 设计员工',
-        lastUpdate: '2026-03-05',
-        status: 'active',
-        logs: [
-          { date: '2026-03-05', content: '通过 Vibma MCP 创建组件' },
-          { date: '2026-03-02', content: '批量更新文本样式绑定' },
-          { date: '2026-02-25', content: '首次连接 Figma 成功' }
+          { date: '2026-07-10', content: '集成 Astra 知识库 + Token 规范，准备 Multi-Agent 协作' },
+          { date: '2026-04-16', content: 'Design Token v1.0.3 稳定版本' },
+          { date: '2026-03-03', content: 'Design Token 映射规则优化' }
         ]
       },
       knowledge: {
         name: '知识管理',
-        lastUpdate: '2026-03-04',
+        lastUpdate: '2026-07-10',
         status: 'active',
+        role: '知识收集与同步',
+        description: '飞书文档 + GitLab Workspace 双源同步到 Notion',
+        dataSources: [
+          { name: '飞书文档', url: 'https://ppio-cloud.feishu.cn/wiki/BW3ZwOSQZiHWGuk96wVcPRhynJb', schedule: '每天 08:00' },
+          { name: 'GitLab Workspace', url: 'https://gitlab.paigod.work/product-agent/product_workspace', schedule: '每天 12:00' }
+        ],
         logs: [
-          { date: '2026-03-04', content: '新增 3 个术语到知识库' },
-          { date: '2026-03-01', content: '周报功能上线' },
-          { date: '2026-02-20', content: 'Notion + 本地双写完成' }
-        ]
-      },
-      qa: {
-        name: '测试QA',
-        lastUpdate: '2026-02-28',
-        status: 'idle',
-        logs: [
-          { date: '2026-02-28', content: 'CLI 基础检测功能完成' },
-          { date: '2026-02-15', content: '项目初始化，确定检测规则' }
+          { date: '2026-07-10', content: '实现飞书 + GitLab 双源同步到 Notion，GitHub Actions 自动化' },
+          { date: '2026-06-25', content: '知识库同步机制重新设计' },
+          { date: '2026-03-04', content: '新增 Notion 集成，支持知识双写' }
         ]
       },
       photographer: {
         name: '摄影师',
-        lastUpdate: '2026-03-05',
+        lastUpdate: '2026-07-10',
         status: 'active',
+        role: 'Unsplash 数据追踪',
+        description: 'Unsplash 数据抓取、分析、定时推送',
+        schedule: '每天 UTC 01:00（北京时 09:00）',
         logs: [
-          { date: '2026-03-05', content: '每日 9:00 Unsplash 数据推送' },
-          { date: '2026-03-01', content: '新增热门关键词抓取' },
-          { date: '2026-02-20', content: 'GitLab CI/CD 部署完成' }
+          { date: '2026-07-10', content: '配置 GitHub Secrets，恢复每日自动化推送' },
+          { date: '2026-04-16', content: '发现 Secrets 缺失，已修复并完整配置' },
+          { date: '2026-03-05', content: 'Unsplash 日报推送功能上线' }
         ],
-        // 📌 Unsplash 数据 - 用于数据推送
         unsplashStats: {
-          date: '2026-03-05',
+          date: '2026-07-10',
           downloads: 20459,
           views: 2915382,
           likes: 254,
-          // 近 7 天变化
           weeklyChange: {
             downloads: '+287',
             views: '+35,000',

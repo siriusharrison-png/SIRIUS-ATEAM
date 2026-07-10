@@ -1,0 +1,47 @@
+name: Knowledge Manager Sync
+
+on:
+  schedule:
+    # 北京时间 08:00 = UTC 00:00（同步飞书）
+    - cron: '0 0 * * *'
+    # 北京时间 12:00 = UTC 04:00（同步 GitLab）
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-feishu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Sync Feishu Docs
+        env:
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        run: python agents/knowledge-keeper/scripts/sync-feishu-docs.py
+
+  sync-gitlab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Sync GitLab Workspace
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        run: python agents/knowledge-keeper/scripts/sync-gitlab-workspace.py
