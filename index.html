@@ -1732,8 +1732,8 @@
     document.body.appendChild(cursorOutline);
 
     document.addEventListener('mousemove', (e) => {
-      cursorOutline.style.left = e.clientX + 'px';
-      cursorOutline.style.top = e.clientY + 'px';
+      cursorOutline.style.left = e.clientX - 10 + 'px';
+      cursorOutline.style.top = e.clientY - 10 + 'px';
     });
 
     document.addEventListener('click', (e) => {
