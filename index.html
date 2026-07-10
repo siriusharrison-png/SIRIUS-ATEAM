@@ -606,8 +606,8 @@
       max-width: 1200px;
       margin-left: auto;
       margin-right: auto;
-      background: var(--gray-8);
-      border: 1px dashed var(--gray-6);
+      background: transparent;
+      border: none;
       padding: 60px;
       text-align: center;
     }
@@ -615,9 +615,10 @@
     .workflow-title {
       font-size: 1rem;
       letter-spacing: 3px;
-      color: var(--gray-4);
+      color: rgba(255, 255, 255, 0.5);
       text-transform: uppercase;
-      margin-bottom: 40px;
+      margin-bottom: 60px;
+      font-weight: 500;
     }
 
     .workflow-content {
@@ -637,21 +638,21 @@
 
     /* 中心 Hub */
     .hub-rect {
-      fill: none;
-      stroke: var(--gray-4);
+      fill: transparent;
+      stroke: rgba(255, 255, 255, 0.2);
       stroke-width: 2;
       transition: all 0.3s ease;
     }
 
     .center-hub:hover .hub-rect {
-      stroke: var(--white);
+      stroke: rgba(255, 255, 255, 0.6);
       fill: rgba(255, 255, 255, 0.05);
     }
 
     .hub-label {
-      fill: var(--gray-4);
+      fill: rgba(255, 255, 255, 0.8);
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 600;
       font-family: 'Noto Sans SC', sans-serif;
       text-anchor: middle;
       dominant-baseline: middle;
@@ -659,7 +660,7 @@
     }
 
     .hub-sublabel {
-      fill: var(--gray-3);
+      fill: rgba(255, 255, 255, 0.4);
       font-size: 10px;
       font-family: 'Space Mono', monospace;
       text-anchor: middle;
@@ -669,76 +670,76 @@
 
     .center-hub:hover .hub-label,
     .center-hub:hover .hub-sublabel {
-      fill: var(--white);
+      fill: rgba(255, 255, 255, 1);
     }
 
     /* Agent 圆形节点 */
     .agent-circle-shape {
-      fill: none;
-      stroke: var(--gray-4);
+      fill: transparent;
+      stroke: rgba(255, 255, 255, 0.2);
       stroke-width: 2;
       transition: all 0.3s ease;
     }
 
     .agent-circle:hover .agent-circle-shape {
-      stroke: var(--white);
+      stroke: rgba(255, 255, 255, 0.6);
       fill: rgba(255, 255, 255, 0.05);
     }
 
     .agent-icon {
-      fill: var(--gray-4);
-      font-size: 24px;
+      fill: rgba(255, 255, 255, 0.8);
+      font-size: 0;
       text-anchor: middle;
       dominant-baseline: middle;
       transition: fill 0.3s ease;
     }
 
     .agent-circle:hover .agent-icon {
-      fill: var(--white);
+      fill: rgba(255, 255, 255, 1);
     }
 
     /* 输出节点（圆形） */
     .output-circle-shape {
-      fill: none;
-      stroke: var(--gray-4);
+      fill: transparent;
+      stroke: rgba(255, 255, 255, 0.2);
       stroke-width: 2;
       transition: all 0.3s ease;
     }
 
     .output-circle:hover .output-circle-shape {
-      stroke: var(--white);
+      stroke: rgba(255, 255, 255, 0.6);
       fill: rgba(255, 255, 255, 0.05);
     }
 
     .output-icon {
-      fill: var(--gray-4);
-      font-size: 24px;
+      fill: rgba(255, 255, 255, 0.8);
+      font-size: 0;
       text-anchor: middle;
       dominant-baseline: middle;
       transition: fill 0.3s ease;
     }
 
     .output-circle:hover .output-icon {
-      fill: var(--white);
+      fill: rgba(255, 255, 255, 1);
     }
 
     /* Notion 输出框 */
     .notion-rect {
-      fill: none;
-      stroke: var(--gray-4);
+      fill: transparent;
+      stroke: rgba(255, 255, 255, 0.2);
       stroke-width: 2;
       transition: all 0.3s ease;
     }
 
     .notion-output:hover .notion-rect {
-      stroke: var(--white);
+      stroke: rgba(255, 255, 255, 0.6);
       fill: rgba(255, 255, 255, 0.05);
     }
 
     .notion-label {
-      fill: var(--gray-4);
+      fill: rgba(255, 255, 255, 0.8);
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 600;
       font-family: 'Space Mono', monospace;
       text-anchor: middle;
       dominant-baseline: middle;
@@ -746,7 +747,7 @@
     }
 
     .notion-sublabel {
-      fill: var(--gray-3);
+      fill: rgba(255, 255, 255, 0.4);
       font-size: 9px;
       font-family: 'Space Mono', monospace;
       text-anchor: middle;
@@ -756,19 +757,19 @@
 
     .notion-output:hover .notion-label,
     .notion-output:hover .notion-sublabel {
-      fill: var(--white);
+      fill: rgba(255, 255, 255, 1);
     }
 
     /* 连接线 */
     .connection-curve {
       fill: none;
-      stroke: var(--gray-4);
+      stroke: rgba(255, 255, 255, 0.15);
       stroke-width: 1.5;
       stroke-linecap: round;
     }
 
     .connection-line-direct {
-      stroke: var(--gray-4);
+      stroke: rgba(255, 255, 255, 0.15);
       stroke-width: 2;
       stroke-dasharray: 5, 5;
     }
@@ -776,7 +777,7 @@
     /* 标签 */
     .update-label,
     .output-label {
-      fill: var(--gray-3);
+      fill: rgba(255, 255, 255, 0.5);
       font-size: 10px;
       font-family: 'Space Mono', monospace;
       text-anchor: middle;
@@ -784,7 +785,7 @@
 
     .update-time,
     .output-time {
-      fill: var(--gray-4);
+      fill: rgba(255, 255, 255, 0.35);
       font-size: 9px;
       font-family: 'Space Mono', monospace;
       text-anchor: middle;
@@ -792,7 +793,7 @@
     }
 
     .output-arrow {
-      fill: var(--gray-4);
+      fill: rgba(255, 255, 255, 0.35);
       font-size: 16px;
       font-weight: 700;
       text-anchor: middle;
@@ -801,13 +802,13 @@
 
     /* 信息流指示 */
     .flow-indicator {
-      stroke: var(--gray-6);
+      stroke: rgba(255, 255, 255, 0.1);
       stroke-width: 1;
       stroke-dasharray: 3, 3;
     }
 
     .flow-label {
-      fill: var(--gray-5);
+      fill: rgba(255, 255, 255, 0.3);
       font-size: 10px;
       font-family: 'Space Mono', monospace;
       text-anchor: middle;
