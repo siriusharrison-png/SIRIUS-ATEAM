@@ -96,16 +96,7 @@
 
     /* 自定义光标 */
     .cursor-dot {
-      position: fixed;
-      width: 8px;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.6);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
-      filter: blur(1px);
-      mix-blend-mode: screen;
-      transition: all 0.2s ease;
+      display: none;
     }
 
     .cursor-dot-outline {
@@ -116,8 +107,6 @@
       border-radius: 50%;
       pointer-events: none;
       z-index: 9998;
-      filter: blur(0.5px);
-      transition: all 0.2s ease;
       background: rgba(0, 255, 65, 0.2);
       box-shadow: 0 0 10px rgba(0, 255, 65, 0.6), inset 0 0 5px rgba(0, 255, 65, 0.3);
     }
@@ -129,16 +118,6 @@
 
     .cursor-dot-outline.crosshair {
       display: none;
-    }
-
-    .cursor-trail {
-      position: fixed;
-      width: 4px;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.4);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9997;
     }
 
     .ripple {
@@ -1748,53 +1727,14 @@
     setInterval(createRipple, 2000);
 
     // ===== 自定义光标 =====
-    const cursor = document.createElement('div');
-    cursor.className = 'cursor-dot';
-    document.body.appendChild(cursor);
-
     const cursorOutline = document.createElement('div');
     cursorOutline.className = 'cursor-dot-outline';
     document.body.appendChild(cursorOutline);
 
-    let mouseX = 0;
-    let mouseY = 0;
-
-    // 只在 mousemove 中更新坐标，用 RAF 同步渲染
     document.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-
-      // 创建拖尾粒子
-      if (Math.random() > 0.85) {
-        const trail = document.createElement('div');
-        trail.className = 'cursor-dot';
-        trail.style.position = 'fixed';
-        trail.style.left = mouseX - 4 + 'px';
-        trail.style.top = mouseY - 4 + 'px';
-        trail.style.pointerEvents = 'none';
-        trail.style.zIndex = '9997';
-        trail.style.opacity = '0.5';
-        document.body.appendChild(trail);
-
-        let opacity = 0.5;
-        const interval = setInterval(() => {
-          opacity -= 0.06;
-          trail.style.opacity = opacity;
-          if (opacity <= 0) {
-            clearInterval(interval);
-            trail.remove();
-          }
-        }, 50);
-      }
+      cursorOutline.style.left = e.clientX - 10 + 'px';
+      cursorOutline.style.top = e.clientY - 10 + 'px';
     });
-
-    // 用 RAF 更新大光点位置，确保与屏幕刷新同步
-    function updateCursor() {
-      cursorOutline.style.left = mouseX - 10 + 'px';
-      cursorOutline.style.top = mouseY - 10 + 'px';
-      requestAnimationFrame(updateCursor);
-    }
-    updateCursor();
 
     document.addEventListener('click', (e) => {
       const ripple = document.createElement('div');
