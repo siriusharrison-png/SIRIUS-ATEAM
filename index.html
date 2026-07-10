@@ -101,6 +101,7 @@
       z-index: 9999;
       filter: blur(1px);
       mix-blend-mode: screen;
+      transition: all 0.2s ease;
     }
 
     .cursor-dot-outline {
@@ -112,6 +113,42 @@
       pointer-events: none;
       z-index: 9998;
       filter: blur(0.5px);
+      transition: all 0.2s ease;
+    }
+
+    .cursor-dot.crosshair {
+      width: 20px;
+      height: 20px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+    }
+
+    .cursor-dot.crosshair::before,
+    .cursor-dot.crosshair::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .cursor-dot.crosshair::before {
+      width: 2px;
+      height: 12px;
+      left: 9px;
+      top: 4px;
+    }
+
+    .cursor-dot.crosshair::after {
+      width: 12px;
+      height: 2px;
+      left: 4px;
+      top: 9px;
+    }
+
+    .cursor-dot-outline.crosshair {
+      border: 1px solid rgba(255, 255, 255, 0);
+      width: 0;
+      height: 0;
     }
 
     .cursor-trail {
@@ -1660,8 +1697,25 @@
     document.addEventListener('mousemove', (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      cursor.style.left = mouseX - 4 + 'px';
-      cursor.style.top = mouseY - 4 + 'px';
+
+      // 检测鼠标是否在可点击元素上
+      const target = e.target;
+      const isClickable = target.closest('a') || target.closest('button') ||
+                         target.closest('.card-btn') || target.closest('.modal-link') ||
+                         target.closest('.dropdown-item');
+
+      if (isClickable) {
+        cursor.classList.add('crosshair');
+        cursorOutline.classList.add('crosshair');
+        cursor.style.left = mouseX - 10 + 'px';
+        cursor.style.top = mouseY - 10 + 'px';
+      } else {
+        cursor.classList.remove('crosshair');
+        cursorOutline.classList.remove('crosshair');
+        cursor.style.left = mouseX - 4 + 'px';
+        cursor.style.top = mouseY - 4 + 'px';
+      }
+
       cursorOutline.style.left = mouseX - 10 + 'px';
       cursorOutline.style.top = mouseY - 10 + 'px';
     });
