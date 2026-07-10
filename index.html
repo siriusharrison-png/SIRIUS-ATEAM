@@ -1396,9 +1396,9 @@
           <text x="200" y="130" class="agent-label">Photographer</text>
         </g>
         <!-- 左上到中心 -->
-        <line x1="250" y1="130" x2="520" y2="300" class="connection-line"/>
-        <text x="360" y="190" class="update-label">Unsplash</text>
-        <text x="360" y="210" class="update-time">Daily 09:00 UTC</text>
+        <path d="M 250 130 L 250 215 L 520 215 L 520 290" class="connection-line"/>
+        <text x="360" y="200" class="update-label">Unsplash</text>
+        <text x="360" y="215" class="update-time">Daily 09:00 UTC</text>
 
         <!-- 飞书推送 右上 -->
         <g class="output-circle output-feishu" data-agent="feishu">
@@ -1406,9 +1406,9 @@
           <text x="1000" y="130" class="output-label">Feishu</text>
         </g>
         <!-- 中心到右上 -->
-        <line x1="680" y1="300" x2="950" y2="130" class="connection-line"/>
-        <text x="790" y="190" class="output-label-top">Feishu Push</text>
-        <text x="790" y="210" class="output-time">Daily 18:00 UTC</text>
+        <path d="M 680 290 L 680 215 L 950 215 L 950 130" class="connection-line"/>
+        <text x="790" y="200" class="output-label-top">Feishu Push</text>
+        <text x="790" y="215" class="output-time">Daily 18:00 UTC</text>
 
         <!-- 设计师 左下 -->
         <g class="agent-circle agent-designer" data-agent="designer">
@@ -1416,8 +1416,8 @@
           <text x="200" y="570" class="agent-label">Designer</text>
         </g>
         <!-- 左下到中心 -->
-        <line x1="250" y1="570" x2="520" y2="410" class="connection-line"/>
-        <text x="360" y="500" class="update-label">Astra + Tokens</text>
+        <path d="M 250 570 L 250 485 L 520 485 L 520 410" class="connection-line"/>
+        <text x="360" y="505" class="update-label">Astra + Tokens</text>
         <text x="360" y="520" class="update-time">Multi-Agent</text>
 
         <!-- 知识管理 右下 -->
@@ -1427,16 +1427,16 @@
           <text x="1000" y="585" class="agent-sublabel-small">Keeper</text>
         </g>
         <!-- 中心到右下 -->
-        <line x1="680" y1="410" x2="950" y2="570" class="connection-line"/>
-        <text x="790" y="490" class="update-label">Feishu + GitLab</text>
-        <text x="790" y="510" class="update-time">Daily 08:00+12:00 UTC</text>
+        <path d="M 680 410 L 680 485 L 950 485 L 950 520" class="connection-line"/>
+        <text x="790" y="505" class="update-label">Feishu + GitLab</text>
+        <text x="790" y="520" class="update-time">Daily 08:00+12:00 UTC</text>
 
         <!-- 知识管理到Notion -->
         <g class="output-box notion-output" data-agent="notion">
           <rect x="1110" y="540" width="70" height="60" rx="0" class="notion-rect"/>
           <text x="1145" y="568" class="notion-label">Notion</text>
         </g>
-        <line x1="1050" y1="570" x2="1110" y2="570" class="connection-line-direct"/>
+        <path d="M 1050 570 L 1080 570 L 1110 570" class="connection-line-direct"/>
         <text x="1080" y="555" class="output-arrow">→</text>
         <text x="1080" y="595" class="output-time-small">Sync</text>
       </svg>
