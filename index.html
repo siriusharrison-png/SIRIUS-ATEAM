@@ -327,12 +327,6 @@
         inset 15px 15px 30px rgba(255,255,255,0.2),
         -15px 15px 40px rgba(0,0,0,0.5),
         0 30px 60px rgba(0,0,0,0.6);
-      animation: rotateBall 6s infinite linear;
-    }
-
-    @keyframes rotateBall {
-      0% { transform: rotateX(0deg) rotateY(0deg); }
-      100% { transform: rotateX(10deg) rotateY(360deg); }
     }
 
     @keyframes rotateTriangle {
@@ -980,7 +974,23 @@
     const text = 'SIRIUS';
     const titleEl = document.getElementById('title');
     let currentMode = 0;
-    const modes = ['fadeIn', 'typewriter', 'scroll', 'flip', 'bounce'];
+    const modes = [
+      'fadeIn',      // 1. 淡入
+      'typewriter',  // 2. 打字机
+      'scroll',      // 3. 滚动
+      'flip',        // 4. 翻转
+      'bounce',      // 5. 弹跳
+      'wave',        // 6. 波浪
+      'blur',        // 7. 模糊闪烁
+      'glow',        // 8. 发光闪烁
+      'scale',       // 9. 缩放
+      'rotate',      // 10. 旋转
+      'skew',        // 11. 倾斜
+      'rainbow',     // 12. 彩虹色
+      'stroke',      // 13. 描边动效
+      'shadow',      // 14. 阴影
+      'distort'      // 15. 扭曲
+    ];
 
     // ===== 动态标题效果 =====
     function animateTitleMode(mode) {
@@ -1006,7 +1016,7 @@
               const span = document.createElement('span');
               span.className = 'text-char';
               span.textContent = text[index];
-              span.style.animation = `typeEffect 0.1s ease forwards`;
+              span.style.animation = `typeEffect 0.05s ease forwards`;
               titleEl.appendChild(span);
               index++;
               setTimeout(type, 100);
@@ -1047,6 +1057,117 @@
             titleEl.appendChild(span);
           });
           break;
+
+        case 'wave': // 波浪效果
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `waveChar 0.6s ease forwards`;
+            span.style.animationDelay = `${i * 0.08}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'blur': // 模糊闪烁
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `blurFlicker 0.5s ease forwards`;
+            span.style.animationDelay = `${i * 0.1}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'glow': // 发光闪烁
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `glowFlicker 0.7s ease forwards`;
+            span.style.animationDelay = `${i * 0.1}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'scale': // 缩放
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `scaleChar 0.6s ease forwards`;
+            span.style.animationDelay = `${i * 0.1}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'rotate': // 旋转
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `rotateChar 0.7s ease forwards`;
+            span.style.animationDelay = `${i * 0.1}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'skew': // 倾斜
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `skewChar 0.6s ease forwards`;
+            span.style.animationDelay = `${i * 0.1}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'rainbow': // 彩虹色渐变
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `rainbowColor 1s ease forwards`;
+            span.style.animationDelay = `${i * 0.08}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'stroke': // 描边动效
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `strokeAnim 0.8s ease forwards`;
+            span.style.animationDelay = `${i * 0.1}s`;
+            span.style.webkitTextStroke = '1px rgba(255,255,255,0)';
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'shadow': // 阴影动效
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `shadowAnim 0.7s ease forwards`;
+            span.style.animationDelay = `${i * 0.1}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'distort': // 扭曲
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `distortChar 0.8s ease forwards`;
+            span.style.animationDelay = `${i * 0.12}s`;
+            titleEl.appendChild(span);
+          });
+          break;
       }
     }
 
@@ -1062,37 +1183,80 @@
         to { opacity: 1; }
       }
       @keyframes scrollDown {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
       }
       @keyframes flipChar {
+        from { opacity: 0; transform: rotateY(90deg); }
+        to { opacity: 1; transform: rotateY(0deg); }
+      }
+      @keyframes bounceChar {
+        0% { opacity: 0; transform: translateY(-20px); }
+        50% { transform: translateY(5px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes waveChar {
+        from { opacity: 0; transform: translateY(0) rotateX(0deg); }
+        50% { transform: translateY(-10px) rotateX(10deg); }
+        to { opacity: 1; transform: translateY(0) rotateX(0deg); }
+      }
+      @keyframes blurFlicker {
+        0%, 100% { opacity: 1; filter: blur(0px); }
+        50% { opacity: 0.3; filter: blur(4px); }
+      }
+      @keyframes glowFlicker {
+        0%, 100% { opacity: 1; text-shadow: 0 0 0px rgba(255,255,255,0); }
+        50% { opacity: 1; text-shadow: 0 0 15px rgba(255,255,255,0.8); }
+      }
+      @keyframes scaleChar {
+        from { opacity: 0; transform: scale(0); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      @keyframes rotateChar {
+        from { opacity: 0; transform: rotateZ(-180deg); }
+        to { opacity: 1; transform: rotateZ(0deg); }
+      }
+      @keyframes skewChar {
+        from { opacity: 0; transform: skewX(-45deg); }
+        to { opacity: 1; transform: skewX(0deg); }
+      }
+      @keyframes rainbowColor {
+        0% { color: #ff0000; }
+        16% { color: #ff7f00; }
+        33% { color: #ffff00; }
+        50% { color: #00ff00; }
+        66% { color: #0000ff; }
+        83% { color: #4b0082; }
+        100% { color: #ff0000; }
+      }
+      @keyframes strokeAnim {
         from {
           opacity: 0;
-          transform: rotateY(90deg);
+          -webkit-text-stroke: 2px rgba(255,255,255,0);
+          text-shadow: 0 0 0px rgba(255,255,255,0);
         }
         to {
           opacity: 1;
-          transform: rotateY(0deg);
+          -webkit-text-stroke: 1px rgba(255,255,255,1);
+          text-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
       }
-      @keyframes bounceChar {
-        0% {
+      @keyframes shadowAnim {
+        from {
           opacity: 0;
-          transform: translateY(-20px);
+          text-shadow: 0 0 0px rgba(0,0,0,0);
+          transform: translateX(-10px);
         }
-        50% {
-          transform: translateY(5px);
-        }
-        100% {
+        to {
           opacity: 1;
-          transform: translateY(0);
+          text-shadow: -5px 5px 15px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.3);
+          transform: translateX(0);
         }
+      }
+      @keyframes distortChar {
+        0% { opacity: 0; transform: scaleY(0.5) skewX(20deg); }
+        50% { opacity: 0.5; transform: scaleY(1.1) skewX(-10deg); }
+        100% { opacity: 1; transform: scaleY(1) skewX(0deg); }
       }
     `;
     document.head.appendChild(style);
