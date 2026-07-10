@@ -35,7 +35,7 @@
       cursor: none;
     }
 
-    /* 点状背景 */
+    /* 点状波点背景 */
     body::before {
       content: '';
       position: fixed;
@@ -43,35 +43,51 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-      background-size: 80px 80px;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(0deg, transparent 24%, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.03) 26%, transparent 27%),
+        linear-gradient(90deg, transparent 24%, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.03) 26%, transparent 27%);
+      background-size: 60px 60px, 100px 100px, 100px 100px;
       pointer-events: none;
       z-index: 1;
-      animation: dotShift 20s linear infinite;
     }
 
-    @keyframes dotShift {
-      0% { background-position: 0 0; }
-      100% { background-position: 80px 80px; }
-    }
-
-    /* 扫光效果 */
-    body::after {
-      content: '';
+    /* 波点发散动效 */
+    .ripple-bg {
       position: fixed;
-      top: -100%;
-      left: -100%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
       pointer-events: none;
       z-index: 1;
-      animation: sweep 4s ease-in-out infinite;
+      overflow: hidden;
     }
 
-    @keyframes sweep {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(100%, 100%); }
+    .ripple-wave {
+      position: absolute;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      animation: rippleExpand 3s ease-out forwards;
+    }
+
+    @keyframes rippleExpand {
+      0% {
+        width: 0;
+        height: 0;
+        opacity: 0.6;
+      }
+      100% {
+        width: 400px;
+        height: 400px;
+        opacity: 0;
+      }
+    }
+
+    /* 内容层 */
+    body > * {
+      position: relative;
+      z-index: 2;
     }
 
     /* 自定义光标 */
@@ -114,10 +130,10 @@
       border-radius: 50%;
       pointer-events: none;
       z-index: 9996;
-      animation: rippleEffect 0.6s ease-out;
+      animation: clickRipple 0.6s ease-out;
     }
 
-    @keyframes rippleEffect {
+    @keyframes clickRipple {
       from {
         width: 0;
         height: 0;
@@ -128,12 +144,6 @@
         height: 40px;
         opacity: 0;
       }
-    }
-
-    /* 内容层 */
-    body > * {
-      position: relative;
-      z-index: 2;
     }
 
     /* ===== 头部 ===== */
@@ -170,23 +180,16 @@
       line-height: 1;
       transition: font-size 0.4s ease;
       min-height: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
     }
 
-    .header-left h1 .char {
+    /* 文字动画容器 */
+    .text-char {
       display: inline-block;
-      opacity: 0;
-      animation: charLoad 0.6s ease forwards;
-    }
-
-    @keyframes charLoad {
-      0% {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      width: 0.5em;
+      text-align: center;
     }
 
     /* 导航菜单 */
@@ -255,8 +258,8 @@
       position: relative;
     }
 
-    /* 金属球体 */
-    .sphere-container {
+    /* 三角形容器 */
+    .triangle-container {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -264,30 +267,87 @@
       perspective: 1000px;
     }
 
-    .sphere {
+    .triangle {
       width: 280px;
       height: 280px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.3) 25%, rgba(100,100,100,0.4) 50%, rgba(0,0,0,0.8));
-      box-shadow:
-        inset -30px -30px 60px rgba(0,0,0,0.8),
-        inset 20px 20px 40px rgba(255,255,255,0.3),
-        -20px 20px 60px rgba(0,0,0,0.5),
-        0 50px 100px rgba(0,0,0,0.6);
-      animation: rotateSphere 8s infinite linear;
       position: relative;
+      transform-style: preserve-3d;
+      animation: rotateTriangle 8s infinite ease-in-out;
+    }
+
+    .triangle-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 2px solid var(--gray-3);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 3.5rem;
-      font-weight: 700;
-      letter-spacing: -3px;
-      color: rgba(255,255,255,0.9);
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      color: var(--gray-3);
+      transform-style: preserve-3d;
+      transition: border-color 0.3s ease;
+      background: rgba(255, 255, 255, 0.02);
     }
 
-    @keyframes rotateSphere {
-      0% { transform: rotateX(10deg) rotateY(0deg); }
+    /* 三个面 */
+    .triangle-face:nth-child(1) {
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      transform: translateZ(40px);
+    }
+
+    .triangle-face:nth-child(2) {
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      transform: rotateY(120deg) translateZ(40px);
+    }
+
+    .triangle-face:nth-child(3) {
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      transform: rotateY(240deg) translateZ(40px);
+    }
+
+    /* 中心球体 */
+    .triangle-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+    }
+
+    .sphere-ball {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.8), rgba(255,255,255,0.2) 30%, rgba(100,100,100,0.3) 50%, rgba(0,0,0,0.9));
+      box-shadow:
+        inset -20px -20px 40px rgba(0,0,0,0.8),
+        inset 15px 15px 30px rgba(255,255,255,0.2),
+        -15px 15px 40px rgba(0,0,0,0.5),
+        0 30px 60px rgba(0,0,0,0.6);
+      animation: rotateBall 6s infinite linear;
+    }
+
+    @keyframes rotateBall {
+      0% { transform: rotateX(0deg) rotateY(0deg); }
       100% { transform: rotateX(10deg) rotateY(360deg); }
+    }
+
+    @keyframes rotateTriangle {
+      0% {
+        transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+      }
+      33% {
+        transform: rotateX(45deg) rotateY(120deg) rotateZ(120deg);
+      }
+      66% {
+        transform: rotateX(-45deg) rotateY(240deg) rotateZ(240deg);
+      }
+      100% {
+        transform: rotateX(0deg) rotateY(360deg) rotateZ(360deg);
+      }
     }
 
     /* 英雄左侧内容 */
@@ -685,10 +745,14 @@
         gap: 30px;
       }
 
-      .sphere {
-        width: 200px;
-        height: 200px;
-        font-size: 2.5rem;
+      .triangle {
+        width: 220px;
+        height: 220px;
+      }
+
+      .sphere-ball {
+        width: 80px;
+        height: 80px;
       }
 
       .hero-title {
@@ -712,6 +776,9 @@
   </style>
 </head>
 <body>
+  <!-- 波点背景发散效果容器 -->
+  <div class="ripple-bg" id="rippleBg"></div>
+
   <!-- 头部 -->
   <header id="header">
     <div class="header-left">
@@ -742,9 +809,16 @@
       </div>
     </div>
 
-    <!-- 金属球体 -->
-    <div class="sphere-container">
-      <div class="sphere">4</div>
+    <!-- 三角形 + 中心球体 -->
+    <div class="triangle-container">
+      <div class="triangle">
+        <div class="triangle-face"></div>
+        <div class="triangle-face"></div>
+        <div class="triangle-face"></div>
+        <div class="triangle-center">
+          <div class="sphere-ball"></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -903,20 +977,150 @@
   </div>
 
   <script>
-    // ===== 动态加载标题 =====
-    function typeTitle() {
-      const title = 'SIRIUS';
-      const titleEl = document.getElementById('title');
+    const text = 'SIRIUS';
+    const titleEl = document.getElementById('title');
+    let currentMode = 0;
+    const modes = ['fadeIn', 'typewriter', 'scroll', 'flip', 'bounce'];
+
+    // ===== 动态标题效果 =====
+    function animateTitleMode(mode) {
       titleEl.innerHTML = '';
 
-      title.split('').forEach((char, index) => {
-        const span = document.createElement('span');
-        span.className = 'char';
-        span.textContent = char;
-        span.style.animationDelay = `${index * 0.1}s`;
-        titleEl.appendChild(span);
-      });
+      switch (mode) {
+        case 'fadeIn': // 逐字淡入
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `fadeIn 0.6s ease forwards`;
+            span.style.animationDelay = `${i * 0.1}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'typewriter': // 打字机效果
+          let index = 0;
+          titleEl.textContent = '';
+          function type() {
+            if (index < text.length) {
+              const span = document.createElement('span');
+              span.className = 'text-char';
+              span.textContent = text[index];
+              span.style.animation = `typeEffect 0.1s ease forwards`;
+              titleEl.appendChild(span);
+              index++;
+              setTimeout(type, 100);
+            }
+          }
+          type();
+          break;
+
+        case 'scroll': // 滚动文本
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `scrollDown 0.8s ease forwards`;
+            span.style.animationDelay = `${i * 0.08}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'flip': // 翻转效果
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `flipChar 0.6s ease forwards`;
+            span.style.animationDelay = `${i * 0.12}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+
+        case 'bounce': // 弹跳效果
+          text.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.className = 'text-char';
+            span.textContent = char;
+            span.style.animation = `bounceChar 0.7s ease forwards`;
+            span.style.animationDelay = `${i * 0.1}s`;
+            titleEl.appendChild(span);
+          });
+          break;
+      }
     }
+
+    // 添加动画定义
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes typeEffect {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes scrollDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes flipChar {
+        from {
+          opacity: 0;
+          transform: rotateY(90deg);
+        }
+        to {
+          opacity: 1;
+          transform: rotateY(0deg);
+        }
+      }
+      @keyframes bounceChar {
+        0% {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        50% {
+          transform: translateY(5px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // 循环动画
+    function cycleTitle() {
+      animateTitleMode(modes[currentMode]);
+      currentMode = (currentMode + 1) % modes.length;
+      setTimeout(cycleTitle, 2000); // 2秒切换一次效果
+    }
+
+    // ===== 背景波点发散 =====
+    function createRipple() {
+      const rippleBg = document.getElementById('rippleBg');
+      const ripple = document.createElement('div');
+      ripple.className = 'ripple-wave';
+
+      const x = Math.random() * window.innerWidth;
+      const y = Math.random() * window.innerHeight;
+
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      rippleBg.appendChild(ripple);
+
+      setTimeout(() => ripple.remove(), 3000);
+    }
+
+    setInterval(createRipple, 2000);
 
     // ===== 自定义光标 =====
     const cursor = document.createElement('div');
@@ -1018,7 +1222,7 @@
 
     // ===== 初始化 =====
     window.addEventListener('load', () => {
-      typeTitle();
+      cycleTitle();
     });
   </script>
 </body>
