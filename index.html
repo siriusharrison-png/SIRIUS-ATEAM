@@ -761,47 +761,41 @@
     /* 连接线 */
     .connection-line {
       fill: none;
-      stroke: rgba(255, 255, 255, 0.15);
+      stroke: rgba(255, 255, 255, 0.35);
       stroke-width: 1.5;
       stroke-linecap: round;
       marker-end: url(#arrowhead);
       cursor: pointer;
       transition: stroke 0.3s ease;
-      animation: flowSweep 3s ease-in-out infinite;
     }
 
-    .connection-line:hover,
+    .connection-line:hover {
+      stroke: rgba(0, 255, 65, 0.8);
+      stroke-width: 2;
+    }
+
     .connection-line.active {
-      stroke: rgba(0, 255, 65, 0.6);
+      stroke: rgba(0, 255, 65, 0.8);
+      stroke-width: 2;
     }
 
     .connection-line-direct {
-      stroke: rgba(255, 255, 255, 0.15);
+      stroke: rgba(255, 255, 255, 0.35);
       stroke-width: 1.5;
       stroke-dasharray: 3, 3;
       marker-end: url(#arrowhead);
       cursor: pointer;
       transition: stroke 0.3s ease;
-      animation: flowSweep 3s ease-in-out infinite;
     }
 
-    .connection-line-direct:hover,
+    .connection-line-direct:hover {
+      stroke: rgba(0, 255, 65, 0.8);
+      stroke-width: 2;
+    }
+
     .connection-line-direct.active {
-      stroke: rgba(0, 255, 65, 0.6);
-    }
-
-    @keyframes flowSweep {
-      0% {
-        stroke-dashoffset: 0;
-        opacity: 0.15;
-      }
-      50% {
-        opacity: 0.4;
-      }
-      100% {
-        stroke-dashoffset: 10;
-        opacity: 0.15;
-      }
+      stroke: rgba(0, 255, 65, 0.8);
+      stroke-width: 2;
     }
 
     .notion-sublabel {
@@ -1928,14 +1922,6 @@
           e.stopPropagation();
           connectionLines.forEach(l => l.classList.remove('active'));
           line.classList.add('active');
-        });
-
-        line.addEventListener('mouseenter', () => {
-          line.style.strokeWidth = '2';
-        });
-
-        line.addEventListener('mouseleave', () => {
-          line.style.strokeWidth = '1.5';
         });
       });
 
