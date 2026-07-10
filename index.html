@@ -32,6 +32,108 @@
       color: var(--white);
       min-height: 100vh;
       overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* 点状背景 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events: none;
+      z-index: 1;
+      animation: dotShift 20s linear infinite;
+    }
+
+    @keyframes dotShift {
+      0% { background-position: 0 0; }
+      100% { background-position: 80px 80px; }
+    }
+
+    /* 扫光效果 */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -100%;
+      left: -100%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+      animation: sweep 4s ease-in-out infinite;
+    }
+
+    @keyframes sweep {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(100%, 100%); }
+    }
+
+    /* 自定义光标 */
+    .cursor-dot {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      filter: blur(1px);
+      mix-blend-mode: screen;
+    }
+
+    .cursor-dot-outline {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      filter: blur(0.5px);
+    }
+
+    .cursor-trail {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9997;
+    }
+
+    .ripple {
+      position: fixed;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9996;
+      animation: rippleEffect 0.6s ease-out;
+    }
+
+    @keyframes rippleEffect {
+      from {
+        width: 0;
+        height: 0;
+        opacity: 1;
+      }
+      to {
+        width: 40px;
+        height: 40px;
+        opacity: 0;
+      }
+    }
+
+    /* 内容层 */
+    body > * {
+      position: relative;
+      z-index: 2;
     }
 
     /* ===== 头部 ===== */
@@ -42,8 +144,23 @@
       gap: 60px;
       padding: 60px;
       border-bottom: 1px solid var(--gray-6);
-      position: relative;
-      z-index: 10;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: all 0.4s ease;
+      backdrop-filter: blur(0px);
+      background: var(--black);
+    }
+
+    header.scrolled {
+      padding: 30px 40px;
+      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.7);
+      border-bottom: 1px solid rgba(51, 51, 51, 0.3);
+    }
+
+    header.scrolled .header-left h1 {
+      font-size: 1.8rem;
     }
 
     .header-left h1 {
@@ -51,6 +168,25 @@
       font-weight: 700;
       letter-spacing: -2px;
       line-height: 1;
+      transition: font-size 0.4s ease;
+      min-height: 60px;
+    }
+
+    .header-left h1 .char {
+      display: inline-block;
+      opacity: 0;
+      animation: charLoad 0.6s ease forwards;
+    }
+
+    @keyframes charLoad {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* 导航菜单 */
@@ -119,8 +255,8 @@
       position: relative;
     }
 
-    /* 三角形容器 */
-    .triangle-container {
+    /* 金属球体 */
+    .sphere-container {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -128,75 +264,30 @@
       perspective: 1000px;
     }
 
-    .triangle {
+    .sphere {
       width: 280px;
       height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.3) 25%, rgba(100,100,100,0.4) 50%, rgba(0,0,0,0.8));
+      box-shadow:
+        inset -30px -30px 60px rgba(0,0,0,0.8),
+        inset 20px 20px 40px rgba(255,255,255,0.3),
+        -20px 20px 60px rgba(0,0,0,0.5),
+        0 50px 100px rgba(0,0,0,0.6);
+      animation: rotateSphere 8s infinite linear;
       position: relative;
-      transform-style: preserve-3d;
-      animation: rotateTriangle 8s infinite ease-in-out;
-    }
-
-    .triangle-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border: 2px solid var(--gray-3);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
-      letter-spacing: 2px;
-      color: var(--gray-3);
-      transform-style: preserve-3d;
-      transition: border-color 0.3s ease;
-    }
-
-    /* 三个面 */
-    .triangle-face:nth-child(1) {
-      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-      background: rgba(255, 255, 255, 0.03);
-      transform: translateZ(40px);
-    }
-
-    .triangle-face:nth-child(2) {
-      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-      background: rgba(255, 255, 255, 0.03);
-      transform: rotateY(120deg) translateZ(40px);
-    }
-
-    .triangle-face:nth-child(3) {
-      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-      background: rgba(255, 255, 255, 0.03);
-      transform: rotateY(240deg) translateZ(40px);
-    }
-
-    /* 中心数字 */
-    .triangle-center {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 4rem;
+      font-size: 3.5rem;
       font-weight: 700;
       letter-spacing: -3px;
-      color: var(--white);
-      z-index: 5;
+      color: rgba(255,255,255,0.9);
     }
 
-    @keyframes rotateTriangle {
-      0% {
-        transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
-      }
-      33% {
-        transform: rotateX(45deg) rotateY(120deg) rotateZ(120deg);
-      }
-      66% {
-        transform: rotateX(-45deg) rotateY(240deg) rotateZ(240deg);
-      }
-      100% {
-        transform: rotateX(0deg) rotateY(360deg) rotateZ(360deg);
-      }
+    @keyframes rotateSphere {
+      0% { transform: rotateX(10deg) rotateY(0deg); }
+      100% { transform: rotateX(10deg) rotateY(360deg); }
     }
 
     /* 英雄左侧内容 */
@@ -416,6 +507,101 @@
       color: var(--white);
     }
 
+    /* ===== 模态框 ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--gray-8);
+      border: 1px dashed var(--gray-6);
+      padding: 60px;
+      max-width: 500px;
+      position: relative;
+      animation: modalIn 0.3s ease;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 30px;
+      height: 30px;
+      background: transparent;
+      border: none;
+      color: var(--white);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .modal-close:hover {
+      color: var(--gray-3);
+    }
+
+    .modal-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+      letter-spacing: -0.5px;
+    }
+
+    .modal-info {
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: var(--gray-2);
+      margin-bottom: 20px;
+    }
+
+    .modal-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .modal-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border: 1px solid var(--gray-5);
+      background: transparent;
+      color: var(--white);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .modal-link:hover {
+      border-color: var(--white);
+      background: var(--gray-7);
+    }
+
     /* ===== 页脚 ===== */
     footer {
       max-width: 1200px;
@@ -486,10 +672,6 @@
     }
 
     @media (max-width: 640px) {
-      body {
-        padding: 0;
-      }
-
       header {
         padding: 30px 20px;
       }
@@ -503,12 +685,9 @@
         gap: 30px;
       }
 
-      .triangle {
+      .sphere {
         width: 200px;
         height: 200px;
-      }
-
-      .triangle-center {
         font-size: 2.5rem;
       }
 
@@ -534,9 +713,9 @@
 </head>
 <body>
   <!-- 头部 -->
-  <header>
+  <header id="header">
     <div class="header-left">
-      <h1>SIRIUS</h1>
+      <h1 id="title"></h1>
     </div>
     <nav class="header-nav">
       <a href="#agents">AGENTS</a>
@@ -563,14 +742,9 @@
       </div>
     </div>
 
-    <!-- 三角形动效 -->
-    <div class="triangle-container">
-      <div class="triangle">
-        <div class="triangle-face"></div>
-        <div class="triangle-face"></div>
-        <div class="triangle-face"></div>
-        <div class="triangle-center">4</div>
-      </div>
+    <!-- 金属球体 -->
+    <div class="sphere-container">
+      <div class="sphere">4</div>
     </div>
   </section>
 
@@ -594,8 +768,7 @@
           </div>
         </div>
         <div class="card-footer">
-          <button class="card-btn">日报</button>
-          <button class="card-btn">查看</button>
+          <button class="card-btn" onclick="openGitHub('agents/small-secretary')">查看</button>
         </div>
       </div>
 
@@ -615,7 +788,7 @@
           </div>
         </div>
         <div class="card-footer">
-          <button class="card-btn">查看</button>
+          <button class="card-btn" onclick="openGitHub('agents/photographer')">查看</button>
         </div>
       </div>
 
@@ -635,7 +808,8 @@
           </div>
         </div>
         <div class="card-footer">
-          <button class="card-btn">同步</button>
+          <button class="card-btn" onclick="triggerSync()">同步</button>
+          <button class="card-btn" onclick="openGitHub('agents/knowledge-keeper')">查看</button>
         </div>
       </div>
 
@@ -655,7 +829,8 @@
           </div>
         </div>
         <div class="card-footer">
-          <button class="card-btn">咨询</button>
+          <button class="card-btn" onclick="openDesignerCard()">名片</button>
+          <button class="card-btn" onclick="openGitHub('agents/design-infra')">查看</button>
         </div>
       </div>
     </div>
@@ -705,5 +880,146 @@
       <a href="https://github.com/siriusharrison-png/SIRIUS-ATEAM" class="footer-link">GitHub</a>
     </div>
   </footer>
+
+  <!-- 设计师名片模态框 -->
+  <div class="modal" id="designerModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeDesignerCard()">✕</button>
+      <div class="modal-title">设计师 · Contact</div>
+      <div class="modal-info">
+        <strong>名字：</strong> siriusharrison<br><br>
+        <strong>角色：</strong> Multi-Agent Designer Expert<br><br>
+        <strong>专长：</strong> Design System, Astra Foundation, Token Management
+      </div>
+      <div class="modal-links">
+        <a href="https://github.com/siriusharrison-png" class="modal-link" target="_blank">
+          GitHub Profile →
+        </a>
+        <button class="modal-link" onclick="copyEmail()">
+          📧 siriusharrison@gmail.com (复制)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 动态加载标题 =====
+    function typeTitle() {
+      const title = 'SIRIUS';
+      const titleEl = document.getElementById('title');
+      titleEl.innerHTML = '';
+
+      title.split('').forEach((char, index) => {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = char;
+        span.style.animationDelay = `${index * 0.1}s`;
+        titleEl.appendChild(span);
+      });
+    }
+
+    // ===== 自定义光标 =====
+    const cursor = document.createElement('div');
+    cursor.className = 'cursor-dot';
+    document.body.appendChild(cursor);
+
+    const cursorOutline = document.createElement('div');
+    cursorOutline.className = 'cursor-dot-outline';
+    document.body.appendChild(cursorOutline);
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      cursor.style.left = mouseX - 4 + 'px';
+      cursor.style.top = mouseY - 4 + 'px';
+
+      cursorOutline.style.left = mouseX - 10 + 'px';
+      cursorOutline.style.top = mouseY - 10 + 'px';
+    });
+
+    // 拖尾效果
+    function createTrail(x, y) {
+      const trail = document.createElement('div');
+      trail.className = 'cursor-trail';
+      trail.style.left = x - 2 + 'px';
+      trail.style.top = y - 2 + 'px';
+      document.body.appendChild(trail);
+
+      let opacity = 1;
+      const interval = setInterval(() => {
+        opacity -= 0.1;
+        trail.style.opacity = opacity;
+        if (opacity <= 0) {
+          clearInterval(interval);
+          trail.remove();
+        }
+      }, 30);
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      if (Math.random() > 0.7) {
+        createTrail(e.clientX, e.clientY);
+      }
+    });
+
+    // 点击涟漪
+    document.addEventListener('click', (e) => {
+      const ripple = document.createElement('div');
+      ripple.className = 'ripple';
+      ripple.style.left = e.clientX - 20 + 'px';
+      ripple.style.top = e.clientY - 20 + 'px';
+      document.body.appendChild(ripple);
+
+      setTimeout(() => ripple.remove(), 600);
+    });
+
+    // ===== 页头固定效果 =====
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('header');
+      if (window.scrollY > 100) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+
+    // ===== 按钮功能 =====
+    function openGitHub(path) {
+      window.open(`https://github.com/siriusharrison-png/SIRIUS-ATEAM/tree/main/${path}`, '_blank');
+    }
+
+    function triggerSync() {
+      alert('✓ 正在触发同步...\n\n飞书文档 + GitLab Workspace 正在同步到 Notion\n\n(实际同步由 GitHub Actions 工作流执行)');
+    }
+
+    function openDesignerCard() {
+      document.getElementById('designerModal').classList.add('active');
+    }
+
+    function closeDesignerCard() {
+      document.getElementById('designerModal').classList.remove('active');
+    }
+
+    function copyEmail() {
+      navigator.clipboard.writeText('siriusharrison@gmail.com');
+      alert('✓ 邮箱已复制到剪贴板');
+    }
+
+    // 点击模态框外部关闭
+    document.getElementById('designerModal').addEventListener('click', (e) => {
+      if (e.target.id === 'designerModal') {
+        closeDesignerCard();
+      }
+    });
+
+    // ===== 初始化 =====
+    window.addEventListener('load', () => {
+      typeTitle();
+    });
+  </script>
 </body>
 </html>
