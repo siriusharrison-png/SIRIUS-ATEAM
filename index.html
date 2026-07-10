@@ -122,39 +122,11 @@
 
     /* 十字架模式 */
     .cursor-dot.crosshair {
-      width: 28px;
-      height: 28px;
-      background: transparent;
-      border: none;
-      border-radius: 0;
-      mix-blend-mode: normal;
-    }
-
-    .cursor-dot.crosshair::before,
-    .cursor-dot.crosshair::after {
-      content: '';
-      position: absolute;
-      background: #ff3333;
-    }
-
-    .cursor-dot.crosshair::before {
-      width: 2px;
-      height: 16px;
-      left: 13px;
-      top: 6px;
-    }
-
-    .cursor-dot.crosshair::after {
-      width: 16px;
-      height: 2px;
-      left: 6px;
-      top: 13px;
+      display: none;
     }
 
     .cursor-dot-outline.crosshair {
-      border: 1px solid rgba(255, 51, 51, 0);
-      width: 0;
-      height: 0;
+      display: none;
     }
 
     .cursor-trail {
@@ -1773,7 +1745,7 @@
 
     setInterval(createRipple, 2000);
 
-    // ===== 自定义光标（优化版本） =====
+    // ===== 自定义光标 =====
     const cursor = document.createElement('div');
     cursor.className = 'cursor-dot';
     document.body.appendChild(cursor);
@@ -1784,42 +1756,37 @@
 
     let mouseX = 0;
     let mouseY = 0;
-    let isClickable = false;
-
-    // 更新光标位置（使用 requestAnimationFrame 确保同步）
-    function updateCursorPosition() {
-      if (isClickable) {
-        // 十字架模式（红色，1.4倍大小）
-        cursor.classList.add('crosshair');
-        cursorOutline.classList.add('crosshair');
-        cursor.style.left = mouseX - 14 + 'px';
-        cursor.style.top = mouseY - 14 + 'px';
-      } else {
-        // 圆点模式
-        cursor.classList.remove('crosshair');
-        cursorOutline.classList.remove('crosshair');
-        cursor.style.left = mouseX - 4 + 'px';
-        cursor.style.top = mouseY - 4 + 'px';
-      }
-
-      cursorOutline.style.left = mouseX - 10 + 'px';
-      cursorOutline.style.top = mouseY - 10 + 'px';
-
-      requestAnimationFrame(updateCursorPosition);
-    }
-
-    // 启动光标更新循环
-    requestAnimationFrame(updateCursorPosition);
 
     document.addEventListener('mousemove', (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
+      cursor.style.left = mouseX - 4 + 'px';
+      cursor.style.top = mouseY - 4 + 'px';
+      cursorOutline.style.left = mouseX - 10 + 'px';
+      cursorOutline.style.top = mouseY - 10 + 'px';
+    });
 
-      // 检测鼠标是否在可点击元素上
-      const target = e.target;
-      isClickable = !!(target.closest('a') || target.closest('button') ||
-                       target.closest('.card-btn') || target.closest('.modal-link') ||
-                       target.closest('.dropdown-item'));
+    function createTrail(x, y) {
+      const trail = document.createElement('div');
+      trail.className = 'cursor-trail';
+      trail.style.left = x - 2 + 'px';
+      trail.style.top = y - 2 + 'px';
+      document.body.appendChild(trail);
+      let opacity = 1;
+      const interval = setInterval(() => {
+        opacity -= 0.1;
+        trail.style.opacity = opacity;
+        if (opacity <= 0) {
+          clearInterval(interval);
+          trail.remove();
+        }
+      }, 30);
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      if (Math.random() > 0.7) {
+        createTrail(e.clientX, e.clientY);
+      }
     });
 
     function createTrail(x, y) {
