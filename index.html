@@ -765,6 +765,14 @@
       stroke-width: 1.5;
       stroke-linecap: round;
       marker-end: url(#arrowhead);
+      cursor: pointer;
+      transition: stroke 0.3s ease;
+      animation: flowSweep 3s ease-in-out infinite;
+    }
+
+    .connection-line:hover,
+    .connection-line.active {
+      stroke: rgba(0, 255, 65, 0.6);
     }
 
     .connection-line-direct {
@@ -772,6 +780,28 @@
       stroke-width: 1.5;
       stroke-dasharray: 3, 3;
       marker-end: url(#arrowhead);
+      cursor: pointer;
+      transition: stroke 0.3s ease;
+      animation: flowSweep 3s ease-in-out infinite;
+    }
+
+    .connection-line-direct:hover,
+    .connection-line-direct.active {
+      stroke: rgba(0, 255, 65, 0.6);
+    }
+
+    @keyframes flowSweep {
+      0% {
+        stroke-dashoffset: 0;
+        opacity: 0.15;
+      }
+      50% {
+        opacity: 0.4;
+      }
+      100% {
+        stroke-dashoffset: 10;
+        opacity: 0.15;
+      }
     }
 
     .notion-sublabel {
@@ -1889,6 +1919,30 @@
     // ===== 初始化 =====
     window.addEventListener('load', () => {
       cycleTitle();
+
+      // ===== System Architecture 连接线交互 =====
+      const connectionLines = document.querySelectorAll('.connection-line, .connection-line-direct');
+
+      connectionLines.forEach(line => {
+        line.addEventListener('click', (e) => {
+          e.stopPropagation();
+          connectionLines.forEach(l => l.classList.remove('active'));
+          line.classList.add('active');
+        });
+
+        line.addEventListener('mouseenter', () => {
+          line.style.strokeWidth = '2';
+        });
+
+        line.addEventListener('mouseleave', () => {
+          line.style.strokeWidth = '1.5';
+        });
+      });
+
+      // 点击其他地方移除高亮
+      document.addEventListener('click', () => {
+        connectionLines.forEach(l => l.classList.remove('active'));
+      });
     });
 
     // ===== Contact 下拉菜单 =====
