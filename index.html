@@ -478,7 +478,7 @@
 
     .card {
       flex: 0 0 35%;
-      max-width: 35%;
+      max-width: 360px;
       min-width: 280px;
       background: var(--black);
       border: 2px dashed var(--gray-6);
@@ -491,6 +491,14 @@
       transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       transform: scale(1);
       cursor: grab;
+    }
+
+    .card:hover {
+      transform: scale(1.2);
+      border-color: var(--white);
+      background: var(--gray-8);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(255,255,255,0.1);
+      z-index: 10;
     }
 
     .card.selected {
@@ -1626,7 +1634,7 @@
     let isGrabbing = false;
     let startX = 0;
     let currentTranslate = 0;
-    let selectedCard = null;
+    let hoveredCard = null;
 
     // 初始化卡片（复制到4倍以支持无限滚动）
     const originalCards = Array.from(cardsGrid.querySelectorAll('.card')).slice(0, 4);
@@ -1640,34 +1648,28 @@
     // 重新获取所有卡片
     const allCards = cardsGrid.querySelectorAll('.card');
 
-    // 卡片选中效果
+    // 卡片 hover 效果
     allCards.forEach((card, idx) => {
-      card.addEventListener('click', () => {
-        // 如果点击的是同一张卡片，则取消选中；否则选中该卡片
-        if (selectedCard === card) {
-          allCards.forEach(c => c.classList.remove('selected'));
-          selectedCard = null;
-          cardsGrid.style.animationPlayState = 'running';
-        } else {
-          allCards.forEach(c => c.classList.remove('selected'));
-          card.classList.add('selected');
-          selectedCard = card;
-          cardsGrid.style.animationPlayState = 'paused';
-        }
+      card.addEventListener('mouseenter', () => {
+        hoveredCard = card;
+        cardsGrid.style.animationPlayState = 'paused';
+      });
+
+      card.addEventListener('mouseleave', () => {
+        hoveredCard = null;
+        cardsGrid.style.animationPlayState = 'running';
       });
     });
 
-    // 鼠标事件
+    // 鼠标进入轮播区域（但不在卡片上）
     cardsCarousel.addEventListener('mouseenter', () => {
-      if (!isGrabbing && !selectedCard) {
+      if (!isGrabbing && !hoveredCard) {
         cardsGrid.style.animationPlayState = 'paused';
       }
     });
 
     cardsCarousel.addEventListener('mouseleave', () => {
-      if (!isGrabbing) {
-        allCards.forEach(c => c.classList.remove('selected'));
-        selectedCard = null;
+      if (!isGrabbing && !hoveredCard) {
         cardsGrid.style.animationPlayState = 'running';
       }
     });
@@ -1691,9 +1693,9 @@
       isGrabbing = false;
       cardsGrid.classList.remove('dragging');
       currentTranslate += e.clientX - startX;
-      allCards.forEach(c => c.classList.remove('selected'));
-      selectedCard = null;
-      cardsGrid.style.animationPlayState = 'running';
+      if (!hoveredCard) {
+        cardsGrid.style.animationPlayState = 'running';
+      }
     });
 
     // ===== 背景波点发散 =====
