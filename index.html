@@ -133,11 +133,15 @@
       from {
         width: 0;
         height: 0;
+        margin-left: 0;
+        margin-top: 0;
         opacity: 1;
       }
       to {
         width: 40px;
         height: 40px;
+        margin-left: -20px;
+        margin-top: -20px;
         opacity: 0;
       }
     }
@@ -1739,8 +1743,8 @@
     document.addEventListener('click', (e) => {
       const ripple = document.createElement('div');
       ripple.className = 'ripple';
-      ripple.style.left = e.clientX - 20 + 'px';
-      ripple.style.top = e.clientY - 20 + 'px';
+      ripple.style.left = e.clientX + 'px';
+      ripple.style.top = e.clientY + 'px';
       document.body.appendChild(ripple);
       setTimeout(() => ripple.remove(), 600);
     });
