@@ -654,7 +654,7 @@
       fill: rgba(255, 255, 255, 0.8);
       font-size: 12px;
       font-weight: 600;
-      font-family: 'Space Mono', monospace;
+      font-family: 'Noto Sans SC', sans-serif;
       text-anchor: middle;
       dominant-baseline: middle;
       transition: fill 0.3s ease;
@@ -674,6 +674,17 @@
       fill: rgba(255, 255, 255, 1);
     }
 
+    .center-hub.active .hub-rect {
+      stroke: rgba(0, 255, 65, 0.8);
+      fill: rgba(0, 255, 65, 0.1);
+      stroke-width: 1.5;
+    }
+
+    .center-hub.active .hub-label,
+    .center-hub.active .hub-sublabel {
+      fill: rgba(0, 255, 65, 1);
+    }
+
     /* Agent 方形节点 */
     .agent-circle-shape {
       fill: transparent;
@@ -688,11 +699,17 @@
       fill: rgba(255, 255, 255, 0.05);
     }
 
+    .agent-circle.active .agent-circle-shape {
+      stroke: rgba(0, 255, 65, 0.8);
+      fill: rgba(0, 255, 65, 0.1);
+      stroke-width: 1.5;
+    }
+
     .agent-label {
       fill: rgba(255, 255, 255, 0.8);
       font-size: 11px;
       font-weight: 600;
-      font-family: 'Space Mono', monospace;
+      font-family: 'Noto Sans SC', sans-serif;
       text-anchor: middle;
       dominant-baseline: middle;
       transition: fill 0.3s ease;
@@ -700,6 +717,10 @@
 
     .agent-circle:hover .agent-label {
       fill: rgba(255, 255, 255, 1);
+    }
+
+    .agent-circle.active .agent-label {
+      fill: rgba(0, 255, 65, 1);
     }
 
     /* 输出节点（方形） */
@@ -1410,59 +1431,59 @@
         <!-- 中心小秘书 -->
         <g class="center-hub" data-agent="secretary">
           <rect x="520" y="290" width="160" height="120" rx="0" class="hub-rect"/>
-          <text x="600" y="340" class="hub-label">Secretary</text>
+          <text x="600" y="340" class="hub-label">小秘书</text>
           <text x="600" y="365" class="hub-sublabel">Central Hub</text>
         </g>
 
         <!-- 摄影师 左上 -->
         <g class="agent-circle agent-photo" data-agent="photo">
           <rect x="150" y="80" width="100" height="100" rx="0" class="agent-circle-shape"/>
-          <text x="200" y="130" class="agent-label">Photographer</text>
+          <text x="200" y="130" class="agent-label">摄影师</text>
         </g>
         <!-- 左上到中心 -->
-        <path d="M 200 180 L 200 250 L 520 250 L 520 290" class="connection-line"/>
-        <text x="350" y="240" class="update-label">Unsplash</text>
-        <text x="350" y="255" class="update-time">Daily 09:00 UTC</text>
+        <path d="M 200 180 L 200 250 L 520 250 L 520 290" class="connection-line" data-from="photo" data-to="secretary"/>
+        <text x="350" y="240" class="update-label">Unsplash 数据</text>
+        <text x="350" y="255" class="update-time">每日 09:00 UTC</text>
 
         <!-- 飞书推送 右上 -->
         <g class="output-circle output-feishu" data-agent="feishu">
           <rect x="950" y="80" width="100" height="100" rx="0" class="output-circle-shape"/>
-          <text x="1000" y="130" class="output-label">Feishu</text>
+          <text x="1000" y="130" class="output-label">飞书</text>
         </g>
         <!-- 中心到右上 -->
-        <path d="M 680 290 L 680 250 L 1000 250 L 1000 180" class="connection-line"/>
-        <text x="800" y="240" class="output-label-top">Feishu Push</text>
-        <text x="800" y="255" class="output-time">Daily 18:00 UTC</text>
+        <path d="M 680 290 L 680 250 L 1000 250 L 1000 180" class="connection-line" data-from="secretary" data-to="feishu"/>
+        <text x="800" y="240" class="output-label-top">飞书推送</text>
+        <text x="800" y="255" class="output-time">每日 18:00 UTC</text>
 
         <!-- 设计师 左下 -->
         <g class="agent-circle agent-designer" data-agent="designer">
           <rect x="150" y="520" width="100" height="100" rx="0" class="agent-circle-shape"/>
-          <text x="200" y="570" class="agent-label">Designer</text>
+          <text x="200" y="570" class="agent-label">设计师</text>
         </g>
         <!-- 左下到中心 -->
-        <path d="M 200 520 L 200 450 L 520 450 L 520 410" class="connection-line"/>
-        <text x="350" y="445" class="update-label">Astra + Tokens</text>
-        <text x="350" y="460" class="update-time">Multi-Agent</text>
+        <path d="M 200 520 L 200 450 L 520 450 L 520 410" class="connection-line" data-from="designer" data-to="secretary"/>
+        <text x="350" y="445" class="update-label">Astra + Token</text>
+        <text x="350" y="460" class="update-time">多Agent 协作</text>
 
         <!-- 知识管理 右下 -->
         <g class="agent-circle agent-knowledge" data-agent="knowledge">
           <rect x="950" y="520" width="100" height="100" rx="0" class="agent-circle-shape"/>
-          <text x="1000" y="565" class="agent-label">Knowledge</text>
-          <text x="1000" y="585" class="agent-sublabel-small">Keeper</text>
+          <text x="1000" y="565" class="agent-label">知识管理</text>
+          <text x="1000" y="585" class="agent-sublabel-small">Agent</text>
         </g>
         <!-- 中心到右下 -->
-        <path d="M 680 410 L 680 450 L 1000 450 L 1000 520" class="connection-line"/>
-        <text x="800" y="445" class="update-label">Feishu + GitLab</text>
-        <text x="800" y="460" class="update-time">Daily 08:00+12:00 UTC</text>
+        <path d="M 680 410 L 680 450 L 1000 450 L 1000 520" class="connection-line" data-from="secretary" data-to="knowledge"/>
+        <text x="800" y="445" class="update-label">飞书 + GitLab</text>
+        <text x="800" y="460" class="update-time">每日 08:00+12:00 UTC</text>
 
         <!-- 知识管理到Notion -->
         <g class="output-box notion-output" data-agent="notion">
           <rect x="1110" y="540" width="70" height="60" rx="0" class="notion-rect"/>
           <text x="1145" y="568" class="notion-label">Notion</text>
         </g>
-        <path d="M 1050 570 L 1110 570" class="connection-line-direct"/>
+        <path d="M 1050 570 L 1110 570" class="connection-line-direct" data-from="knowledge" data-to="notion"/>
         <text x="1080" y="560" class="output-arrow">→</text>
-        <text x="1080" y="590" class="output-time-small">Sync</text>
+        <text x="1080" y="590" class="output-time-small">同步</text>
       </svg>
     </div>
   </div>
@@ -1916,11 +1937,37 @@
 
       // ===== System Architecture 连接线交互 =====
       const connectionLines = document.querySelectorAll('.connection-line, .connection-line-direct');
+      const agentNodes = document.querySelectorAll('[data-agent]');
+
+      agentNodes.forEach(node => {
+        node.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const agentId = node.getAttribute('data-agent');
+
+          // 清除所有高亮
+          connectionLines.forEach(l => l.classList.remove('active'));
+          agentNodes.forEach(n => n.classList.remove('active'));
+
+          // 高亮当前 Agent
+          node.classList.add('active');
+
+          // 高亮相关的连接线
+          connectionLines.forEach(line => {
+            const fromAgent = line.getAttribute('data-from');
+            const toAgent = line.getAttribute('data-to');
+
+            if (fromAgent === agentId || toAgent === agentId) {
+              line.classList.add('active');
+            }
+          });
+        });
+      });
 
       connectionLines.forEach(line => {
         line.addEventListener('click', (e) => {
           e.stopPropagation();
           connectionLines.forEach(l => l.classList.remove('active'));
+          agentNodes.forEach(n => n.classList.remove('active'));
           line.classList.add('active');
         });
       });
@@ -1928,6 +1975,7 @@
       // 点击其他地方移除高亮
       document.addEventListener('click', () => {
         connectionLines.forEach(l => l.classList.remove('active'));
+        agentNodes.forEach(n => n.classList.remove('active'));
       });
     });
 
