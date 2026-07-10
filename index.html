@@ -1785,27 +1785,10 @@
     });
 
     function createTrail(x, y) {
-      const trail = document.createElement('div');
-      trail.className = 'cursor-trail';
-      trail.style.left = x - 2 + 'px';
-      trail.style.top = y - 2 + 'px';
-      document.body.appendChild(trail);
-      let opacity = 1;
-      const interval = setInterval(() => {
-        opacity -= 0.1;
-        trail.style.opacity = opacity;
-        if (opacity <= 0) {
-          clearInterval(interval);
-          trail.remove();
-        }
-      }, 30);
+      // 拖尾效果已禁用
     }
 
-    document.addEventListener('mousemove', (e) => {
-      if (Math.random() > 0.7) {
-        createTrail(e.clientX, e.clientY);
-      }
-    });
+    // 移除拖尾监听（保持空白以避免干扰）
 
     document.addEventListener('click', (e) => {
       const ripple = document.createElement('div');
