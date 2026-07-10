@@ -361,7 +361,7 @@
     }
 
     .hero-meta {
-      display: flex;
+      display: none;
       flex-direction: column;
       gap: 16px;
       font-size: 0.95rem;
@@ -416,7 +416,7 @@
     }
 
     .cards-grid {
-      animation: carousel-scroll 30s linear infinite;
+      animation: carousel-scroll 15s linear infinite;
       width: fit-content;
     }
 
@@ -431,7 +431,17 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: all 0.4s ease;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform: perspective(1000px) rotateY(0deg) scale(1);
+      cursor: grab;
+    }
+
+    .card.selected {
+      transform: perspective(1000px) rotateY(-15deg) scale(1.15);
+      border-color: var(--white);
+      background: var(--gray-8);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(255,255,255,0.1);
+      z-index: 10;
     }
 
     .card:hover {
@@ -564,25 +574,73 @@
     }
 
     .status-card {
-      background: var(--black);
-      border: 1px dashed var(--gray-6);
-      padding: 40px;
+      background: linear-gradient(135deg, rgba(20, 20, 20, 0.8) 0%, rgba(30, 30, 30, 0.6) 100%);
+      border: 1px solid var(--gray-6);
+      padding: 50px 40px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    .status-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
     }
 
     .status-label {
       font-size: 0.7rem;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       color: var(--gray-4);
       text-transform: uppercase;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
 
     .status-value {
-      font-size: 2.5rem;
+      font-size: 3rem;
       font-weight: 700;
       letter-spacing: -2px;
       color: var(--white);
+      margin-bottom: 20px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: var(--gray-3);
+    }
+
+    .status-light {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #00ff41;
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.8), inset 0 1px 3px rgba(255,255,255,0.3);
+      animation: statusGlow 2s ease-in-out infinite;
+    }
+
+    .status-light.warning {
+      background: #ffaa00;
+      box-shadow: 0 0 15px rgba(255, 170, 0, 0.8), inset 0 1px 3px rgba(255,255,255,0.3);
+    }
+
+    .status-light.error {
+      background: #ff3333;
+      box-shadow: 0 0 15px rgba(255, 51, 51, 0.8), inset 0 1px 3px rgba(255,255,255,0.3);
+    }
+
+    @keyframes statusGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 65, 0.8), inset 0 1px 3px rgba(255,255,255,0.3); }
+      50% { box-shadow: 0 0 25px rgba(0, 255, 65, 1), inset 0 1px 3px rgba(255,255,255,0.5); }
     }
 
     /* ===== 模态框 ===== */
@@ -945,26 +1003,6 @@
             <button class="card-btn" onclick="openGitHub('agents/design-infra')">查看</button>
           </div>
         </div>
-
-        <!-- 复制卡片用于无限滚动 -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-number">001 / Secretary</div>
-            <div class="card-title">小秘书</div>
-          </div>
-          <div class="card-body">
-            <div class="card-role">Central Hub</div>
-            <div class="card-desc">任务分配、信息汇总、飞书推送。每天 18:00 北京时生成日报。</div>
-            <div class="card-tasks">
-              <div><span class="task-marker">—</span> 每日日报汇总</div>
-              <div><span class="task-marker">—</span> 多源数据聚合</div>
-              <div><span class="task-marker">—</span> 飞书推送</div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <button class="card-btn" onclick="openGitHub('agents/secretary')">查看</button>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -973,12 +1011,43 @@
   <div class="agents-section" id="system">
     <div class="workflow-section">
       <div class="workflow-title">System Architecture</div>
-      <div class="workflow-content">
-        小秘书 (001)<br>
-        ↓<br>
-        摄影师 (002 09:00) | 知识管理 (003 08:00+12:00) | 设计师 (004 Multi-Agent)<br>
-        ↓<br>
-        飞书推送 · Notion 更新 · 设计咨询
+      <div class="workflow-content" id="architectureTree">
+        <div style="font-family: 'Space Mono', monospace; text-align: left; display: inline-block; line-height: 2.2;">
+          <div>小秘书 (001) · Central Hub</div>
+          <div style="margin-left: 20px;">
+            ├─ <span style="color: #00ff41;">⟳ Feishu Push</span> (18:00 Beijing Time)
+          </div>
+          <div style="margin-left: 20px;">
+            ├─ <span style="color: #00d9ff;">⟳ Data Aggregation</span>
+          </div>
+          <div style="margin-left: 20px;">
+            ├─ <span style="color: #00ff41;">⟳ Task Distribution</span>
+          </div>
+          <div style="margin-left: 20px; margin-top: 15px;">
+            └─ Tasks:
+          </div>
+          <div style="margin-left: 40px; color: #cccccc;">
+            ├─ 摄影师 (002) · 09:00 UTC ➜ Unsplash Analysis
+          </div>
+          <div style="margin-left: 40px; color: #cccccc;">
+            ├─ 知识管理 (003) · 08:00+12:00 UTC ➜ Dual-Source Sync
+          </div>
+          <div style="margin-left: 40px; color: #cccccc;">
+            │  ├─ Feishu Wiki Docs
+          </div>
+          <div style="margin-left: 40px; color: #cccccc;">
+            │  └─ GitLab Workspace Files
+          </div>
+          <div style="margin-left: 40px; color: #cccccc;">
+            └─ 设计师 (004) · Multi-Agent Mode ➜ Design System Expert
+          </div>
+          <div style="margin-left: 40px; color: #cccccc; margin-top: 15px;">
+            ↓
+          </div>
+          <div style="margin-left: 40px; color: #00ff41;">
+            Notion Database Update
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -990,18 +1059,34 @@
       <div class="status-card">
         <div class="status-label">GitHub Secrets</div>
         <div class="status-value">9/9</div>
+        <div class="status-indicator">
+          <div class="status-light"></div>
+          <span>Active</span>
+        </div>
       </div>
       <div class="status-card">
         <div class="status-label">Active Workflows</div>
         <div class="status-value">4</div>
+        <div class="status-indicator">
+          <div class="status-light"></div>
+          <span>Running</span>
+        </div>
       </div>
       <div class="status-card">
         <div class="status-label">Agents Online</div>
         <div class="status-value">4</div>
+        <div class="status-indicator">
+          <div class="status-light"></div>
+          <span>Connected</span>
+        </div>
       </div>
       <div class="status-card">
         <div class="status-label">System Status</div>
         <div class="status-value">✓ OK</div>
+        <div class="status-indicator">
+          <div class="status-light"></div>
+          <span>Operational</span>
+        </div>
       </div>
     </div>
   </div>
@@ -1253,21 +1338,49 @@
 
     // ===== 卡片滑动 =====
     const cardsGrid = document.getElementById('cardsGrid');
+    const cardsCarousel = document.querySelector('.cards-carousel');
     let isGrabbing = false;
     let startX = 0;
     let currentTranslate = 0;
+    let selectedCard = null;
 
-    cardsGrid.addEventListener('mouseenter', () => {
-      cardsGrid.style.animationPlayState = 'paused';
+    // 初始化卡片（复制到4倍以支持无限滚动）
+    const originalCards = Array.from(cardsGrid.querySelectorAll('.card')).slice(0, 4);
+    for (let i = 0; i < 3; i++) {
+      originalCards.forEach(card => {
+        const clone = card.cloneNode(true);
+        cardsGrid.appendChild(clone);
+      });
+    }
+
+    // 重新获取所有卡片
+    const allCards = cardsGrid.querySelectorAll('.card');
+
+    // 卡片选中效果
+    allCards.forEach((card, idx) => {
+      card.addEventListener('click', () => {
+        allCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedCard = card;
+        cardsGrid.style.animationPlayState = 'paused';
+      });
     });
 
-    cardsGrid.addEventListener('mouseleave', () => {
-      if (!isGrabbing) {
+    // 鼠标事件
+    cardsCarousel.addEventListener('mouseenter', () => {
+      if (!isGrabbing && !selectedCard) {
+        cardsGrid.style.animationPlayState = 'paused';
+      }
+    });
+
+    cardsCarousel.addEventListener('mouseleave', () => {
+      if (!isGrabbing && !selectedCard) {
         cardsGrid.style.animationPlayState = 'running';
       }
     });
 
     cardsGrid.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.card-btn')) return;
       isGrabbing = true;
       startX = e.clientX;
       cardsGrid.classList.add('dragging');
@@ -1285,6 +1398,8 @@
       isGrabbing = false;
       cardsGrid.classList.remove('dragging');
       currentTranslate += e.clientX - startX;
+      allCards.forEach(c => c.classList.remove('selected'));
+      selectedCard = null;
       cardsGrid.style.animationPlayState = 'running';
     });
 
