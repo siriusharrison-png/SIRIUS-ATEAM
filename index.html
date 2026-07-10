@@ -1759,38 +1759,42 @@
     let mouseX = 0;
     let mouseY = 0;
 
-    // 大光点（cursorOutline）代表实时位置，小光点（cursor）作为拖尾
+    // 只在 mousemove 中更新坐标，用 RAF 同步渲染
     document.addEventListener('mousemove', (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
 
-      // 大光点实时跟踪（20px，代表实际光标位置）
-      cursorOutline.style.left = mouseX - 10 + 'px';
-      cursorOutline.style.top = mouseY - 10 + 'px';
-
-      // 创建小光点作为拖尾
-      if (Math.random() > 0.8) {
+      // 创建拖尾粒子
+      if (Math.random() > 0.85) {
         const trail = document.createElement('div');
         trail.className = 'cursor-dot';
+        trail.style.position = 'fixed';
         trail.style.left = mouseX - 4 + 'px';
         trail.style.top = mouseY - 4 + 'px';
-        trail.style.opacity = '0.4';
+        trail.style.pointerEvents = 'none';
+        trail.style.zIndex = '9997';
+        trail.style.opacity = '0.5';
         document.body.appendChild(trail);
 
-        let opacity = 0.4;
+        let opacity = 0.5;
         const interval = setInterval(() => {
-          opacity -= 0.05;
+          opacity -= 0.06;
           trail.style.opacity = opacity;
           if (opacity <= 0) {
             clearInterval(interval);
             trail.remove();
           }
-        }, 40);
+        }, 50);
       }
     });
 
-    // 隐藏原来的小光点（cursor），不再用作主光标
-    cursor.style.display = 'none';
+    // 用 RAF 更新大光点位置，确保与屏幕刷新同步
+    function updateCursor() {
+      cursorOutline.style.left = mouseX - 10 + 'px';
+      cursorOutline.style.top = mouseY - 10 + 'px';
+      requestAnimationFrame(updateCursor);
+    }
+    updateCursor();
 
     document.addEventListener('click', (e) => {
       const ripple = document.createElement('div');
