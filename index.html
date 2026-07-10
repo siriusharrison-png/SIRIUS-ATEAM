@@ -1757,15 +1757,6 @@
     let mouseX = 0;
     let mouseY = 0;
 
-    document.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      cursor.style.left = mouseX - 4 + 'px';
-      cursor.style.top = mouseY - 4 + 'px';
-      cursorOutline.style.left = mouseX - 10 + 'px';
-      cursorOutline.style.top = mouseY - 10 + 'px';
-    });
-
     function createTrail(x, y) {
       const trail = document.createElement('div');
       trail.className = 'cursor-trail';
@@ -1784,16 +1775,17 @@
     }
 
     document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursor.style.left = mouseX - 4 + 'px';
+      cursor.style.top = mouseY - 4 + 'px';
+      cursorOutline.style.left = mouseX - 10 + 'px';
+      cursorOutline.style.top = mouseY - 10 + 'px';
+
       if (Math.random() > 0.7) {
         createTrail(e.clientX, e.clientY);
       }
     });
-
-    function createTrail(x, y) {
-      // 拖尾效果已禁用
-    }
-
-    // 移除拖尾监听（保持空白以避免干扰）
 
     document.addEventListener('click', (e) => {
       const ripple = document.createElement('div');
