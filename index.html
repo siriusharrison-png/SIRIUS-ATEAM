@@ -412,7 +412,7 @@
     /* 自动无限滚动 */
     @keyframes carousel-scroll {
       0% { transform: translateX(0); }
-      100% { transform: translateX(calc(-40% - 10px)); }
+      100% { transform: translateX(calc(-35% - 10px)); }
     }
 
     .cards-grid {
@@ -421,9 +421,9 @@
     }
 
     .card {
-      flex: 0 0 40%;
-      max-width: 40%;
-      min-width: 300px;
+      flex: 0 0 35%;
+      max-width: 35%;
+      min-width: 280px;
       background: var(--black);
       border: 2px dashed var(--gray-6);
       padding: 50px;
@@ -722,45 +722,45 @@
       margin-right: auto;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 40px;
+      gap: 50px;
       margin-bottom: 80px;
       padding: 0 60px;
     }
 
     .status-card {
-      background: linear-gradient(135deg, rgba(20, 20, 20, 0.8) 0%, rgba(30, 30, 30, 0.6) 100%);
-      border: 1px solid var(--gray-6);
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px dashed var(--gray-6);
       padding: 50px 40px;
       text-align: center;
       position: relative;
       overflow: hidden;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 40px rgba(0,0,0,0.5);
+      box-shadow: none;
+      transition: all 0.3s ease;
     }
 
     .status-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      display: none;
+    }
+
+    .status-card:hover {
+      border-color: var(--gray-3);
     }
 
     .status-label {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       letter-spacing: 3px;
       color: var(--gray-4);
       text-transform: uppercase;
-      margin-bottom: 30px;
+      margin-bottom: 40px;
+      font-weight: 700;
     }
 
     .status-value {
-      font-size: 3rem;
+      font-size: 4rem;
       font-weight: 700;
       letter-spacing: -2px;
-      color: var(--white);
-      margin-bottom: 20px;
+      color: #00ff41;
+      margin-bottom: 30px;
       font-family: 'Space Mono', monospace;
     }
 
@@ -768,18 +768,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      font-size: 0.85rem;
+      gap: 10px;
+      font-size: 0.8rem;
       color: var(--gray-3);
     }
 
     .status-light {
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background: #00ff41;
-      box-shadow: 0 0 15px rgba(0, 255, 65, 0.8), inset 0 1px 3px rgba(255,255,255,0.3);
+      box-shadow: 0 0 12px rgba(0, 255, 65, 0.8), inset 0 1px 2px rgba(255,255,255,0.3);
       animation: statusGlow 2s ease-in-out infinite;
+      flex-shrink: 0;
     }
 
     .status-light.warning {
