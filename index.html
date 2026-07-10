@@ -816,68 +816,108 @@
 
     /* ===== 状态 ===== */
     .status-section {
-      max-width: 1200px;
+      max-width: 1400px;
       margin-left: auto;
       margin-right: auto;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 50px;
-      margin-bottom: 80px;
-      padding: 0 60px;
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding: 0 60px 60px;
+      scroll-behavior: smooth;
+      margin-bottom: 40px;
+    }
+
+    .status-section::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .status-section::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .status-section::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 65, 0.3);
+      border-radius: 2px;
     }
 
     .status-card {
-      background: rgba(0, 0, 0, 0.6);
-      border: 2px dashed var(--gray-6);
-      padding: 50px 40px;
-      text-align: center;
+      flex: 0 0 280px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 24px;
       position: relative;
       overflow: hidden;
-      box-shadow: none;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 140px;
+      animation: fadeInUp 0.6s ease-out backwards;
+      opacity: 0;
       transition: all 0.3s ease;
+    }
+
+    .status-card:nth-child(1) { animation-delay: 0.1s; }
+    .status-card:nth-child(2) { animation-delay: 0.2s; }
+    .status-card:nth-child(3) { animation-delay: 0.3s; }
+    .status-card:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .status-card:hover {
+      border-color: rgba(0, 255, 65, 0.3);
+      background: rgba(0, 0, 0, 0.6);
     }
 
     .status-card::before {
       display: none;
     }
 
-    .status-card:hover {
-      border-color: var(--gray-3);
+    .status-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 12px;
     }
 
     .status-label {
-      font-size: 0.75rem;
-      letter-spacing: 3px;
-      color: var(--gray-4);
-      text-transform: uppercase;
-      margin-bottom: 40px;
-      font-weight: 700;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+      line-height: 1.4;
+      flex: 1;
     }
 
     .status-value {
-      font-size: 4rem;
-      font-weight: 700;
-      letter-spacing: -2px;
-      color: #00ff41;
-      margin-bottom: 30px;
-      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
     }
 
     .status-indicator {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
-      font-size: 0.8rem;
-      color: var(--gray-3);
+      gap: 8px;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
     }
 
     .status-light {
-      width: 14px;
-      height: 14px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: #00ff41;
-      box-shadow: 0 0 12px rgba(0, 255, 65, 0.8), inset 0 1px 2px rgba(255,255,255,0.3);
+      box-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
       animation: statusGlow 2s ease-in-out infinite;
       flex-shrink: 0;
     }
@@ -1366,32 +1406,36 @@
     <div class="section-title">Status</div>
     <div class="status-section">
       <div class="status-card">
-        <div class="status-label">GitHub Secrets</div>
-        <div class="status-value">9/9</div>
+        <div class="status-card-top">
+          <div class="status-label">GitHub Secrets: 9/9</div>
+        </div>
         <div class="status-indicator">
           <div class="status-light"></div>
           <span>Active</span>
         </div>
       </div>
       <div class="status-card">
-        <div class="status-label">Active Workflows</div>
-        <div class="status-value">4</div>
+        <div class="status-card-top">
+          <div class="status-label">Active Workflows: 4</div>
+        </div>
         <div class="status-indicator">
           <div class="status-light"></div>
           <span>Running</span>
         </div>
       </div>
       <div class="status-card">
-        <div class="status-label">Agents Online</div>
-        <div class="status-value">4</div>
+        <div class="status-card-top">
+          <div class="status-label">Agents Online: 4</div>
+        </div>
         <div class="status-indicator">
           <div class="status-light"></div>
           <span>Connected</span>
         </div>
       </div>
       <div class="status-card">
-        <div class="status-label">System Status</div>
-        <div class="status-value">✓ OK</div>
+        <div class="status-card-top">
+          <div class="status-label">System Status</div>
+        </div>
         <div class="status-indicator">
           <div class="status-light"></div>
           <span>Operational</span>
