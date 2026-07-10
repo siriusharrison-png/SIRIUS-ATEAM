@@ -3,25 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIRIUS TEAM · Product Collection</title>
+  <title>SIRIUS TEAM</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap');
 
     :root {
-      --primary: #00ff41;           /* 荧光绿 */
-      --primary-light: #39ff14;     /* 亮绿 */
-      --accent: #00d9ff;            /* 青蓝 */
-      --accent-light: #00ffff;      /* 亮青 */
-      --glow-green: rgba(0, 255, 65, 0.3);
-      --glow-cyan: rgba(0, 217, 255, 0.3);
-      --glow-pink: rgba(255, 0, 110, 0.2);
-      --bg-dark: #0a0a0a;           /* 纯黑 */
-      --bg-darker: #000000;         /* 更黑 */
-      --surface: #0f0f0f;           /* 深灰黑 */
-      --surface-alt: #1a1a1a;       /* 稍浅灰黑 */
-      --text-primary: #ffffff;
-      --text-secondary: #00ff41;
-      --text-tertiary: #00d9ff;
+      --black: #000000;
+      --white: #ffffff;
+      --gray-1: #f5f5f5;
+      --gray-2: #e8e8e8;
+      --gray-3: #cccccc;
+      --gray-4: #999999;
+      --gray-5: #666666;
+      --gray-6: #333333;
+      --gray-7: #1a1a1a;
+      --gray-8: #0d0d0d;
     }
 
     * {
@@ -32,2857 +28,421 @@
 
     body {
       font-family: 'Syne', 'Noto Sans SC', sans-serif;
-      background: linear-gradient(135deg, var(--bg-darker) 0%, #0d1728 50%, var(--bg-dark) 100%);
+      background: var(--black);
+      color: var(--white);
       min-height: 100vh;
-      padding: 40px 20px;
+      padding: 60px 40px;
       overflow-x: hidden;
-      overflow-y: auto;
-      position: relative;
-      color: var(--text-primary);
     }
 
-    /* 赛博朋克网格 + 扫描线背景 */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image:
-        linear-gradient(0deg, transparent 24%, rgba(0, 255, 65, 0.05) 25%, rgba(0, 255, 65, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 65, 0.05) 75%, rgba(0, 255, 65, 0.05) 76%, transparent 77%, transparent),
-        linear-gradient(90deg, transparent 24%, rgba(0, 217, 255, 0.05) 25%, rgba(0, 217, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 217, 255, 0.05) 75%, rgba(0, 217, 255, 0.05) 76%, transparent 77%, transparent);
-      background-size: 50px 50px;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0.4;
-      animation: gridFlow 20s linear infinite;
-    }
-
-    @keyframes gridFlow {
-      0% { background-position: 0 0, 0 0; }
-      100% { background-position: 50px 50px, 50px 50px; }
-    }
-
-    /* 扫描线效果 */
-    body::after {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(255, 255, 255, 0.03),
-        rgba(255, 255, 255, 0.03) 1px,
-        transparent 1px,
-        transparent 2px
-      );
-      pointer-events: none;
-      z-index: 1;
-      animation: scanlines 8s linear infinite;
-    }
-
-    @keyframes scanlines {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(10px); }
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      min-height: calc(100vh - 80px);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      z-index: 2;
-    }
-
-    /* Corner Marks */
-    .corner-mark {
-      position: fixed;
-      color: var(--primary);
-      font-size: 0.75rem;
-      opacity: 0.3;
-      z-index: 2;
-      text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
-    }
-    .corner-mark.tl { top: 20px; left: 20px; }
-    .corner-mark.tr { top: 20px; right: 20px; }
-    .corner-mark.bl { bottom: 20px; left: 20px; }
-    .corner-mark.br { bottom: 20px; right: 20px; }
-
-    /* Header */
+    /* 顶部标题 */
     header {
+      margin-bottom: 80px;
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 50px;
-      padding: 30px 0;
-      border-bottom: 2px solid;
-      border-image: linear-gradient(90deg, var(--primary), transparent 80%) 1;
-      flex-shrink: 0;
-      animation: headerFadeIn 0.8s ease-out;
-    }
-
-    @keyframes headerFadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      align-items: center;
+      border-bottom: 1px solid var(--gray-7);
+      padding-bottom: 40px;
     }
 
     .logo {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 12px;
     }
 
     .logo h1 {
-      font-size: 2.8rem;
+      font-size: 3.2rem;
       font-weight: 800;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    .logo .year {
+      font-size: 0.8rem;
       letter-spacing: 3px;
-      line-height: 1;
-      filter: drop-shadow(0 0 25px rgba(0, 255, 65, 0.6));
-      position: relative;
-      animation: titleGlitch 3s ease-in-out infinite;
-    }
-
-    @keyframes titleGlitch {
-      0%, 100% { transform: translate(0, 0); filter: drop-shadow(0 0 25px rgba(0, 255, 65, 0.6)); }
-      20% { transform: translate(-2px, 2px); filter: drop-shadow(0 0 20px rgba(0, 255, 65, 0.4)); }
-      40% { transform: translate(2px, -2px); filter: drop-shadow(0 0 30px rgba(0, 255, 65, 0.8)); }
-      60% { transform: translate(-1px, 1px); filter: drop-shadow(0 0 25px rgba(0, 217, 255, 0.5)); }
-      80% { transform: translate(1px, -1px); filter: drop-shadow(0 0 20px rgba(0, 255, 65, 0.4)); }
-    }
-
-    .logo h1::before {
-      content: '';
-      position: absolute;
-      inset: -10px;
-      background: radial-gradient(circle at center, rgba(0, 255, 65, 0.15), transparent);
-      filter: blur(20px);
-      z-index: -1;
-    }
-
-    .logo .subtitle {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      letter-spacing: 2px;
+      color: var(--gray-3);
       font-weight: 400;
-      text-transform: uppercase;
     }
 
-    .header-nav {
+    .header-info {
       display: flex;
-      gap: 50px;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      letter-spacing: 1px;
+      gap: 60px;
+      font-size: 0.85rem;
+      color: var(--gray-3);
     }
 
-    .header-nav span {
+    .info-item {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      position: relative;
+      gap: 4px;
     }
 
-    .header-nav span:hover {
-      color: var(--primary);
-      text-shadow: 0 0 20px rgba(0, 255, 65, 0.8), 0 0 40px rgba(0, 217, 255, 0.4);
-      transform: scale(1.1);
-    }
-
-    .header-nav .num {
-      font-size: 0.65rem;
-      opacity: 0.6;
-    }
-
-    /* Main Content Area */
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 30px;
-      min-height: 0;
-    }
-
-    /* Tags Container */
-    .tags-container {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      padding: 40px 0;
-      flex-shrink: 0;
-      animation: tagsSlideIn 0.6s ease-out 0.2s both;
-    }
-
-    @keyframes tagsSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .tag {
-      position: relative;
-      padding: 12px 26px;
-      border: 2px solid var(--primary);
-      background: rgba(0, 255, 65, 0.08);
-      backdrop-filter: blur(10px);
-      color: var(--primary);
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-radius: 2px;
-      overflow: hidden;
-      text-transform: uppercase;
-      box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
-    }
-
-    .tag::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 255, 65, 0.3), transparent);
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .tag:hover,
-    .tag.active {
-      background: rgba(0, 255, 65, 0.15);
-      box-shadow: 0 0 30px rgba(0, 255, 65, 0.6), inset 0 0 20px rgba(0, 255, 65, 0.1);
-      border-color: var(--accent);
-      transform: translateY(-4px) skewX(-2deg);
-      color: var(--accent);
-    }
-
-    .tag.active {
-      background: rgba(0, 255, 65, 0.2);
-      box-shadow: 0 0 40px rgba(0, 255, 65, 0.8), inset 0 0 30px rgba(0, 255, 65, 0.2);
-      animation: tagPulse 0.6s ease-in-out;
-    }
-
-    @keyframes tagPulse {
-      0%, 100% { box-shadow: 0 0 40px rgba(0, 255, 65, 0.8), inset 0 0 30px rgba(0, 255, 65, 0.2); }
-      50% { box-shadow: 0 0 60px rgba(0, 255, 65, 0.6), inset 0 0 40px rgba(0, 255, 65, 0.3); }
-    }
-
-    .tag-icon {
-      width: 22px;
-      height: 22px;
-      filter: drop-shadow(0 0 4px rgba(0, 217, 255, 0.3));
-    }
-
-    .tag-icon svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .tag:hover .pixel,
-    .tag.active .pixel {
-      fill: var(--primary);
-      filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.6));
-    }
-
-    .tag:hover .grid-char,
-    .tag.active .grid-char {
-      stroke: var(--primary);
-    }
-
-    .tag:hover .grid-char-accent,
-    .tag.active .grid-char-accent {
-      fill: var(--primary);
-    }
-
-    /* Card Display Area */
-    .card-display {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      min-height: 450px;
-      perspective: 1000px;
-    }
-
-    /* Member Card */
-    .member-card {
-      position: absolute;
-      width: 100%;
-      max-width: 820px;
-      background: linear-gradient(135deg, rgba(15, 15, 15, 0.8) 0%, rgba(26, 26, 26, 0.8) 100%);
-      backdrop-filter: blur(20px);
-      border: 2px solid var(--primary);
-      padding: 45px;
-      display: flex;
-      gap: 45px;
-      opacity: 0;
-      visibility: hidden;
-      transform: perspective(1000px) rotateX(90deg) scale(0.8);
-      transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 0 40px rgba(0, 255, 65, 0.2), inset 0 0 40px rgba(0, 255, 65, 0.05);
-    }
-
-    .member-card.visible {
-      opacity: 1;
-      visibility: visible;
-      transform: perspective(1000px) rotateX(0deg) scale(1);
-    }
-
-    .member-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.1) 50%, transparent 100%);
-      opacity: 0;
-      animation: cardGlitch 2s ease-in-out infinite;
-      pointer-events: none;
-    }
-
-    @keyframes cardGlitch {
-      0%, 100% { opacity: 0; transform: translateX(-100%); }
-      50% { opacity: 1; }
-    }
-
-    .card-corner {
-      position: absolute;
-      color: var(--primary);
+    .info-label {
       font-size: 0.7rem;
-      opacity: 0.4;
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
-    }
-    .card-corner.tl { top: 12px; left: 14px; }
-    .card-corner.tr { top: 12px; right: 14px; }
-    .card-corner.bl { bottom: 12px; left: 14px; }
-    .card-corner.br { bottom: 12px; right: 14px; }
-
-    .card-left {
-      flex-shrink: 0;
-      width: 300px;
+      letter-spacing: 1px;
+      color: var(--gray-4);
+      text-transform: uppercase;
     }
 
-    .avatar-container {
-      width: 180px;
-      height: 180px;
+    /* 主容器 - 网格布局 */
+    .container {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: auto;
+      gap: 20px;
+      max-width: 1400px;
+    }
+
+    /* 卡片 */
+    .card {
+      background: var(--gray-8);
+      border: 1px solid var(--gray-7);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: var(--gray-5);
+      background: var(--gray-7);
+    }
+
+    /* 卡片大小变化 */
+    .card.span-6 { grid-column: span 6; }
+    .card.span-4 { grid-column: span 4; }
+    .card.span-3 { grid-column: span 3; }
+
+    .card.row-2 { grid-row: span 2; }
+    .card.row-1 { grid-row: span 1; }
+
+    /* 卡片内部 */
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--gray-7);
+      padding-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .card-code {
+      font-size: 0.7rem;
+      color: var(--gray-4);
+      letter-spacing: 1px;
+      font-family: monospace;
+    }
+
+    .card-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--gray-7);
+      border: 1px solid var(--gray-6);
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at 30% 30%, rgba(0, 255, 65, 0.1), transparent);
-      border: 2px solid var(--primary);
-      border-radius: 2px;
-      position: relative;
-      overflow: hidden;
-      flex-shrink: 0;
-      transform: perspective(800px) rotateY(-5deg);
-      animation: avatarFloat 3s ease-in-out infinite;
-      box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+      font-size: 1.8rem;
+      margin-bottom: 20px;
     }
 
-    @keyframes avatarFloat {
-      0%, 100% { transform: perspective(800px) rotateY(-5deg) translateY(0); }
-      50% { transform: perspective(800px) rotateY(-5deg) translateY(-10px); }
-    }
-
-    .avatar-container::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.08), transparent);
-      animation: shimmer 3s infinite;
-      pointer-events: none;
-    }
-
-    @keyframes shimmer {
-      0%, 100% { transform: translateX(-100%); }
-      50% { transform: translateX(100%); }
-    }
-
-    .avatar-3d {
-      width: 75%;
-      height: 75%;
-      filter: drop-shadow(0 0 20px rgba(0, 255, 65, 0.4));
-      position: relative;
-      z-index: 1;
-    }
-
-    .card-right {
-      flex: 1;
+    .card-content {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .card-number {
-      font-size: 5.5rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      line-height: 1;
-      opacity: 0.08;
-      position: absolute;
-      top: 25px;
-      right: 35px;
-      font-family: 'Syne', sans-serif;
+      gap: 16px;
     }
 
     .card-name {
-      font-size: 1.7rem;
-      font-weight: 800;
-      color: var(--primary);
-      margin-bottom: 4px;
-      letter-spacing: 1px;
-      text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
 
     .card-role {
-      font-size: 0.95rem;
-      color: var(--accent);
-      margin-bottom: 18px;
-      letter-spacing: 0.5px;
-      font-weight: 500;
+      font-size: 0.8rem;
+      color: var(--gray-4);
+      letter-spacing: 1px;
       text-transform: uppercase;
-      text-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
     }
 
-    .card-divider {
-      height: 2px;
-      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
-      opacity: 0.5;
-      margin: 18px 0;
-      box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+    .card-desc {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--gray-2);
     }
 
-    .card-tasks h4 {
-      font-size: 0.7rem;
-      color: var(--primary);
-      opacity: 0.8;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 14px;
-      font-weight: 700;
-      text-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
-    }
-
+    /* 任务列表 */
     .task-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--gray-7);
     }
 
     .task-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      font-size: 0.9rem;
-      color: var(--text-primary);
-      line-height: 1.6;
-      transition: all 0.3s ease;
-      padding: 8px 12px;
-      background: rgba(0, 255, 65, 0.05);
-      border-left: 2px solid var(--primary);
-      border-radius: 2px;
-    }
-
-    .task-item:hover {
-      background: rgba(0, 255, 65, 0.1);
-      box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
-      transform: translateX(4px);
-      color: var(--primary);
-    }
-
-    .task-icon {
-      flex-shrink: 0;
-      opacity: 0.8;
-      color: var(--primary);
-      filter: drop-shadow(0 0 4px rgba(0, 255, 65, 0.4));
-    }
-
-    .status-row {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .status-tag {
-      padding: 8px 16px;
-      border: 2px solid var(--primary);
-      background: rgba(0, 255, 65, 0.08);
-      font-size: 0.7rem;
-      color: var(--primary);
-      letter-spacing: 1px;
-      font-weight: 700;
-      border-radius: 2px;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
-    }
-
-    .status-tag:hover {
-      background: rgba(0, 255, 65, 0.15);
-      box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
-      color: var(--accent);
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .status-tag.opensource {
-      background: rgba(0, 217, 255, 0.08);
-      color: var(--accent);
-      border-color: var(--accent);
-    }
-
-    .status-tag.opensource:hover {
-      box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
-    }
-
-    .github-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border: 2px solid var(--primary);
-      background: rgba(0, 255, 65, 0.08);
-      color: var(--primary);
-      text-decoration: none;
-      font-size: 0.7rem;
-      font-weight: 700;
-      transition: all 0.3s ease;
-      border-radius: 2px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
-    }
-
-    .github-link:hover {
-      background: rgba(0, 255, 65, 0.15);
-      box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
-      color: var(--accent);
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .unsplash-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border: 2px solid var(--accent);
-      background: rgba(0, 217, 255, 0.08);
-      color: var(--accent);
-      text-decoration: none;
-      font-size: 0.7rem;
-      font-weight: 700;
-      transition: all 0.3s ease;
-      border-radius: 2px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      box-shadow: 0 0 10px rgba(0, 217, 255, 0.1);
-    }
-
-    .unsplash-link:hover {
-      background: rgba(0, 217, 255, 0.15);
-      color: var(--primary);
-      box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
-      border-color: var(--primary);
-      transform: translateY(-2px);
-    }
-
-    /* Workflow hint */
-    .workflow-hint {
-      text-align: center;
-      color: var(--primary);
       font-size: 0.8rem;
-      opacity: 0.6;
-      padding: 20px 0;
-      flex-shrink: 0;
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
-    }
-
-    /* Tools Section */
-    .tools-section {
-      margin-top: 40px;
-      padding: 30px 0;
-      border-top: 2px dashed var(--primary);
-      flex-shrink: 0;
-      opacity: 0.9;
-    }
-
-    .tools-header {
+      color: var(--gray-3);
       display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
+      gap: 8px;
+      align-items: flex-start;
     }
 
-    .tools-title {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--primary);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
-    }
-
-    .tools-badge {
-      font-size: 0.7rem;
-      padding: 4px 10px;
-      border: 1.5px solid var(--primary);
-      color: var(--primary);
-      opacity: 0.8;
-      border-radius: 2px;
-      text-transform: uppercase;
-      font-weight: 700;
-      box-shadow: 0 0 8px rgba(0, 255, 65, 0.2);
-    }
-
-    .tools-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .tool-item {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 20px;
-      background: rgba(0, 255, 65, 0.05);
-      border: 1.5px solid rgba(0, 255, 65, 0.2);
-      border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-
-    .tool-item:hover {
-      border-color: var(--primary);
-      background: rgba(0, 255, 65, 0.1);
-      box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
-      transform: translateX(4px);
-    }
-
-    .tool-icon {
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      color: var(--primary);
-      filter: drop-shadow(0 0 4px rgba(0, 255, 65, 0.3));
-    }
-
-    .tool-icon svg {
-      width: 24px;
-      height: 24px;
-      stroke: currentColor;
-    }
-
-    .tool-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .tool-name {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .tool-desc {
-      font-size: 0.75rem;
-      color: var(--text-primary);
-      opacity: 0.8;
-    }
-
-    .tool-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .task-item::before {
+      content: '—';
+      color: var(--gray-5);
       flex-shrink: 0;
     }
 
-    .tool-type {
-      font-size: 0.65rem;
-      padding: 3px 8px;
-      background: var(--blue-pale);
-      color: var(--primary);
-      letter-spacing: 0.5px;
-    }
-
-    .tool-link {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      font-size: 0.7rem;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .tool-link:hover {
-      background: var(--primary);
-      color: var(--text-primary);
-    }
-
-    .tool-link svg {
-      width: 12px;
-      height: 12px;
-    }
-
-    /* Footer */
-    footer {
-      padding-top: 20px;
-      border-top: 1px solid var(--primary);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--primary);
-      font-size: 0.75rem;
-      opacity: 0.6;
-      flex-shrink: 0;
-    }
-
-    /* Pixel Art Styles */
-    .pixel {
-      fill: var(--primary);
-    }
-
-    .pixel-light {
-      fill: var(--eye-color);
-    }
-
-    .pixel-bg {
-      fill: var(--bg-dark);
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 30px;
-    }
-
-    .workflow-btn {
-      display: flex;
+    /* 按钮 */
+    .btn {
+      display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 10px 20px;
+      border: 1px solid var(--gray-5);
       background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      font-family: inherit;
-      font-size: 0.8rem;
+      color: var(--white);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
       font-weight: 700;
-      letter-spacing: 1px;
-      cursor: pointer;
-      transition: all 0.2s;
     }
 
-    .workflow-btn:hover {
-      background: var(--primary);
-      color: var(--text-primary);
+    .btn:hover {
+      border-color: var(--white);
+      background: var(--gray-8);
     }
 
-    .workflow-btn:hover .pixel {
-      fill: white;
-    }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(5px);
+    .btn-group {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .modal {
-      background: linear-gradient(135deg, rgba(26, 45, 80, 0.5) 0%, rgba(36, 45, 74, 0.4) 100%);
-      backdrop-filter: blur(20px);
-      border: 1.5px solid;
-      border-image: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%) 1;
-      width: 90%;
-      max-width: 900px;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-      transform: translateY(30px) scale(0.92) rotateX(10deg);
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      border-radius: 2px;
-    }
-
-    .modal::before {
-      content: '';
-      position: absolute;
-      inset: -1.5px;
-      background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(255, 0, 110, 0.1), transparent);
-      filter: blur(20px);
-      z-index: -1;
-      border-radius: 2px;
-      pointer-events: none;
-    }
-
-    .modal-overlay.active .modal {
-      transform: translateY(0) scale(1) rotateX(0deg);
-    }
-
-    .modal-header {
-      padding: 28px 32px;
-      border-bottom: 1.5px solid;
-      border-image: linear-gradient(90deg, var(--primary), transparent 80%) 1;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: linear-gradient(90deg, rgba(0, 217, 255, 0.05), transparent);
-    }
-
-    .modal-title {
-      font-size: 1.3rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 1px;
-    }
-
-    .modal-close {
-      width: 36px;
-      height: 36px;
-      background: transparent;
-      border: 1.5px solid var(--primary);
-      color: var(--primary);
-      font-size: 1.3rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      border-radius: 2px;
-      position: relative;
-    }
-
-    .modal-close:hover {
-      background: rgba(0, 217, 255, 0.1);
-      border-color: var(--accent);
-      color: var(--accent);
-      box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
-    }
-
-    .modal-body {
-      padding: 32px;
-    }
-
-    .modal-corner {
-      position: absolute;
-      color: var(--primary);
-      font-size: 0.7rem;
-      opacity: 0.3;
-      text-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
-    }
-    .modal-corner.tl { top: 8px; left: 10px; }
-    .modal-corner.tr { top: 8px; right: 10px; }
-    .modal-corner.bl { bottom: 8px; left: 10px; }
-    .modal-corner.br { bottom: 8px; right: 10px; }
-
-    /* Workflow Diagram */
-    .workflow-container {
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-      animation: workflowSlideIn 0.6s ease-out;
-    }
-
-    @keyframes workflowSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .workflow-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .workflow-node {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 16px;
-      border: 1.5px solid var(--primary);
-      background: rgba(0, 217, 255, 0.03);
-      backdrop-filter: blur(10px);
-      min-width: 110px;
-      border-radius: 2px;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .workflow-node:hover {
-      background: rgba(0, 217, 255, 0.08);
-      box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
-      transform: translateY(-2px);
-    }
-
-    .workflow-node.center {
-      background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(255, 0, 110, 0.05));
-      color: var(--text-primary);
-      padding: 22px 35px;
-      border-color: var(--accent);
-      box-shadow: 0 0 25px rgba(0, 217, 255, 0.2);
-    }
-
-    .workflow-node.center:hover {
-      background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(255, 0, 110, 0.1));
-      box-shadow: 0 0 35px rgba(0, 217, 255, 0.4);
-    }
-
-    .workflow-node.center .workflow-node-name {
-      color: var(--text-primary);
-      font-weight: 800;
-    }
-
-    .workflow-node.output {
-      background: linear-gradient(135deg, rgba(255, 0, 110, 0.1), rgba(0, 217, 255, 0.05));
-      color: var(--text-primary);
-      flex-direction: row;
       gap: 12px;
-      padding: 12px 24px;
-      border-color: var(--accent);
-      box-shadow: 0 0 15px rgba(255, 0, 110, 0.2);
-    }
-
-    .workflow-node.output:hover {
-      box-shadow: 0 0 25px rgba(255, 0, 110, 0.4);
-    }
-
-    .workflow-node.output .workflow-node-name {
-      color: var(--accent-light);
-    }
-
-    .workflow-node-icon {
-      width: 40px;
-      height: 40px;
-      filter: drop-shadow(0 0 4px rgba(0, 217, 255, 0.3));
-    }
-
-    .workflow-node-name {
-      font-size: 0.75rem;
-      color: var(--primary);
-      font-weight: 700;
-      text-align: center;
-      letter-spacing: 0.5px;
-    }
-
-    .workflow-node-desc {
-      font-size: 0.65rem;
-      color: var(--text-secondary);
-      opacity: 0.6;
-      text-align: center;
-    }
-
-    .workflow-node.center .workflow-node-desc {
-      color: var(--text-secondary);
-      opacity: 0.7;
-    }
-
-    .workflow-arrow {
-      color: var(--primary);
-      font-size: 1.5rem;
-      opacity: 0.6;
-      transition: all 0.3s ease;
-    }
-
-    .workflow-arrow:hover {
-      color: var(--accent);
-      opacity: 1;
-      text-shadow: 0 0 10px rgba(255, 0, 110, 0.4);
-    }
-
-    .workflow-arrow.down {
-      transform: rotate(90deg);
-    }
-
-    .workflow-section-title {
-      font-size: 0.7rem;
-      color: var(--text-secondary);
-      opacity: 0.6;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-align: center;
-      margin: 20px 0 10px;
-      font-weight: 700;
-    }
-
-    .workflow-legend {
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid rgba(0, 217, 255, 0.2);
-    }
-
-    .workflow-legend-title {
-      font-size: 0.7rem;
-      color: var(--primary);
-      opacity: 0.5;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 16px;
-    }
-
-    .workflow-legend-items {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-
-    .workflow-legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.75rem;
-      color: var(--primary);
-    }
-
-    .legend-dot {
-      width: 12px;
-      height: 12px;
-      border: 1px solid var(--primary);
-    }
-
-    .legend-dot.local {
-      background: var(--bg-dark);
-    }
-
-    .legend-dot.opensource {
-      background: var(--primary);
-    }
-
-    /* Agent Status */
-    .card-status {
       margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px dashed rgba(26, 60, 232, 0.2);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-wrap: wrap;
     }
 
-    .status-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    /* 响应式 */
+    @media (max-width: 1024px) {
+      .card.span-6 { grid-column: span 12; }
+      .card.span-4 { grid-column: span 6; }
+      .card.span-3 { grid-column: span 4; }
     }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-    }
-
-    .status-dot.active {
-      background: #10b981;
-      animation: blink 2s infinite;
-    }
-
-    .status-dot.idle {
-      background: #f59e0b;
-    }
-
-    .status-dot.error {
-      background: #ef4444;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .status-text {
-      font-size: 0.7rem;
-      color: var(--primary);
-      opacity: 0.6;
-    }
-
-    .status-text span {
-      opacity: 0.8;
-    }
-
-    .log-btn {
-      padding: 6px 12px;
-      background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      font-family: inherit;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .log-btn:hover {
-      background: var(--primary);
-      color: var(--text-primary);
-    }
-
-    .push-btn {
-      padding: 6px 12px;
-      background: var(--primary);
-      border: 1px solid var(--primary);
-      color: var(--text-primary);
-      font-family: inherit;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .push-btn:hover {
-      background: var(--blue-light);
-      border-color: var(--blue-light);
-    }
-
-    .push-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .push-btn.success {
-      background: #10b981;
-      border-color: #10b981;
-    }
-
-    /* Log Modal */
-    .log-modal-body {
-      padding: 30px;
-    }
-
-    .log-agent-name {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 20px;
-      letter-spacing: 1px;
-    }
-
-    .log-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .log-item {
-      display: flex;
-      gap: 16px;
-      padding-bottom: 16px;
-      border-bottom: 1px dashed rgba(26, 60, 232, 0.15);
-    }
-
-    .log-item:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .log-date {
-      font-size: 0.75rem;
-      color: var(--primary);
-      opacity: 0.5;
-      white-space: nowrap;
-      font-weight: 700;
-    }
-
-    .log-content {
-      font-size: 0.85rem;
-      color: var(--primary);
-      line-height: 1.5;
-    }
-
-    .log-empty {
-      font-size: 0.85rem;
-      color: var(--primary);
-      opacity: 0.5;
-      text-align: center;
-      padding: 30px;
-    }
-
-    /* Responsive */
-    /* Tablet */
-    @media (max-width: 900px) {
-      .member-card {
-        flex-direction: column;
-        padding: 30px;
-        max-width: 400px;
-      }
-      .card-left {
-        width: 100%;
-        max-width: 250px;
-        margin: 0 auto;
-      }
-      .card-number {
-        font-size: 2.5rem;
-        top: 20px;
-        right: 25px;
-      }
-      .header-right {
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 16px;
-      }
-      .header-nav {
-        gap: 20px;
-      }
-    }
-
-    /* Mobile */
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       body {
-        padding: 20px 16px;
+        padding: 40px 20px;
       }
 
-      .corner-mark {
-        display: none;
-      }
-
-      /* Header */
       header {
         flex-direction: column;
-        gap: 16px;
-        padding: 16px 0;
-        margin-bottom: 20px;
+        gap: 30px;
+        margin-bottom: 60px;
+      }
+
+      .header-info {
+        gap: 30px;
       }
 
       .logo h1 {
-        font-size: 1.8rem;
-        letter-spacing: 2px;
+        font-size: 2.4rem;
       }
 
-      .logo .subtitle {
-        font-size: 0.75rem;
-      }
-
-      .header-right {
-        width: 100%;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .header-nav {
-        display: none;
-      }
-
-      .workflow-btn {
-        padding: 8px 14px;
-        font-size: 0.7rem;
-      }
-
-      /* Tags */
-      .tags-container {
-        gap: 8px;
-        padding: 16px 0;
-        justify-content: flex-start;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        margin: 0 -16px;
-        padding-left: 16px;
-        padding-right: 16px;
-      }
-
-      .tags-container::-webkit-scrollbar {
-        display: none;
-      }
-
-      .tag {
-        padding: 10px 14px;
-        font-size: 0.7rem;
-        white-space: nowrap;
-        flex-shrink: 0;
-      }
-
-      .tag-icon {
-        display: none;
-      }
-
-      /* Card Display */
-      .card-display {
-        min-height: auto;
-        position: relative;
-      }
-
-      .member-card {
-        position: relative;
-        max-width: 100%;
-        padding: 24px 20px;
-        gap: 20px;
-        display: none;
-      }
-
-      .member-card.visible {
-        display: flex;
-      }
-
-      .card-left {
-        max-width: 180px;
-      }
-
-      .card-corner {
-        font-size: 0.6rem;
-      }
-      .card-corner.tl { top: 8px; left: 10px; }
-      .card-corner.tr { top: 8px; right: 10px; }
-      .card-corner.bl { bottom: 8px; left: 10px; }
-      .card-corner.br { bottom: 8px; right: 10px; }
-
-      .card-number {
-        font-size: 2rem;
-        top: 16px;
-        right: 20px;
-      }
-
-      .card-name {
-        font-size: 1.1rem;
-        letter-spacing: 1px;
-        margin-bottom: 4px;
-      }
-
-      .card-role {
-        font-size: 0.85rem;
-        margin-bottom: 16px;
-      }
-
-      .card-divider {
-        margin: 16px 0;
-      }
-
-      .card-tasks h4 {
-        font-size: 0.7rem;
-        margin-bottom: 12px;
-      }
-
-      .task-list {
-        gap: 10px;
-      }
-
-      .task-item {
-        font-size: 0.8rem;
-        gap: 8px;
-      }
-
-      .status-row {
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 16px;
-      }
-
-      .status-tag {
-        padding: 5px 12px;
-        font-size: 0.65rem;
-      }
-
-      .github-link {
-        padding: 5px 12px;
-        font-size: 0.65rem;
-      }
-
-      .card-status {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-        margin-top: 16px;
-        padding-top: 12px;
-      }
-
-      .log-btn {
-        padding: 6px 10px;
-        font-size: 0.65rem;
-      }
-
-      /* Hint */
-      .workflow-hint {
-        font-size: 0.7rem;
-        padding: 16px 0;
-      }
-
-      /* Tools Section */
-      .tools-section {
-        margin-top: 24px;
-        padding: 20px 0;
-      }
-
-      .tools-header {
-        margin-bottom: 16px;
-      }
-
-      .tools-title {
-        font-size: 0.8rem;
-      }
-
-      .tool-item {
-        flex-wrap: wrap;
-        padding: 12px 16px;
-        gap: 12px;
-      }
-
-      .tool-info {
-        flex: 1 1 100%;
-        order: 2;
-      }
-
-      .tool-icon {
-        order: 1;
-      }
-
-      .tool-meta {
-        order: 3;
-        flex: 1 1 100%;
-        justify-content: space-between;
-      }
-
-      .tool-name {
-        font-size: 0.8rem;
-      }
-
-      .tool-desc {
-        font-size: 0.7rem;
-      }
-
-      /* Footer */
-      footer {
-        flex-direction: column;
-        gap: 8px;
-        text-align: center;
-        padding-top: 16px;
-        font-size: 0.65rem;
-      }
-
-      /* Modal */
-      .modal {
-        width: 95%;
-        max-height: 85vh;
-        margin: 20px;
-      }
-
-      .modal-header {
-        padding: 16px 20px;
-      }
-
-      .modal-title {
-        font-size: 1rem;
-      }
-
-      .modal-body {
-        padding: 20px;
-      }
-
-      .log-modal-body {
-        padding: 20px;
-      }
-
-      /* Workflow Modal */
-      .workflow-row {
-        gap: 8px;
-      }
-
-      .workflow-node {
-        padding: 12px;
-        min-width: 70px;
-      }
-
-      .workflow-node-icon {
-        width: 30px;
-        height: 30px;
-      }
-
-      .workflow-node-name {
-        font-size: 0.65rem;
-      }
-
-      .workflow-node-desc {
-        font-size: 0.55rem;
-      }
-
-      .workflow-node.center {
-        padding: 14px 20px;
-      }
-
-      .workflow-arrow {
-        font-size: 1rem;
-      }
-
-      .workflow-section-title {
-        font-size: 0.6rem;
-        margin: 16px 0 8px;
-      }
-
-      .workflow-legend {
-        margin-top: 20px;
-        padding-top: 16px;
-      }
-
-      .workflow-legend-title {
-        font-size: 0.6rem;
-      }
-
-      .workflow-legend-items {
-        gap: 12px;
-      }
-
-      .workflow-legend-item {
-        font-size: 0.65rem;
-      }
-
-      /* Log Modal */
-      .log-agent-name {
-        font-size: 0.9rem;
-        margin-bottom: 16px;
-      }
-
-      .log-item {
-        flex-direction: column;
-        gap: 6px;
-        padding-bottom: 12px;
-      }
-
-      .log-date {
-        font-size: 0.7rem;
-      }
-
-      .log-content {
-        font-size: 0.8rem;
+      .card.span-6,
+      .card.span-4,
+      .card.span-3 {
+        grid-column: span 12;
       }
     }
 
-    /* Extra small mobile */
-    @media (max-width: 380px) {
-      .logo h1 {
-        font-size: 1.5rem;
-      }
+    /* 脚注 */
+    footer {
+      margin-top: 80px;
+      padding-top: 40px;
+      border-top: 1px solid var(--gray-7);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--gray-4);
+    }
 
-      .tag {
-        padding: 8px 10px;
-        font-size: 0.65rem;
-      }
+    .footer-info {
+      display: flex;
+      gap: 30px;
+    }
 
-      .card-name {
-        font-size: 1rem;
-      }
+    .footer-link {
+      color: var(--white);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
 
-      .member-card {
-        padding: 20px 16px;
-      }
-
-      .card-left {
-        max-width: 150px;
-      }
+    .footer-link:hover {
+      color: var(--gray-3);
     }
   </style>
 </head>
 <body>
-  <!-- Corner Marks -->
-  <span class="corner-mark tl">(01)</span>
-  <span class="corner-mark tr">⊕</span>
-  <span class="corner-mark bl">⊕</span>
-  <span class="corner-mark br">WWW.ZHUANZHUAN.AI</span>
+  <header>
+    <div class="logo">
+      <h1>SIRIUS</h1>
+      <div class="year">© 2024</div>
+    </div>
+    <div class="header-info">
+      <div class="info-item">
+        <span class="info-label">Team Members</span>
+        <span>4 Agents</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Status</span>
+        <span>Active</span>
+      </div>
+    </div>
+  </header>
 
   <div class="container">
-    <!-- Header -->
-    <header>
-      <div class="logo">
-        <h1>SIRIUS TEAM</h1>
-        <span class="subtitle">Product Collection</span>
-      </div>
-      <div class="header-right">
-        <button class="workflow-btn" onclick="openWorkflowModal()">
-          <svg viewBox="0 0 16 16" width="16" height="16" style="image-rendering: pixelated;">
-            <rect x="1" y="7" width="4" height="3" class="pixel"/>
-            <rect x="6" y="7" width="4" height="3" class="pixel"/>
-            <rect x="11" y="7" width="4" height="3" class="pixel"/>
-            <rect x="5" y="8" width="1" height="1" class="pixel"/>
-            <rect x="10" y="8" width="1" height="1" class="pixel"/>
-          </svg>
-          WORKFLOW
-        </button>
-        <div class="header-nav">
-          <span><span class="num">01</span>agent</span>
-          <span><span class="num">02</span>through</span>
-          <span><span class="num">03</span>different</span>
-          <span><span class="num">04</span>roles</span>
+    <!-- 小秘书 -->
+    <div class="card span-6 row-2">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Secretary</div>
+          <div class="card-code">001</div>
         </div>
       </div>
-    </header>
-
-    <!-- Main Content -->
-    <div class="main-content">
-      <!-- Tags -->
-      <div class="tags-container">
-        <div class="tag" data-num="01" data-target="secretary">
-          <span class="tag-icon">
-            <svg viewBox="0 0 16 16" style="image-rendering: pixelated;">
-              <rect x="5" y="2" width="6" height="8" class="pixel"/>
-              <rect x="6" y="1" width="4" height="2" class="pixel"/>
-              <rect x="7" y="5" width="2" height="1" class="pixel-light"/>
-              <rect x="7" y="7" width="2" height="1" class="pixel-light"/>
-            </svg>
-          </span>
-          小秘书
+      <div class="card-content">
+        <div class="card-icon">📋</div>
+        <div class="card-name">小秘书</div>
+        <div class="card-role">Central Hub</div>
+        <div class="card-desc">任务分配、信息汇总、飞书推送。每天 18:00 北京时生成日报。</div>
+        <div class="task-list">
+          <div class="task-item">每日日报汇总</div>
+          <div class="task-item">任务分发协调</div>
+          <div class="task-item">多源数据聚合</div>
+          <div class="task-item">飞书推送</div>
         </div>
-        <div class="tag" data-num="02" data-target="designer">
-          <span class="tag-icon">
-            <svg viewBox="0 0 16 16" style="image-rendering: pixelated;">
-              <rect x="5" y="1" width="6" height="3" class="pixel"/>
-              <rect x="4" y="4" width="8" height="2" class="pixel"/>
-              <rect x="6" y="8" width="4" height="4" class="pixel"/>
-              <rect x="7" y="9" width="2" height="2" class="pixel-light"/>
-            </svg>
-          </span>
-          设计师
-        </div>
-        <div class="tag" data-num="03" data-target="knowledge">
-          <span class="tag-icon">
-            <svg viewBox="0 0 16 16" style="image-rendering: pixelated;">
-              <rect x="3" y="3" width="10" height="10" class="pixel"/>
-              <rect x="8" y="3" width="1" height="10" class="pixel-light"/>
-              <rect x="4" y="5" width="3" height="1" class="pixel-light"/>
-              <rect x="4" y="7" width="3" height="1" class="pixel-light"/>
-              <rect x="4" y="9" width="3" height="1" class="pixel-light"/>
-            </svg>
-          </span>
-          知识管理
-        </div>
-        <div class="tag" data-num="04" data-target="photographer">
-          <span class="tag-icon">
-            <svg viewBox="0 0 16 16" style="image-rendering: pixelated;">
-              <rect x="3" y="4" width="10" height="8" class="pixel"/>
-              <rect x="6" y="2" width="4" height="2" class="pixel"/>
-              <rect x="6" y="6" width="4" height="4" class="pixel-light"/>
-              <rect x="7" y="7" width="2" height="2" class="pixel"/>
-            </svg>
-          </span>
-          摄影师
-        </div>
-      </div>
-
-      <!-- Card Display Area -->
-      <div class="card-display">
-        <!-- 01 小秘书 -->
-        <div class="member-card" id="secretary">
-          <span class="card-corner tl">(01)</span>
-          <span class="card-corner tr">⊕</span>
-          <span class="card-corner bl">⊕</span>
-          <span class="card-corner br">SECRETARY</span>
-          <span class="card-number">01</span>
-
-          <div class="card-left">
-            <div class="avatar-container">
-              <!-- 小秘书：整洁短发 + 眼镜 + 领带，专业汇报人形象 -->
-              <svg class="avatar-3d" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <!-- Hair -->
-                <rect x="10" y="4" width="12" height="2" class="pixel"/>
-                <rect x="9" y="6" width="14" height="2" class="pixel"/>
-                <rect x="8" y="8" width="16" height="2" class="pixel"/>
-                <!-- Face -->
-                <rect x="9" y="10" width="14" height="10" class="pixel-light"/>
-                <!-- Hair sides -->
-                <rect x="8" y="10" width="1" height="4" class="pixel"/>
-                <rect x="23" y="10" width="1" height="4" class="pixel"/>
-                <!-- Glasses frame -->
-                <rect x="10" y="12" width="5" height="4" class="pixel"/>
-                <rect x="17" y="12" width="5" height="4" class="pixel"/>
-                <rect x="15" y="13" width="2" height="1" class="pixel"/>
-                <!-- Glasses lens (light) -->
-                <rect x="11" y="13" width="3" height="2" class="pixel-light"/>
-                <rect x="18" y="13" width="3" height="2" class="pixel-light"/>
-                <!-- Eyes behind glasses -->
-                <rect x="12" y="13" width="1" height="2" class="pixel"/>
-                <rect x="19" y="13" width="1" height="2" class="pixel"/>
-                <!-- Mouth -->
-                <rect x="13" y="17" width="6" height="1" class="pixel"/>
-                <!-- Neck -->
-                <rect x="14" y="20" width="4" height="2" class="pixel-light"/>
-                <!-- Tie -->
-                <rect x="15" y="20" width="2" height="2" class="pixel"/>
-                <!-- Shoulders/Suit -->
-                <rect x="6" y="22" width="20" height="6" class="pixel"/>
-                <!-- Collar -->
-                <rect x="12" y="22" width="3" height="3" class="pixel-light"/>
-                <rect x="17" y="22" width="3" height="3" class="pixel-light"/>
-                <!-- Tie continues -->
-                <rect x="15" y="22" width="2" height="6" class="pixel-light"/>
-                <rect x="15" y="23" width="2" height="1" class="pixel"/>
-                <rect x="15" y="25" width="2" height="2" class="pixel"/>
-                <!-- Clipboard in hand hint -->
-                <rect x="24" y="24" width="4" height="5" class="pixel-light"/>
-                <rect x="24" y="24" width="4" height="1" class="pixel"/>
-                <rect x="25" y="26" width="2" height="1" class="pixel"/>
-                <rect x="25" y="28" width="2" height="1" class="pixel"/>
-              </svg>
-            </div>
-          </div>
-
-          <div class="card-right">
-            <div class="card-name">Secretary Agent</div>
-            <div class="card-role">小秘书 · 最终汇报人</div>
-            <div class="card-divider"></div>
-            <div class="card-tasks">
-              <h4>Responsibilities</h4>
-              <div class="task-list">
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>每日 18:00 自动执行 /insights</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>汇总所有 Agent 信息，统一推送飞书日报</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>归档历史报告到 history/ 目录</span>
-                </div>
-              </div>
-            </div>
-            <div class="status-row">
-              <span class="status-tag">LOCAL ONLY</span>
-            </div>
-            <div class="card-status">
-              <div class="status-info">
-                <div class="status-dot" id="status-dot-secretary"></div>
-                <div class="status-text">更新于 <span id="update-time-secretary"></span></div>
-              </div>
-              <button class="log-btn" onclick="openLogModal('secretary')">
-                <svg width="12" height="12" viewBox="0 0 16 16" style="image-rendering: pixelated;">
-                  <rect x="2" y="2" width="12" height="12" class="pixel"/>
-                  <rect x="4" y="5" width="8" height="1" class="pixel-light"/>
-                  <rect x="4" y="8" width="6" height="1" class="pixel-light"/>
-                  <rect x="4" y="11" width="7" height="1" class="pixel-light"/>
-                </svg>
-                LOG
-              </button>
-              <button class="push-btn" id="push-secretary" onclick="pushToFeishu('secretary-report')">
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 1L3 6h3v6h4V6h3L8 1z"/>
-                  <rect x="3" y="13" width="10" height="2"/>
-                </svg>
-                推送日报
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 02 设计师 -->
-        <div class="member-card" id="designer">
-          <span class="card-corner tl">(02)</span>
-          <span class="card-corner tr">⊕</span>
-          <span class="card-corner bl">⊕</span>
-          <span class="card-corner br">DESIGNER</span>
-          <span class="card-number">02</span>
-
-          <div class="card-left">
-            <div class="avatar-container">
-              <!-- 设计师：贝雷帽 + 艺术家围巾，创意设计师形象 -->
-              <svg class="avatar-3d" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <!-- Beret -->
-                <rect x="11" y="2" width="10" height="2" class="pixel"/>
-                <rect x="9" y="4" width="14" height="2" class="pixel"/>
-                <rect x="8" y="6" width="16" height="2" class="pixel"/>
-                <!-- Beret pom -->
-                <rect x="14" y="1" width="2" height="1" class="pixel"/>
-                <!-- Hair under beret -->
-                <rect x="8" y="8" width="3" height="4" class="pixel"/>
-                <rect x="21" y="8" width="3" height="4" class="pixel"/>
-                <rect x="8" y="12" width="2" height="2" class="pixel"/>
-                <rect x="22" y="12" width="2" height="2" class="pixel"/>
-                <!-- Face -->
-                <rect x="10" y="8" width="12" height="12" class="pixel-light"/>
-                <!-- Eyes -->
-                <rect x="12" y="12" width="2" height="2" class="pixel"/>
-                <rect x="18" y="12" width="2" height="2" class="pixel"/>
-                <!-- Slight smile -->
-                <rect x="13" y="16" width="1" height="1" class="pixel"/>
-                <rect x="14" y="17" width="4" height="1" class="pixel"/>
-                <rect x="18" y="16" width="1" height="1" class="pixel"/>
-                <!-- Neck -->
-                <rect x="14" y="20" width="4" height="2" class="pixel-light"/>
-                <!-- Turtleneck / artistic top -->
-                <rect x="6" y="22" width="20" height="8" class="pixel"/>
-                <!-- Scarf -->
-                <rect x="12" y="22" width="8" height="3" class="pixel-light"/>
-                <rect x="10" y="25" width="4" height="4" class="pixel-light"/>
-                <!-- Color palette in hand -->
-                <rect x="22" y="24" width="5" height="4" class="pixel-light"/>
-                <rect x="23" y="25" width="1" height="1" class="pixel"/>
-                <rect x="25" y="25" width="1" height="1" class="pixel"/>
-                <rect x="23" y="27" width="1" height="1" class="pixel"/>
-              </svg>
-            </div>
-          </div>
-
-          <div class="card-right">
-            <div class="card-name">Design Infra Agent</div>
-            <div class="card-role">设计师 · 设计系统维护</div>
-            <div class="card-divider"></div>
-            <div class="card-tasks">
-              <h4>Responsibilities</h4>
-              <div class="task-list">
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>维护 Design Token（Figma → Tailwind 映射）</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>处理从 Figma 同步的设计样式</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>记录版本变更日志 CHANGELOG.md</span>
-                </div>
-              </div>
-            </div>
-            <div class="status-row">
-              <span class="status-tag opensource">OPEN SOURCE</span>
-              <a href="https://github.com/siriusharrison-png/design-token" class="github-link" target="_blank">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                </svg>
-                design-token
-              </a>
-            </div>
-            <div class="card-status">
-              <div class="status-info">
-                <div class="status-dot" id="status-dot-designer"></div>
-                <div class="status-text">更新于 <span id="update-time-designer"></span></div>
-              </div>
-              <button class="log-btn" onclick="openLogModal('designer')">
-                <svg width="12" height="12" viewBox="0 0 16 16" style="image-rendering: pixelated;">
-                  <rect x="2" y="2" width="12" height="12" class="pixel"/>
-                  <rect x="4" y="5" width="8" height="1" class="pixel-light"/>
-                  <rect x="4" y="8" width="6" height="1" class="pixel-light"/>
-                  <rect x="4" y="11" width="7" height="1" class="pixel-light"/>
-                </svg>
-                LOG
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 03 Figma -->
-        <div class="member-card" id="figma">
-          <span class="card-corner tl">(03)</span>
-          <span class="card-corner tr">⊕</span>
-          <span class="card-corner bl">⊕</span>
-          <span class="card-corner br">FIGMA</span>
-          <span class="card-number">03</span>
-
-          <div class="card-left">
-            <div class="avatar-container">
-              <!-- Figma 设计员工：耳机 + 时尚刘海，数字创作者形象 -->
-              <svg class="avatar-3d" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <!-- Headphones band -->
-                <rect x="7" y="5" width="1" height="3" class="pixel"/>
-                <rect x="8" y="3" width="2" height="2" class="pixel"/>
-                <rect x="10" y="2" width="12" height="2" class="pixel"/>
-                <rect x="22" y="3" width="2" height="2" class="pixel"/>
-                <rect x="24" y="5" width="1" height="3" class="pixel"/>
-                <!-- Headphone cups -->
-                <rect x="5" y="8" width="4" height="6" class="pixel"/>
-                <rect x="23" y="8" width="4" height="6" class="pixel"/>
-                <rect x="6" y="9" width="2" height="4" class="pixel-light"/>
-                <rect x="24" y="9" width="2" height="4" class="pixel-light"/>
-                <!-- Stylish hair / bangs -->
-                <rect x="9" y="4" width="14" height="2" class="pixel"/>
-                <rect x="9" y="6" width="5" height="3" class="pixel"/>
-                <rect x="18" y="6" width="5" height="3" class="pixel"/>
-                <rect x="9" y="9" width="3" height="2" class="pixel"/>
-                <!-- Face -->
-                <rect x="10" y="8" width="12" height="12" class="pixel-light"/>
-                <!-- Eyes - excited -->
-                <rect x="12" y="12" width="2" height="2" class="pixel"/>
-                <rect x="18" y="12" width="2" height="2" class="pixel"/>
-                <!-- Happy open mouth -->
-                <rect x="14" y="16" width="4" height="2" class="pixel"/>
-                <rect x="15" y="17" width="2" height="1" class="pixel-light"/>
-                <!-- Neck -->
-                <rect x="14" y="20" width="4" height="2" class="pixel-light"/>
-                <!-- Hoodie -->
-                <rect x="6" y="22" width="20" height="8" class="pixel"/>
-                <!-- Hood strings -->
-                <rect x="13" y="23" width="1" height="5" class="pixel-light"/>
-                <rect x="18" y="23" width="1" height="5" class="pixel-light"/>
-                <!-- Figma-style shapes on hoodie -->
-                <rect x="14" y="24" width="2" height="2" class="pixel-light"/>
-                <rect x="16" y="26" width="2" height="2" class="pixel-light"/>
-              </svg>
-            </div>
-          </div>
-
-          <div class="card-right">
-            <div class="card-name">Figma Designer</div>
-            <div class="card-role">Figma 设计员工</div>
-            <div class="card-divider"></div>
-            <div class="card-tasks">
-              <h4>Responsibilities</h4>
-              <div class="task-list">
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>通过 Vibma MCP 在 Figma 中执行设计操作</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>创建/修改/删除 Figma 元素（Frame、文本等）</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>应用设计系统样式和变量绑定</span>
-                </div>
-              </div>
-            </div>
-            <div class="status-row">
-              <span class="status-tag">LOCAL ONLY</span>
-            </div>
-            <div class="card-status">
-              <div class="status-info">
-                <div class="status-dot" id="status-dot-figma"></div>
-                <div class="status-text">更新于 <span id="update-time-figma"></span></div>
-              </div>
-              <button class="log-btn" onclick="openLogModal('figma')">
-                <svg width="12" height="12" viewBox="0 0 16 16" style="image-rendering: pixelated;">
-                  <rect x="2" y="2" width="12" height="12" class="pixel"/>
-                  <rect x="4" y="5" width="8" height="1" class="pixel-light"/>
-                  <rect x="4" y="8" width="6" height="1" class="pixel-light"/>
-                  <rect x="4" y="11" width="7" height="1" class="pixel-light"/>
-                </svg>
-                LOG
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 04 知识管理 -->
-        <div class="member-card" id="knowledge">
-          <span class="card-corner tl">(04)</span>
-          <span class="card-corner tr">⊕</span>
-          <span class="card-corner bl">⊕</span>
-          <span class="card-corner br">KNOWLEDGE</span>
-          <span class="card-number">04</span>
-
-          <div class="card-left">
-            <div class="avatar-container">
-              <!-- 知识管理：圆眼镜 + 卷发，学者/知识分子形象 -->
-              <svg class="avatar-3d" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <!-- Curly/wavy hair -->
-                <rect x="10" y="3" width="12" height="1" class="pixel"/>
-                <rect x="9" y="4" width="2" height="1" class="pixel"/>
-                <rect x="12" y="4" width="2" height="1" class="pixel"/>
-                <rect x="15" y="4" width="2" height="1" class="pixel"/>
-                <rect x="18" y="4" width="2" height="1" class="pixel"/>
-                <rect x="21" y="4" width="2" height="1" class="pixel"/>
-                <rect x="8" y="5" width="16" height="3" class="pixel"/>
-                <rect x="8" y="8" width="2" height="4" class="pixel"/>
-                <rect x="22" y="8" width="2" height="4" class="pixel"/>
-                <rect x="7" y="10" width="2" height="3" class="pixel"/>
-                <rect x="23" y="10" width="2" height="3" class="pixel"/>
-                <!-- Face -->
-                <rect x="10" y="8" width="12" height="12" class="pixel-light"/>
-                <!-- Round glasses -->
-                <rect x="10" y="11" width="5" height="5" class="pixel"/>
-                <rect x="17" y="11" width="5" height="5" class="pixel"/>
-                <rect x="15" y="13" width="2" height="1" class="pixel"/>
-                <!-- Lens -->
-                <rect x="11" y="12" width="3" height="3" class="pixel-light"/>
-                <rect x="18" y="12" width="3" height="3" class="pixel-light"/>
-                <!-- Eyes -->
-                <rect x="12" y="13" width="1" height="1" class="pixel"/>
-                <rect x="19" y="13" width="1" height="1" class="pixel"/>
-                <!-- Gentle smile -->
-                <rect x="14" y="17" width="4" height="1" class="pixel"/>
-                <!-- Neck -->
-                <rect x="14" y="20" width="4" height="2" class="pixel-light"/>
-                <!-- Cardigan/scholarly outfit -->
-                <rect x="6" y="22" width="20" height="8" class="pixel"/>
-                <!-- V-neck sweater -->
-                <rect x="14" y="22" width="1" height="1" class="pixel-light"/>
-                <rect x="17" y="22" width="1" height="1" class="pixel-light"/>
-                <rect x="15" y="23" width="2" height="1" class="pixel-light"/>
-                <!-- Book in hand -->
-                <rect x="3" y="24" width="5" height="6" class="pixel-light"/>
-                <rect x="3" y="24" width="5" height="1" class="pixel"/>
-                <rect x="5" y="24" width="1" height="6" class="pixel"/>
-              </svg>
-            </div>
-          </div>
-
-          <div class="card-right">
-            <div class="card-name">Knowledge Keeper</div>
-            <div class="card-role">知识管理</div>
-            <div class="card-divider"></div>
-            <div class="card-tasks">
-              <h4>Responsibilities</h4>
-              <div class="task-list">
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>收集术语/概念到知识库（Notion + 本地双写）</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>触发：/learn [术语] 或「把 xxx 加入知识库」</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>每周汇总学习内容：/weekly</span>
-                </div>
-              </div>
-            </div>
-            <div class="status-row">
-              <span class="status-tag opensource">OPEN SOURCE</span>
-              <a href="https://github.com/siriusharrison-png/learn-to-notion" class="github-link" target="_blank">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                </svg>
-                learn-to-notion
-              </a>
-            </div>
-            <div class="card-status">
-              <div class="status-info">
-                <div class="status-dot" id="status-dot-knowledge"></div>
-                <div class="status-text">更新于 <span id="update-time-knowledge"></span></div>
-              </div>
-              <button class="log-btn" onclick="openLogModal('knowledge')">
-                <svg width="12" height="12" viewBox="0 0 16 16" style="image-rendering: pixelated;">
-                  <rect x="2" y="2" width="12" height="12" class="pixel"/>
-                  <rect x="4" y="5" width="8" height="1" class="pixel-light"/>
-                  <rect x="4" y="8" width="6" height="1" class="pixel-light"/>
-                  <rect x="4" y="11" width="7" height="1" class="pixel-light"/>
-                </svg>
-                LOG
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 测试QA：侦探帽 + 单片眼镜，检查员/侦探形象 -->
-              <svg class="avatar-3d" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <!-- Detective hat -->
-                <rect x="8" y="6" width="16" height="2" class="pixel"/>
-                <rect x="6" y="8" width="20" height="1" class="pixel"/>
-                <rect x="10" y="3" width="12" height="3" class="pixel"/>
-                <rect x="12" y="2" width="8" height="1" class="pixel"/>
-                <!-- Hat band -->
-                <rect x="10" y="5" width="12" height="1" class="pixel-light"/>
-                <!-- Hair peek -->
-                <rect x="8" y="9" width="2" height="3" class="pixel"/>
-                <rect x="22" y="9" width="2" height="3" class="pixel"/>
-                <!-- Face -->
-                <rect x="10" y="9" width="12" height="11" class="pixel-light"/>
-                <!-- Monocle on right eye -->
-                <rect x="17" y="12" width="5" height="5" class="pixel"/>
-                <rect x="18" y="13" width="3" height="3" class="pixel-light"/>
-                <rect x="19" y="14" width="1" height="1" class="pixel"/>
-                <!-- Monocle chain -->
-                <rect x="22" y="15" width="1" height="1" class="pixel"/>
-                <rect x="23" y="16" width="1" height="2" class="pixel"/>
-                <rect x="24" y="18" width="1" height="2" class="pixel"/>
-                <!-- Left eye - skeptical -->
-                <rect x="12" y="13" width="2" height="1" class="pixel"/>
-                <rect x="11" y="12" width="1" height="1" class="pixel"/>
-                <!-- Raised eyebrow -->
-                <rect x="11" y="11" width="3" height="1" class="pixel"/>
-                <!-- Serious mouth -->
-                <rect x="14" y="17" width="4" height="1" class="pixel"/>
-                <!-- Neck -->
-                <rect x="14" y="20" width="4" height="2" class="pixel-light"/>
-                <!-- Coat -->
-                <rect x="6" y="22" width="20" height="8" class="pixel"/>
-                <!-- Collar up (detective style) -->
-                <rect x="8" y="22" width="3" height="4" class="pixel-light"/>
-                <rect x="21" y="22" width="3" height="4" class="pixel-light"/>
-                <!-- Magnifying glass -->
-                <rect x="24" y="24" width="4" height="4" class="pixel-light"/>
-                <rect x="25" y="25" width="2" height="2" class="pixel"/>
-                <rect x="26" y="28" width="1" height="2" class="pixel"/>
-              </svg>
-            </div>
-          </div>
-
-          <div class="card-right">
-            <div class="card-name">Design QA Agent</div>
-            <div class="card-role">测试QA · 设计还原度检查</div>
-            <div class="card-divider"></div>
-            <div class="card-tasks">
-              <h4>Responsibilities</h4>
-              <div class="task-list">
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>检查代码是否正确使用 Design Tokens</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>找出硬编码的颜色、间距、字号</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>生成还原度检测报告</span>
-                </div>
-              </div>
-            </div>
-            <div class="status-row">
-              <span class="status-tag opensource">OPEN SOURCE</span>
-</div>
-            <div class="card-status">
-              <div class="status-info">
-                <div class="status-dot" id="status-dot-qa"></div>
-                <div class="status-text">更新于 <span id="update-time-qa"></span></div>
-              </div>
-              <button class="log-btn" onclick="openLogModal('qa')">
-                <svg width="12" height="12" viewBox="0 0 16 16" style="image-rendering: pixelated;">
-                  <rect x="2" y="2" width="12" height="12" class="pixel"/>
-                  <rect x="4" y="5" width="8" height="1" class="pixel-light"/>
-                  <rect x="4" y="8" width="6" height="1" class="pixel-light"/>
-                  <rect x="4" y="11" width="7" height="1" class="pixel-light"/>
-                </svg>
-                LOG
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 06 摄影师 -->
-        <div class="member-card" id="photographer">
-          <span class="card-corner tl">(06)</span>
-          <span class="card-corner tr">⊕</span>
-          <span class="card-corner bl">⊕</span>
-          <span class="card-corner br">PHOTOGRAPHER</span>
-          <span class="card-number">06</span>
-
-          <div class="card-left">
-            <div class="avatar-container">
-              <!-- 摄影师：宽檐帽 + 相机带，户外摄影师形象 -->
-              <svg class="avatar-3d" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <!-- Wide brim hat -->
-                <rect x="4" y="7" width="24" height="2" class="pixel"/>
-                <rect x="8" y="5" width="16" height="2" class="pixel"/>
-                <rect x="10" y="3" width="12" height="2" class="pixel"/>
-                <rect x="12" y="2" width="8" height="1" class="pixel"/>
-                <!-- Hat band -->
-                <rect x="10" y="6" width="12" height="1" class="pixel-light"/>
-                <!-- Hair under hat -->
-                <rect x="8" y="9" width="2" height="3" class="pixel"/>
-                <rect x="22" y="9" width="2" height="3" class="pixel"/>
-                <rect x="8" y="12" width="1" height="2" class="pixel"/>
-                <rect x="23" y="12" width="1" height="2" class="pixel"/>
-                <!-- Face -->
-                <rect x="10" y="9" width="12" height="11" class="pixel-light"/>
-                <!-- Eyes - excited/observant -->
-                <rect x="12" y="12" width="2" height="2" class="pixel"/>
-                <rect x="18" y="12" width="2" height="2" class="pixel"/>
-                <!-- Eye sparkle -->
-                <rect x="12" y="12" width="1" height="1" class="pixel-light"/>
-                <rect x="18" y="12" width="1" height="1" class="pixel-light"/>
-                <!-- Big smile -->
-                <rect x="13" y="16" width="1" height="1" class="pixel"/>
-                <rect x="14" y="17" width="4" height="1" class="pixel"/>
-                <rect x="18" y="16" width="1" height="1" class="pixel"/>
-                <!-- Neck -->
-                <rect x="14" y="20" width="4" height="2" class="pixel-light"/>
-                <!-- Camera strap across chest -->
-                <rect x="8" y="21" width="2" height="1" class="pixel"/>
-                <rect x="9" y="22" width="2" height="1" class="pixel"/>
-                <rect x="10" y="23" width="2" height="1" class="pixel"/>
-                <rect x="20" y="23" width="2" height="1" class="pixel"/>
-                <rect x="21" y="22" width="2" height="1" class="pixel"/>
-                <rect x="22" y="21" width="2" height="1" class="pixel"/>
-                <!-- Vest/outdoor jacket -->
-                <rect x="6" y="22" width="20" height="8" class="pixel"/>
-                <!-- Vest pockets -->
-                <rect x="8" y="25" width="3" height="3" class="pixel-light"/>
-                <rect x="21" y="25" width="3" height="3" class="pixel-light"/>
-                <!-- Camera hanging -->
-                <rect x="13" y="25" width="6" height="4" class="pixel-light"/>
-                <rect x="13" y="25" width="6" height="1" class="pixel"/>
-                <rect x="15" y="27" width="2" height="1" class="pixel"/>
-              </svg>
-            </div>
-          </div>
-
-          <div class="card-right">
-            <div class="card-name">Image Guardian</div>
-            <div class="card-role">摄影师 · Unsplash 数据追踪</div>
-            <div class="card-divider"></div>
-            <div class="card-tasks">
-              <h4>Responsibilities</h4>
-              <div class="task-list">
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>每日 9:00 自动推送 Unsplash 数据日报</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>追踪下载量、浏览量、点赞数</span>
-                </div>
-                <div class="task-item">
-                  <span class="task-icon">→</span>
-                  <span>抓取热门关键词，优化图片标签</span>
-                </div>
-              </div>
-            </div>
-            <div class="status-row">
-              <span class="status-tag">LOCAL ONLY</span>
-              <a href="https://unsplash.com/@siriusharrison/stats" class="unsplash-link" target="_blank">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7.5 6.75V0h9v6.75h-9zm9 3.75H24V24H0V10.5h7.5v6.75h9V10.5z"/>
-                </svg>
-                Unsplash Stats
-              </a>
-            </div>
-            <div class="card-status">
-              <div class="status-info">
-                <div class="status-dot" id="status-dot-photographer"></div>
-                <div class="status-text">更新于 <span id="update-time-photographer"></span></div>
-              </div>
-              <button class="log-btn" onclick="openLogModal('photographer')">
-                <svg width="12" height="12" viewBox="0 0 16 16" style="image-rendering: pixelated;">
-                  <rect x="2" y="2" width="12" height="12" class="pixel"/>
-                  <rect x="4" y="5" width="8" height="1" class="pixel-light"/>
-                  <rect x="4" y="8" width="6" height="1" class="pixel-light"/>
-                  <rect x="4" y="11" width="7" height="1" class="pixel-light"/>
-                </svg>
-                LOG
-              </button>
-              <button class="push-btn" id="push-photographer" onclick="pushToFeishu('photographer-stats')">
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 1L3 6h3v6h4V6h3L8 1z"/>
-                  <rect x="3" y="13" width="10" height="2"/>
-                </svg>
-                推送数据
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Hint -->
-      <div class="workflow-hint">
-        ↑ Hover on tags to view team members · 所有汇报统一由小秘书推送到飞书日报 ↑
-      </div>
-
-      <!-- Tools Section -->
-      <div class="tools-section">
-        <div class="tools-header">
-          <span class="tools-title">TOOLS & PLUGINS</span>
-          <span class="tools-badge">工具集</span>
-        </div>
-        <div class="tools-list" id="tools-list">
-          <!-- Tools will be rendered by JavaScript -->
+        <div class="btn-group">
+          <button class="btn">日报</button>
+          <button class="btn">查看</button>
         </div>
       </div>
     </div>
 
-    <!-- Log Modal -->
-  <div class="modal-overlay" id="logModal">
-    <div class="modal" style="max-width: 600px;">
-      <span class="modal-corner tl">(08)</span>
-      <span class="modal-corner tr">⊕</span>
-      <span class="modal-corner bl">⊕</span>
-      <span class="modal-corner br">LOG</span>
-
-      <div class="modal-header">
-        <div class="modal-title">UPDATE LOG</div>
-        <button class="modal-close" onclick="closeLogModal()">×</button>
+    <!-- 摄影师 -->
+    <div class="card span-3">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Photographer</div>
+          <div class="card-code">002</div>
+        </div>
       </div>
+      <div class="card-content">
+        <div class="card-icon">📸</div>
+        <div class="card-name">摄影师</div>
+        <div class="card-role">Content Tracker</div>
+        <div class="card-desc">Unsplash 数据追踪与分析。</div>
+        <div class="task-list">
+          <div class="task-item">每日 09:00 检查更新</div>
+          <div class="task-item">内容分析推送</div>
+        </div>
+        <div class="btn-group">
+          <button class="btn">查看</button>
+        </div>
+      </div>
+    </div>
 
-      <div class="log-modal-body">
-        <div class="log-agent-name" id="log-agent-name"></div>
-        <div class="log-list" id="log-list"></div>
+    <!-- 知识管理 -->
+    <div class="card span-3">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Knowledge</div>
+          <div class="card-code">003</div>
+        </div>
+      </div>
+      <div class="card-content">
+        <div class="card-icon">📚</div>
+        <div class="card-name">知识管理</div>
+        <div class="card-role">Data Sync</div>
+        <div class="card-desc">飞书 + GitLab 双源同步。</div>
+        <div class="task-list">
+          <div class="task-item">飞书 08:00 同步</div>
+          <div class="task-item">GitLab 12:00 同步</div>
+        </div>
+        <div class="btn-group">
+          <button class="btn">同步</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 设计师 -->
+    <div class="card span-3">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Designer</div>
+          <div class="card-code">004</div>
+        </div>
+      </div>
+      <div class="card-content">
+        <div class="card-icon">🎨</div>
+        <div class="card-name">设计师</div>
+        <div class="card-role">Multi-Agent Expert</div>
+        <div class="card-desc">Astra + Token 规范。</div>
+        <div class="task-list">
+          <div class="task-item">设计系统评审</div>
+          <div class="task-item">Token 规范维护</div>
+        </div>
+        <div class="btn-group">
+          <button class="btn">咨询</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 流程图 -->
+    <div class="card span-6">
+      <div class="card-header">
+        <div class="card-title">Workflow</div>
+      </div>
+      <div style="font-size: 0.85rem; line-height: 2; color: var(--gray-3);">
+        <div>小秘书（中枢）</div>
+        <div style="margin-left: 20px; margin-top: 10px;">
+          ↓<br>
+          摄影师 (09:00) → 知识管理 (08:00+12:00) → 设计师 (Multi-Agent)
+        </div>
+      </div>
+    </div>
+
+    <!-- 配置状态 -->
+    <div class="card span-6">
+      <div class="card-header">
+        <div class="card-title">Configuration</div>
+      </div>
+      <div class="task-list">
+        <div class="task-item">✓ GitHub Secrets: 9/9</div>
+        <div class="task-item">✓ Workflows: 4 Active</div>
+        <div class="task-item">✓ Database: Notion + GitLab</div>
+        <div class="task-item">✓ 所有系统就绪</div>
       </div>
     </div>
   </div>
 
-  <!-- Workflow Modal -->
-  <div class="modal-overlay" id="workflowModal">
-    <div class="modal">
-      <span class="modal-corner tl">(07)</span>
-      <span class="modal-corner tr">⊕</span>
-      <span class="modal-corner bl">⊕</span>
-      <span class="modal-corner br">WORKFLOW</span>
-
-      <div class="modal-header">
-        <div class="modal-title">COLLABORATION WORKFLOW</div>
-        <button class="modal-close" onclick="closeWorkflowModal()">×</button>
-      </div>
-
-      <div class="modal-body">
-        <div class="workflow-container">
-          <!-- Data Sources -->
-          <div class="workflow-section-title">Data Sources / 数据来源</div>
-          <div class="workflow-row">
-            <div class="workflow-node">
-              <svg class="workflow-node-icon" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <rect x="5" y="1" width="6" height="3" class="pixel"/>
-                <rect x="4" y="4" width="8" height="2" class="pixel"/>
-                <rect x="6" y="8" width="4" height="4" class="pixel-light"/>
-                <rect x="6" y="14" width="8" height="6" class="pixel"/>
-              </svg>
-              <div class="workflow-node-name">设计师</div>
-              <div class="workflow-node-desc">CHANGELOG.md</div>
-            </div>
-
-            <div class="workflow-node">
-              <svg class="workflow-node-icon" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <rect x="4" y="2" width="4" height="4" class="pixel"/>
-                <rect x="8" y="2" width="4" height="4" class="pixel"/>
-                <rect x="4" y="6" width="4" height="4" class="pixel"/>
-                <rect x="8" y="6" width="4" height="4" class="pixel"/>
-                <rect x="4" y="14" width="8" height="6" class="pixel"/>
-              </svg>
-              <div class="workflow-node-name">Figma 员工</div>
-              <div class="workflow-node-desc">操作日志</div>
-            </div>
-
-            <div class="workflow-node">
-              <svg class="workflow-node-icon" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <rect x="3" y="3" width="10" height="10" class="pixel"/>
-                <rect x="8" y="3" width="1" height="10" class="pixel-light"/>
-                <rect x="4" y="14" width="8" height="6" class="pixel"/>
-              </svg>
-              <div class="workflow-node-name">知识管理</div>
-              <div class="workflow-node-desc">学习记录</div>
-            </div>
-
-            <div class="workflow-node">
-              <svg class="workflow-node-icon" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <rect x="4" y="3" width="7" height="7" class="pixel"/>
-                <rect x="5" y="4" width="5" height="5" class="pixel-light"/>
-                <rect x="10" y="9" width="2" height="4" class="pixel"/>
-                <rect x="4" y="14" width="8" height="6" class="pixel"/>
-              </svg>
-              <div class="workflow-node-name">测试QA</div>
-              <div class="workflow-node-desc">检测报告</div>
-            </div>
-
-            <div class="workflow-node">
-              <svg class="workflow-node-icon" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <rect x="3" y="4" width="10" height="8" class="pixel"/>
-                <rect x="6" y="2" width="4" height="2" class="pixel"/>
-                <rect x="6" y="6" width="4" height="4" class="pixel-light"/>
-                <rect x="4" y="14" width="8" height="6" class="pixel"/>
-              </svg>
-              <div class="workflow-node-name">摄影师</div>
-              <div class="workflow-node-desc">Unsplash 统计</div>
-            </div>
-          </div>
-
-          <!-- Arrow Down -->
-          <div class="workflow-row">
-            <span class="workflow-arrow down">→</span>
-          </div>
-
-          <!-- Hub -->
-          <div class="workflow-section-title">Hub / 汇总中心</div>
-          <div class="workflow-row">
-            <div class="workflow-node center">
-              <svg class="workflow-node-icon" viewBox="0 0 32 32" style="image-rendering: pixelated;">
-                <rect x="5" y="2" width="6" height="8" fill="white"/>
-                <rect x="6" y="1" width="4" height="2" fill="white"/>
-                <rect x="7" y="5" width="2" height="1" fill="var(--primary)"/>
-                <rect x="7" y="7" width="2" height="1" fill="var(--primary)"/>
-                <rect x="4" y="12" width="8" height="6" fill="white"/>
-              </svg>
-              <div class="workflow-node-name">小秘书</div>
-              <div class="workflow-node-desc">汇总所有信息 · 每日 18:00</div>
-            </div>
-          </div>
-
-          <!-- Arrow Down -->
-          <div class="workflow-row">
-            <span class="workflow-arrow down">→</span>
-          </div>
-
-          <!-- Output -->
-          <div class="workflow-section-title">Output / 输出</div>
-          <div class="workflow-row">
-            <div class="workflow-node output">
-              <svg width="24" height="24" viewBox="0 0 16 16" style="image-rendering: pixelated;">
-                <rect x="2" y="2" width="12" height="10" fill="white"/>
-                <rect x="4" y="4" width="8" height="1" fill="var(--primary)"/>
-                <rect x="4" y="6" width="6" height="1" fill="var(--primary)"/>
-                <rect x="4" y="8" width="7" height="1" fill="var(--primary)"/>
-                <rect x="5" y="12" width="6" height="2" fill="white"/>
-              </svg>
-              <div class="workflow-node-name">飞书日报</div>
-            </div>
-          </div>
-
-          <!-- Legend -->
-          <div class="workflow-legend">
-            <div class="workflow-legend-title">Legend / 图例</div>
-            <div class="workflow-legend-items">
-              <div class="workflow-legend-item">
-                <div class="legend-dot local"></div>
-                <span>Local Only 仅本地</span>
-              </div>
-              <div class="workflow-legend-item">
-                <div class="legend-dot opensource"></div>
-                <span>Open Source 开源项目</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  <footer>
+    <div class="footer-info">
+      <span>© 2024 SIRIUS Team</span>
+      <a href="https://github.com/siriusharrison-png/SIRIUS-ATEAM" class="footer-link">GitHub</a>
     </div>
-  </div>
-
-    <!-- Footer -->
-    <footer>
-      <span>zhuanzhuan</span>
-      <span>SIRIUS TEAM · 2026</span>
-      <span>WWW.ZHUANZHUAN.AI</span>
-    </footer>
-  </div>
-
-  <script>
-    // ========================================
-    // 📝 Agent 状态数据 - 转转可以在这里更新
-    // ========================================
-    const agentData = {
-      secretary: {
-        name: '小秘书',
-        lastUpdate: '2026-07-10',
-        status: 'active', // active, idle, error
-        role: '协调中枢',
-        description: '任务分配、信息汇总、飞书推送',
-        logs: [
-          { date: '2026-07-10', content: '完成项目优化和流程更新' },
-          { date: '2026-04-16', content: '修复所有 async/await 关键字缺失' },
-          { date: '2026-04-16', content: 'Figma 插件 API 全面迁移为异步版本' }
-        ],
-        recentChanges: [
-          {
-            date: '2026-07-10',
-            author: 'Claude',
-            project: 'SIRIUS-ATEAM',
-            action: '项目优化：删除不活跃 Agent，完整化核心系统',
-            repo: 'https://github.com/siriusharrison-png/SIRIUS-ATEAM'
-          },
-          {
-            date: '2026-04-16',
-            author: 'Claude',
-            project: 'SIRIUS-ATEAM',
-            action: 'Figma 插件 API 全面迁移为异步版本',
-            repo: 'https://github.com/siriusharrison-png/SIRIUS-ATEAM'
-          }
-        ]
-      },
-      designer: {
-        name: '设计师',
-        lastUpdate: '2026-07-10',
-        status: 'active',
-        role: '设计系统专家',
-        description: 'Design Token 维护 + Astra 知识体系 + Multi-Agent 协作',
-        knowledge: [
-          'Astra Foundation（设计原则、工作流、协作规范）',
-          'Design System Token Standard（Token 规范）',
-          '6 个设计质量维度（Clarity, Refinement, Responsiveness, Composability, Generativity, Criticality）'
-        ],
-        logs: [
-          { date: '2026-07-10', content: '集成 Astra 知识库 + Token 规范，准备 Multi-Agent 协作' },
-          { date: '2026-04-16', content: 'Design Token v1.0.3 稳定版本' },
-          { date: '2026-03-03', content: 'Design Token 映射规则优化' }
-        ]
-      },
-      knowledge: {
-        name: '知识管理',
-        lastUpdate: '2026-07-10',
-        status: 'active',
-        role: '知识收集与同步',
-        description: '飞书文档 + GitLab Workspace 双源同步到 Notion',
-        dataSources: [
-          { name: '飞书文档', url: 'https://ppio-cloud.feishu.cn/wiki/BW3ZwOSQZiHWGuk96wVcPRhynJb', schedule: '每天 08:00' },
-          { name: 'GitLab Workspace', url: 'https://gitlab.paigod.work/product-agent/product_workspace', schedule: '每天 12:00' }
-        ],
-        logs: [
-          { date: '2026-07-10', content: '实现飞书 + GitLab 双源同步到 Notion，GitHub Actions 自动化' },
-          { date: '2026-06-25', content: '知识库同步机制重新设计' },
-          { date: '2026-03-04', content: '新增 Notion 集成，支持知识双写' }
-        ]
-      },
-      photographer: {
-        name: '摄影师',
-        lastUpdate: '2026-07-10',
-        status: 'active',
-        role: 'Unsplash 数据追踪',
-        description: 'Unsplash 数据抓取、分析、定时推送',
-        schedule: '每天 UTC 01:00（北京时 09:00）',
-        logs: [
-          { date: '2026-07-10', content: '配置 GitHub Secrets，恢复每日自动化推送' },
-          { date: '2026-04-16', content: '发现 Secrets 缺失，已修复并完整配置' },
-          { date: '2026-03-05', content: 'Unsplash 日报推送功能上线' }
-        ],
-        unsplashStats: {
-          date: '2026-07-10',
-          downloads: 20459,
-          views: 2915382,
-          likes: 254,
-          weeklyChange: {
-            downloads: '+287',
-            views: '+35,000',
-            likes: '+5'
-          }
-        }
-      }
-    };
-
-    // ========================================
-    // 📝 工具项目数据 - 转转可以在这里添加新工具
-    // ========================================
-    const toolsData = [
-      {
-        id: 'style-variable-binder',
-        name: 'Style Variable Binder',
-        desc: '批量绑定 Figma Paint/Text Style 到 Variable',
-        type: 'Figma Plugin',
-        icon: 'figma',
-        repo: 'https://github.com/siriusharrison-png/SIRIUS-ATEAM/tree/main/projects/style-variable-binder'
-      }
-      // 在此添加更多工具...
-    ];
-    // ========================================
-
-    const tags = document.querySelectorAll('.tag');
-    const cards = document.querySelectorAll('.member-card');
-    let selectedTag = null;
-
-    function selectTag(tag) {
-      const targetId = tag.dataset.target;
-
-      // Update tag active state
-      tags.forEach(t => t.classList.remove('active'));
-      tag.classList.add('active');
-      selectedTag = tag;
-
-      // Show corresponding card
-      cards.forEach(card => {
-        card.classList.remove('visible');
-      });
-      const targetCard = document.getElementById(targetId);
-      if (targetCard) {
-        targetCard.classList.add('visible');
-      }
-    }
-
-    tags.forEach(tag => {
-      // Click to select and keep
-      tag.addEventListener('click', () => {
-        selectTag(tag);
-      });
-
-      // Hover preview (temporary switch)
-      tag.addEventListener('mouseenter', () => {
-        const targetId = tag.dataset.target;
-
-        // Temporarily show this card
-        cards.forEach(card => {
-          card.classList.remove('visible');
-        });
-        const targetCard = document.getElementById(targetId);
-        if (targetCard) {
-          targetCard.classList.add('visible');
-        }
-
-        // Visual hover state
-        tags.forEach(t => t.classList.remove('active'));
-        tag.classList.add('active');
-      });
-
-      tag.addEventListener('mouseleave', () => {
-        // Return to selected tag's card
-        if (selectedTag && selectedTag !== tag) {
-          selectTag(selectedTag);
-        }
-      });
-    });
-
-    // Default: select first tag
-    selectTag(tags[0]);
-
-    // Workflow Modal
-    function openWorkflowModal() {
-      document.getElementById('workflowModal').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeWorkflowModal() {
-      document.getElementById('workflowModal').classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    // Close modal on overlay click
-    document.getElementById('workflowModal').addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) {
-        closeWorkflowModal();
-      }
-    });
-
-    // Close modal on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeWorkflowModal();
-        closeLogModal();
-      }
-    });
-
-    // Log Modal
-    function openLogModal(agentId) {
-      const agent = agentData[agentId];
-      if (!agent) return;
-
-      document.getElementById('log-agent-name').textContent = agent.name + ' 更新日志';
-
-      const logList = document.getElementById('log-list');
-      if (agent.logs && agent.logs.length > 0) {
-        logList.innerHTML = agent.logs.map(log => `
-          <div class="log-item">
-            <div class="log-date">${log.date}</div>
-            <div class="log-content">${log.content}</div>
-          </div>
-        `).join('');
-      } else {
-        logList.innerHTML = '<div class="log-empty">暂无更新记录</div>';
-      }
-
-      document.getElementById('logModal').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeLogModal() {
-      document.getElementById('logModal').classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    document.getElementById('logModal').addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) {
-        closeLogModal();
-      }
-    });
-
-    // Initialize agent status display
-    function initAgentStatus() {
-      Object.keys(agentData).forEach(agentId => {
-        const agent = agentData[agentId];
-
-        // Update status dot
-        const statusDot = document.getElementById(`status-dot-${agentId}`);
-        if (statusDot) {
-          statusDot.classList.add(agent.status);
-        }
-
-        // Update time
-        const updateTime = document.getElementById(`update-time-${agentId}`);
-        if (updateTime) {
-          updateTime.textContent = agent.lastUpdate;
-        }
-      });
-    }
-
-    // Run on page load
-    initAgentStatus();
-
-    // Render tools list
-    function renderTools() {
-      const container = document.getElementById('tools-list');
-      if (!container || toolsData.length === 0) return;
-
-      const icons = {
-        figma: `<svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M8 24c2.2 0 4-1.8 4-4v-4H8c-2.2 0-4 1.8-4 4s1.8 4 4 4z"/>
-          <path d="M4 12c0-2.2 1.8-4 4-4h4v8H8c-2.2 0-4-1.8-4-4z"/>
-          <path d="M4 4c0-2.2 1.8-4 4-4h4v8H8C5.8 8 4 6.2 4 4z"/>
-          <path d="M12 0h4c2.2 0 4 1.8 4 4s-1.8 4-4 4h-4V0z"/>
-          <path d="M20 12c0 2.2-1.8 4-4 4s-4-1.8-4-4 1.8-4 4-4 4 1.8 4 4z"/>
-        </svg>`,
-        plugin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="4" y="4" width="16" height="16" rx="2"/>
-          <path d="M9 9h6v6H9z"/>
-        </svg>`,
-        tool: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-        </svg>`
-      };
-
-      container.innerHTML = toolsData.map(tool => `
-        <div class="tool-item">
-          <div class="tool-icon" style="color: var(--primary);">
-            ${icons[tool.icon] || icons.tool}
-          </div>
-          <div class="tool-info">
-            <div class="tool-name">${tool.name}</div>
-            <div class="tool-desc">${tool.desc}</div>
-          </div>
-          <div class="tool-meta">
-            <span class="tool-type">${tool.type}</span>
-            <a href="${tool.repo}" target="_blank" class="tool-link">
-              <svg viewBox="0 0 16 16" fill="currentColor">
-                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-              </svg>
-              GitHub
-            </a>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    renderTools();
-
-    // API base URL (Vercel for API, GitHub Pages for static)
-    const API_BASE = window.location.hostname === 'localhost'
-      ? 'http://localhost:3000'
-      : 'https://sirius-ateam.vercel.app';
-
-    // 推送到飞书
-    async function pushToFeishu(type) {
-      const btn = event.target.closest('.push-btn');
-      const originalText = btn.innerHTML;
-
-      // 显示加载状态
-      btn.disabled = true;
-      btn.innerHTML = `
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" class="spin">
-          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="20" stroke-linecap="round"/>
-        </svg>
-        推送中...
-      `;
-
-      // 根据类型准备数据
-      let data = {};
-      if (type === 'secretary-report') {
-        // 小秘书日报：最近代码变更
-        data = {
-          changes: agentData.secretary.recentChanges || []
-        };
-      } else if (type === 'photographer-stats') {
-        // 摄影师：Unsplash 数据
-        data = {
-          stats: agentData.photographer.unsplashStats || {}
-        };
-      }
-
-      try {
-        const response = await fetch(`${API_BASE}/api/push-feishu`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type, data })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          btn.classList.add('success');
-          btn.innerHTML = `
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M6.5 12L2 7.5 3.5 6l3 3 7-7L15 3.5z"/>
-            </svg>
-            已推送
-          `;
-
-          // 3秒后恢复
-          setTimeout(() => {
-            btn.classList.remove('success');
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-          }, 3000);
-        } else {
-          throw new Error(result.error || '推送失败');
-        }
-      } catch (error) {
-        btn.innerHTML = `
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 10a1 1 0 110-2 1 1 0 010 2zm1-3H7V4h2v4z"/>
-          </svg>
-          失败
-        `;
-        console.error('Push error:', error);
-
-        // 2秒后恢复
-        setTimeout(() => {
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-        }, 2000);
-      }
-    }
-
-    // 添加旋转动画样式
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-      .spin {
-        animation: spin 1s linear infinite;
-      }
-    `;
-    document.head.appendChild(style);
-  </script>
+    <div style="text-align: right;">
+      <div>Last Updated: 2026-07-10</div>
+    </div>
+  </footer>
 </body>
 </html>
