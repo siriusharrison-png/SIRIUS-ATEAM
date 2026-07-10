@@ -1035,24 +1035,50 @@
       background: var(--gray-7);
     }
 
-    .sync-status {
-      display: inline-block;
-      padding: 12px 16px;
-      background: rgba(0,255,65,0.1);
-      border: 1px solid rgba(0,255,65,0.3);
-      border-radius: 4px;
-      color: #00ff41;
-      font-size: 0.8rem;
-      margin-top: 10px;
-      animation: syncPulse 1.5s ease-in-out forwards;
-      opacity: 0;
+    /* ===== 通知系统 ===== */
+    .notification-container {
+      position: fixed;
+      left: 50%;
+      bottom: 80px;
+      transform: translateX(-50%);
+      z-index: 10001;
+      pointer-events: none;
     }
 
-    @keyframes syncPulse {
-      0% { opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { opacity: 0; }
+    .notification {
+      background: var(--gray-8);
+      border: 2px dashed var(--gray-6);
+      padding: 16px 32px;
+      border-radius: 4px;
+      color: var(--gray-2);
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      font-family: 'Space Mono', monospace;
+      pointer-events: auto;
+      animation: notificationIn 0.3s ease forwards, notificationOut 0.3s ease 2.7s forwards;
+      white-space: nowrap;
+    }
+
+    @keyframes notificationIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes notificationOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(20px);
+      }
     }
 
     /* ===== 页脚 ===== */
@@ -1169,6 +1195,9 @@
 <body>
   <!-- 波点背景发散效果容器 -->
   <div class="ripple-bg" id="rippleBg"></div>
+
+  <!-- 通知容器 -->
+  <div class="notification-container" id="notificationContainer"></div>
 
   <!-- 头部 -->
   <header id="header">
@@ -1809,24 +1838,26 @@
       }
     });
 
-    // ===== 按钮功能 =====
+    // ===== 通知系统 =====
+    function showNotification(message) {
+      const container = document.getElementById('notificationContainer');
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = message;
+      container.appendChild(notification);
+
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
+    // 按钮功能 =====
     function openGitHub(path) {
       window.open(`https://github.com/siriusharrison-png/SIRIUS-ATEAM/tree/main/${path}`, '_blank');
     }
 
     function triggerSync() {
-      const btn = event.target;
-      btn.disabled = true;
-
-      const status = document.createElement('div');
-      status.className = 'sync-status';
-      status.innerHTML = '✓ 同步已触发';
-      btn.parentElement.appendChild(status);
-
-      setTimeout(() => {
-        btn.disabled = false;
-        status.remove();
-      }, 2000);
+      showNotification('✓ 同步已触发');
     }
 
     function openDesignerCard() {
@@ -1839,7 +1870,7 @@
 
     function copyEmail() {
       navigator.clipboard.writeText('siriusharrison@gmail.com');
-      alert('✓ 邮箱已复制到剪贴板');
+      showNotification('✓ 邮箱已复制到剪贴板');
     }
 
     document.getElementById('designerModal').addEventListener('click', (e) => {
