@@ -209,6 +209,7 @@
       text-transform: uppercase;
       transition: color 0.3s ease;
       position: relative;
+      cursor: pointer;
     }
 
     .header-nav a::after {
@@ -228,6 +229,61 @@
 
     .header-nav a:hover::after {
       width: 100%;
+    }
+
+    /* 下拉菜单样式 */
+    .dropdown-trigger {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gray-8);
+      border: 2px dashed var(--gray-6);
+      border-top: none;
+      min-width: 200px;
+      padding: 8px 0;
+      margin-top: 12px;
+      z-index: 1000;
+      animation: dropdownSlide 0.3s ease forwards;
+    }
+
+    .dropdown-trigger.active .dropdown-menu {
+      display: block;
+    }
+
+    @keyframes dropdownSlide {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    .dropdown-item {
+      display: block;
+      padding: 12px 20px;
+      color: var(--gray-4);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      transition: all 0.3s ease;
+      border-left: 2px solid transparent;
+      text-transform: uppercase;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-left-color: var(--white);
+      color: var(--white);
     }
 
     /* 右侧导航 */
@@ -1037,7 +1093,13 @@
       <a href="#agents">AGENTS</a>
       <a href="#system">SYSTEM</a>
       <a href="#status">STATUS</a>
-      <a href="#">CONTACTS</a>
+      <div class="dropdown-trigger" id="contactsTrigger">
+        <a>CONTACTS</a>
+        <div class="dropdown-menu">
+          <a href="mailto:siriusharrison@gmail.com" class="dropdown-item">📧 Email</a>
+          <a href="https://github.com/siriusharrison-png/SIRIUS-ATEAM/issues" target="_blank" class="dropdown-item">💬 GitHub Issue</a>
+        </div>
+      </div>
     </nav>
     <div class="header-right">
       <a href="https://github.com/siriusharrison-png/SIRIUS-ATEAM">GitHub</a>
@@ -1581,10 +1643,17 @@
     // 卡片选中效果
     allCards.forEach((card, idx) => {
       card.addEventListener('click', () => {
-        allCards.forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected');
-        selectedCard = card;
-        cardsGrid.style.animationPlayState = 'paused';
+        // 如果点击的是同一张卡片，则取消选中；否则选中该卡片
+        if (selectedCard === card) {
+          allCards.forEach(c => c.classList.remove('selected'));
+          selectedCard = null;
+          cardsGrid.style.animationPlayState = 'running';
+        } else {
+          allCards.forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          selectedCard = card;
+          cardsGrid.style.animationPlayState = 'paused';
+        }
       });
     });
 
@@ -1596,7 +1665,9 @@
     });
 
     cardsCarousel.addEventListener('mouseleave', () => {
-      if (!isGrabbing && !selectedCard) {
+      if (!isGrabbing) {
+        allCards.forEach(c => c.classList.remove('selected'));
+        selectedCard = null;
         cardsGrid.style.animationPlayState = 'running';
       }
     });
@@ -1745,6 +1816,23 @@
     // ===== 初始化 =====
     window.addEventListener('load', () => {
       cycleTitle();
+    });
+
+    // ===== Contact 下拉菜单 =====
+    const contactsTrigger = document.getElementById('contactsTrigger');
+    contactsTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      contactsTrigger.classList.toggle('active');
+    });
+
+    // 点击其他地方关闭菜单
+    document.addEventListener('click', () => {
+      contactsTrigger.classList.remove('active');
+    });
+
+    // 防止菜单点击时关闭
+    contactsTrigger.querySelector('.dropdown-menu').addEventListener('click', (e) => {
+      e.stopPropagation();
     });
   </script>
 </body>
