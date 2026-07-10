@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIRIUS TEAM</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
 
     :root {
       --black: #000000;
@@ -27,421 +27,418 @@
     }
 
     body {
-      font-family: 'Syne', 'Noto Sans SC', sans-serif;
+      font-family: 'Space Mono', 'Noto Sans SC', monospace;
       background: var(--black);
       color: var(--white);
       min-height: 100vh;
-      padding: 60px 40px;
+      padding: 80px 60px;
       overflow-x: hidden;
     }
 
-    /* 顶部标题 */
-    header {
-      margin-bottom: 80px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--gray-7);
-      padding-bottom: 40px;
+    /* 页面标题 */
+    .page-title {
+      text-align: center;
+      margin-bottom: 100px;
     }
 
-    .logo {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .logo h1 {
-      font-size: 3.2rem;
-      font-weight: 800;
-      letter-spacing: -2px;
+    .page-title h1 {
+      font-size: 4rem;
+      font-weight: 700;
+      letter-spacing: -3px;
       line-height: 1;
+      margin-bottom: 20px;
     }
 
-    .logo .year {
+    .page-meta {
       font-size: 0.8rem;
-      letter-spacing: 3px;
-      color: var(--gray-3);
-      font-weight: 400;
-    }
-
-    .header-info {
-      display: flex;
-      gap: 60px;
-      font-size: 0.85rem;
-      color: var(--gray-3);
-    }
-
-    .info-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .info-label {
-      font-size: 0.7rem;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
       color: var(--gray-4);
       text-transform: uppercase;
     }
 
-    /* 主容器 - 网格布局 */
-    .container {
+    /* 卡片网格 */
+    .cards-grid {
       display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      grid-auto-rows: auto;
-      gap: 20px;
-      max-width: 1400px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      margin-bottom: 80px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     /* 卡片 */
     .card {
-      background: var(--gray-8);
-      border: 1px solid var(--gray-7);
-      padding: 40px;
+      background: var(--black);
+      border: 1px dashed var(--gray-6);
+      padding: 50px;
       position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.4s ease;
     }
 
     .card:hover {
-      border-color: var(--gray-5);
-      background: var(--gray-7);
+      border-color: var(--gray-3);
+      background: var(--gray-8);
     }
 
-    /* 卡片大小变化 */
-    .card.span-6 { grid-column: span 6; }
-    .card.span-4 { grid-column: span 4; }
-    .card.span-3 { grid-column: span 3; }
-
-    .card.row-2 { grid-row: span 2; }
-    .card.row-1 { grid-row: span 1; }
-
-    /* 卡片内部 */
+    /* 卡片标号和标题 */
     .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
       margin-bottom: 30px;
-      border-bottom: 1px solid var(--gray-7);
-      padding-bottom: 20px;
+    }
+
+    .card-number {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      color: var(--gray-4);
+      text-transform: uppercase;
+      margin-bottom: 12px;
     }
 
     .card-title {
-      font-size: 0.9rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--white);
-      font-weight: 700;
-    }
-
-    .card-code {
-      font-size: 0.7rem;
-      color: var(--gray-4);
-      letter-spacing: 1px;
-      font-family: monospace;
-    }
-
-    .card-icon {
-      width: 64px;
-      height: 64px;
-      background: var(--gray-7);
-      border: 1px solid var(--gray-6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       font-size: 1.8rem;
-      margin-bottom: 20px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.2;
     }
 
-    .card-content {
+    /* 卡片内容 */
+    .card-body {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-    }
-
-    .card-name {
-      font-size: 1.2rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
+      justify-content: center;
     }
 
     .card-role {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+      letter-spacing: 1.5px;
       color: var(--gray-4);
-      letter-spacing: 1px;
       text-transform: uppercase;
+      margin-bottom: 20px;
     }
 
     .card-desc {
-      font-size: 0.85rem;
-      line-height: 1.6;
+      font-size: 0.9rem;
+      line-height: 1.8;
       color: var(--gray-2);
+      margin-bottom: 30px;
     }
 
-    /* 任务列表 */
-    .task-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid var(--gray-7);
-    }
-
-    .task-item {
+    .card-tasks {
       font-size: 0.8rem;
+      line-height: 2;
       color: var(--gray-3);
+    }
+
+    .card-tasks div {
       display: flex;
       gap: 8px;
-      align-items: flex-start;
     }
 
-    .task-item::before {
-      content: '—';
+    .task-marker {
       color: var(--gray-5);
       flex-shrink: 0;
     }
 
-    /* 按钮 */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
+    /* 卡片底部 */
+    .card-footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px dashed var(--gray-6);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-btn {
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      padding: 8px 16px;
       border: 1px solid var(--gray-5);
       background: transparent;
       color: var(--white);
-      font-size: 0.75rem;
-      letter-spacing: 1px;
       cursor: pointer;
       transition: all 0.3s ease;
       text-transform: uppercase;
+      font-family: 'Space Mono', monospace;
       font-weight: 700;
     }
 
-    .btn:hover {
+    .card-btn:hover {
       border-color: var(--white);
       background: var(--gray-8);
     }
 
-    .btn-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-      flex-wrap: wrap;
+    /* 工作流部分 */
+    .workflow-section {
+      margin-bottom: 80px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      background: var(--gray-8);
+      border: 1px dashed var(--gray-6);
+      padding: 60px;
+      text-align: center;
     }
 
-    /* 响应式 */
-    @media (max-width: 1024px) {
-      .card.span-6 { grid-column: span 12; }
-      .card.span-4 { grid-column: span 6; }
-      .card.span-3 { grid-column: span 4; }
+    .workflow-title {
+      font-size: 1rem;
+      letter-spacing: 3px;
+      color: var(--gray-4);
+      text-transform: uppercase;
+      margin-bottom: 40px;
     }
 
-    @media (max-width: 768px) {
-      body {
-        padding: 40px 20px;
-      }
-
-      header {
-        flex-direction: column;
-        gap: 30px;
-        margin-bottom: 60px;
-      }
-
-      .header-info {
-        gap: 30px;
-      }
-
-      .logo h1 {
-        font-size: 2.4rem;
-      }
-
-      .card.span-6,
-      .card.span-4,
-      .card.span-3 {
-        grid-column: span 12;
-      }
+    .workflow-content {
+      font-size: 0.95rem;
+      line-height: 2.2;
+      color: var(--gray-2);
+      font-family: 'Space Mono', monospace;
     }
 
-    /* 脚注 */
+    /* 配置状态 */
+    .status-section {
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      margin-bottom: 80px;
+    }
+
+    .status-card {
+      background: var(--black);
+      border: 1px dashed var(--gray-6);
+      padding: 40px;
+      text-align: center;
+    }
+
+    .status-label {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      color: var(--gray-4);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .status-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -2px;
+      color: var(--white);
+    }
+
+    /* 页脚 */
     footer {
-      margin-top: 80px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      border-top: 1px dashed var(--gray-6);
       padding-top: 40px;
-      border-top: 1px solid var(--gray-7);
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 0.75rem;
       color: var(--gray-4);
+      letter-spacing: 1px;
     }
 
-    .footer-info {
+    .footer-nav {
       display: flex;
-      gap: 30px;
+      gap: 20px;
     }
 
     .footer-link {
       color: var(--white);
       text-decoration: none;
       transition: color 0.3s ease;
+      text-transform: uppercase;
     }
 
     .footer-link:hover {
       color: var(--gray-3);
     }
+
+    /* 响应式 */
+    @media (max-width: 1024px) {
+      body {
+        padding: 60px 40px;
+      }
+
+      .page-title h1 {
+        font-size: 3rem;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .status-section {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      footer {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 40px 20px;
+      }
+
+      .page-title h1 {
+        font-size: 2rem;
+      }
+
+      .card {
+        padding: 30px;
+        aspect-ratio: auto;
+      }
+
+      .card-title {
+        font-size: 1.4rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <h1>SIRIUS</h1>
-      <div class="year">© 2024</div>
-    </div>
-    <div class="header-info">
-      <div class="info-item">
-        <span class="info-label">Team Members</span>
-        <span>4 Agents</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Status</span>
-        <span>Active</span>
-      </div>
-    </div>
-  </header>
+  <!-- 页面标题 -->
+  <div class="page-title">
+    <h1>SIRIUS</h1>
+    <div class="page-meta">© 2024 · AI Team System</div>
+  </div>
 
-  <div class="container">
+  <!-- Agent 卡片 -->
+  <div class="cards-grid">
     <!-- 小秘书 -->
-    <div class="card span-6 row-2">
+    <div class="card">
       <div class="card-header">
-        <div>
-          <div class="card-title">Secretary</div>
-          <div class="card-code">001</div>
-        </div>
+        <div class="card-number">001 / Secretary</div>
+        <div class="card-title">小秘书</div>
       </div>
-      <div class="card-content">
-        <div class="card-icon">📋</div>
-        <div class="card-name">小秘书</div>
+      <div class="card-body">
         <div class="card-role">Central Hub</div>
         <div class="card-desc">任务分配、信息汇总、飞书推送。每天 18:00 北京时生成日报。</div>
-        <div class="task-list">
-          <div class="task-item">每日日报汇总</div>
-          <div class="task-item">任务分发协调</div>
-          <div class="task-item">多源数据聚合</div>
-          <div class="task-item">飞书推送</div>
+        <div class="card-tasks">
+          <div><span class="task-marker">—</span> 每日日报汇总</div>
+          <div><span class="task-marker">—</span> 多源数据聚合</div>
+          <div><span class="task-marker">—</span> 飞书推送</div>
         </div>
-        <div class="btn-group">
-          <button class="btn">日报</button>
-          <button class="btn">查看</button>
-        </div>
+      </div>
+      <div class="card-footer">
+        <button class="card-btn">日报</button>
+        <button class="card-btn">查看</button>
       </div>
     </div>
 
     <!-- 摄影师 -->
-    <div class="card span-3">
+    <div class="card">
       <div class="card-header">
-        <div>
-          <div class="card-title">Photographer</div>
-          <div class="card-code">002</div>
+        <div class="card-number">002 / Photographer</div>
+        <div class="card-title">摄影师</div>
+      </div>
+      <div class="card-body">
+        <div class="card-role">Content Tracker</div>
+        <div class="card-desc">Unsplash 数据追踪与分析。每日 09:00 检查更新，进行内容分析推送。</div>
+        <div class="card-tasks">
+          <div><span class="task-marker">—</span> 每日 09:00 自动检查</div>
+          <div><span class="task-marker">—</span> 内容分析</div>
+          <div><span class="task-marker">—</span> 推送汇报</div>
         </div>
       </div>
-      <div class="card-content">
-        <div class="card-icon">📸</div>
-        <div class="card-name">摄影师</div>
-        <div class="card-role">Content Tracker</div>
-        <div class="card-desc">Unsplash 数据追踪与分析。</div>
-        <div class="task-list">
-          <div class="task-item">每日 09:00 检查更新</div>
-          <div class="task-item">内容分析推送</div>
-        </div>
-        <div class="btn-group">
-          <button class="btn">查看</button>
-        </div>
+      <div class="card-footer">
+        <button class="card-btn">查看</button>
       </div>
     </div>
 
     <!-- 知识管理 -->
-    <div class="card span-3">
+    <div class="card">
       <div class="card-header">
-        <div>
-          <div class="card-title">Knowledge</div>
-          <div class="card-code">003</div>
+        <div class="card-number">003 / Knowledge</div>
+        <div class="card-title">知识管理</div>
+      </div>
+      <div class="card-body">
+        <div class="card-role">Data Sync</div>
+        <div class="card-desc">飞书文档 + GitLab Workspace 双源同步到 Notion。</div>
+        <div class="card-tasks">
+          <div><span class="task-marker">—</span> 飞书 08:00 同步</div>
+          <div><span class="task-marker">—</span> GitLab 12:00 同步</div>
+          <div><span class="task-marker">—</span> Notion 更新</div>
         </div>
       </div>
-      <div class="card-content">
-        <div class="card-icon">📚</div>
-        <div class="card-name">知识管理</div>
-        <div class="card-role">Data Sync</div>
-        <div class="card-desc">飞书 + GitLab 双源同步。</div>
-        <div class="task-list">
-          <div class="task-item">飞书 08:00 同步</div>
-          <div class="task-item">GitLab 12:00 同步</div>
-        </div>
-        <div class="btn-group">
-          <button class="btn">同步</button>
-        </div>
+      <div class="card-footer">
+        <button class="card-btn">同步</button>
       </div>
     </div>
 
     <!-- 设计师 -->
-    <div class="card span-3">
+    <div class="card">
       <div class="card-header">
-        <div>
-          <div class="card-title">Designer</div>
-          <div class="card-code">004</div>
-        </div>
+        <div class="card-number">004 / Designer</div>
+        <div class="card-title">设计师</div>
       </div>
-      <div class="card-content">
-        <div class="card-icon">🎨</div>
-        <div class="card-name">设计师</div>
+      <div class="card-body">
         <div class="card-role">Multi-Agent Expert</div>
-        <div class="card-desc">Astra + Token 规范。</div>
-        <div class="task-list">
-          <div class="task-item">设计系统评审</div>
-          <div class="task-item">Token 规范维护</div>
-        </div>
-        <div class="btn-group">
-          <button class="btn">咨询</button>
+        <div class="card-desc">Astra Foundation + Design System Token Standard。参与 Multi-Agent 协作。</div>
+        <div class="card-tasks">
+          <div><span class="task-marker">—</span> 设计系统评审</div>
+          <div><span class="task-marker">—</span> Token 规范维护</div>
+          <div><span class="task-marker">—</span> 设计咨询</div>
         </div>
       </div>
-    </div>
-
-    <!-- 流程图 -->
-    <div class="card span-6">
-      <div class="card-header">
-        <div class="card-title">Workflow</div>
-      </div>
-      <div style="font-size: 0.85rem; line-height: 2; color: var(--gray-3);">
-        <div>小秘书（中枢）</div>
-        <div style="margin-left: 20px; margin-top: 10px;">
-          ↓<br>
-          摄影师 (09:00) → 知识管理 (08:00+12:00) → 设计师 (Multi-Agent)
-        </div>
-      </div>
-    </div>
-
-    <!-- 配置状态 -->
-    <div class="card span-6">
-      <div class="card-header">
-        <div class="card-title">Configuration</div>
-      </div>
-      <div class="task-list">
-        <div class="task-item">✓ GitHub Secrets: 9/9</div>
-        <div class="task-item">✓ Workflows: 4 Active</div>
-        <div class="task-item">✓ Database: Notion + GitLab</div>
-        <div class="task-item">✓ 所有系统就绪</div>
+      <div class="card-footer">
+        <button class="card-btn">咨询</button>
       </div>
     </div>
   </div>
 
-  <footer>
-    <div class="footer-info">
-      <span>© 2024 SIRIUS Team</span>
-      <a href="https://github.com/siriusharrison-png/SIRIUS-ATEAM" class="footer-link">GitHub</a>
+  <!-- 工作流 -->
+  <div class="workflow-section">
+    <div class="workflow-title">System Architecture</div>
+    <div class="workflow-content">
+      小秘书 (001)<br>
+      ↓<br>
+      摄影师 (002 09:00) | 知识管理 (003 08:00+12:00) | 设计师 (004 Multi-Agent)<br>
+      ↓<br>
+      飞书推送 · Notion 更新 · 设计咨询
     </div>
-    <div style="text-align: right;">
-      <div>Last Updated: 2026-07-10</div>
+  </div>
+
+  <!-- 系统状态 -->
+  <div class="status-section">
+    <div class="status-card">
+      <div class="status-label">GitHub Secrets</div>
+      <div class="status-value">9/9</div>
+    </div>
+    <div class="status-card">
+      <div class="status-label">Active Workflows</div>
+      <div class="status-value">4</div>
+    </div>
+    <div class="status-card">
+      <div class="status-label">Agents Online</div>
+      <div class="status-value">4</div>
+    </div>
+    <div class="status-card">
+      <div class="status-label">System Status</div>
+      <div class="status-value">OK</div>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <footer>
+    <div>© 2024 SIRIUS Team · Last Update 2026-07-10</div>
+    <div class="footer-nav">
+      <a href="https://github.com/siriusharrison-png/SIRIUS-ATEAM" class="footer-link">GitHub</a>
     </div>
   </footer>
 </body>
