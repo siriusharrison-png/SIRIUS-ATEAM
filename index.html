@@ -669,24 +669,25 @@
       width: 100%;
       max-width: 100%;
       height: auto;
-      min-height: 400px;
+      min-height: 500px;
     }
 
-    .mindmap-node rect {
+    /* 中心 Hub */
+    .hub-rect {
       fill: none;
       stroke: var(--gray-4);
       stroke-width: 2;
       transition: all 0.3s ease;
     }
 
-    .mindmap-node:hover rect {
+    .center-hub:hover .hub-rect {
       stroke: var(--white);
       fill: rgba(255, 255, 255, 0.05);
     }
 
-    .mindmap-node text {
+    .hub-label {
       fill: var(--gray-4);
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 700;
       font-family: 'Noto Sans SC', sans-serif;
       text-anchor: middle;
@@ -694,27 +695,84 @@
       transition: fill 0.3s ease;
     }
 
-    .mindmap-node:hover text {
+    .hub-sublabel {
+      fill: var(--gray-3);
+      font-size: 10px;
+      font-family: 'Space Mono', monospace;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      transition: fill 0.3s ease;
+    }
+
+    .center-hub:hover .hub-label,
+    .center-hub:hover .hub-sublabel {
       fill: var(--white);
     }
 
-    .node-rect {
+    /* Agent 圆形节点 */
+    .agent-circle-shape {
       fill: none;
       stroke: var(--gray-4);
       stroke-width: 2;
+      transition: all 0.3s ease;
     }
 
-    .node-label {
+    .agent-circle:hover .agent-circle-shape {
+      stroke: var(--white);
+      fill: rgba(255, 255, 255, 0.05);
+    }
+
+    .agent-icon {
       fill: var(--gray-4);
-      font-size: 12px;
-      font-weight: 700;
-      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 24px;
       text-anchor: middle;
       dominant-baseline: middle;
       transition: fill 0.3s ease;
     }
 
-    .node-label-sync {
+    .agent-circle:hover .agent-icon {
+      fill: var(--white);
+    }
+
+    /* 输出节点（圆形） */
+    .output-circle-shape {
+      fill: none;
+      stroke: var(--gray-4);
+      stroke-width: 2;
+      transition: all 0.3s ease;
+    }
+
+    .output-circle:hover .output-circle-shape {
+      stroke: var(--white);
+      fill: rgba(255, 255, 255, 0.05);
+    }
+
+    .output-icon {
+      fill: var(--gray-4);
+      font-size: 24px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      transition: fill 0.3s ease;
+    }
+
+    .output-circle:hover .output-icon {
+      fill: var(--white);
+    }
+
+    /* Notion 输出框 */
+    .notion-rect {
+      fill: none;
+      stroke: var(--gray-4);
+      stroke-width: 2;
+      transition: all 0.3s ease;
+    }
+
+    .notion-output:hover .notion-rect {
+      stroke: var(--white);
+      fill: rgba(255, 255, 255, 0.05);
+    }
+
+    .notion-label {
       fill: var(--gray-4);
       font-size: 11px;
       font-weight: 700;
@@ -724,46 +782,73 @@
       transition: fill 0.3s ease;
     }
 
-    .node-label-final {
-      fill: var(--gray-4);
-      font-size: 12px;
-      font-weight: 700;
+    .notion-sublabel {
+      fill: var(--gray-3);
+      font-size: 9px;
       font-family: 'Space Mono', monospace;
       text-anchor: middle;
       dominant-baseline: middle;
       transition: fill 0.3s ease;
     }
 
-    .mindmap-node:hover .node-label,
-    .mindmap-node:hover .node-label-sync,
-    .mindmap-node:hover .node-label-final {
+    .notion-output:hover .notion-label,
+    .notion-output:hover .notion-sublabel {
       fill: var(--white);
     }
 
-    .mindmap-node:hover .node-rect {
-      stroke: var(--white);
-      fill: rgba(255, 255, 255, 0.05);
-    }
-
-    .connection-line {
+    /* 连接线 */
+    .connection-curve {
+      fill: none;
       stroke: var(--gray-4);
       stroke-width: 1.5;
-      fill: none;
-      stroke-dasharray: 5, 5;
+      stroke-linecap: round;
     }
 
-    .connection-line-final {
+    .connection-line-direct {
       stroke: var(--gray-4);
       stroke-width: 2;
-      fill: none;
       stroke-dasharray: 5, 5;
     }
 
-    .connection-label {
-      fill: var(--gray-4);
+    /* 标签 */
+    .update-label,
+    .output-label {
+      fill: var(--gray-3);
       font-size: 10px;
       font-family: 'Space Mono', monospace;
+      text-anchor: middle;
+    }
+
+    .update-time,
+    .output-time {
+      fill: var(--gray-4);
+      font-size: 9px;
+      font-family: 'Space Mono', monospace;
+      text-anchor: middle;
       letter-spacing: 0.5px;
+    }
+
+    .output-arrow {
+      fill: var(--gray-4);
+      font-size: 16px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    /* 信息流指示 */
+    .flow-indicator {
+      stroke: var(--gray-6);
+      stroke-width: 1;
+      stroke-dasharray: 3, 3;
+    }
+
+    .flow-label {
+      fill: var(--gray-5);
+      font-size: 10px;
+      font-family: 'Space Mono', monospace;
+      text-anchor: middle;
+      letter-spacing: 1px;
     }
 
     /* ===== 状态 ===== */
@@ -1223,92 +1308,63 @@
   <div class="agents-section" id="system">
     <div class="workflow-section">
       <div class="workflow-title">System Architecture</div>
-      <svg class="mindmap-svg" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid meet">
-        <!-- 中心枢纽 -->
-        <g class="mindmap-node hub">
-          <rect x="110" y="270" width="80" height="60" rx="4" class="node-rect"/>
-          <text x="150" y="305" class="node-label">小秘书</text>
+      <svg class="mindmap-svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid meet">
+        <!-- 中心小秘书 -->
+        <g class="center-hub" data-agent="secretary">
+          <rect x="530" y="300" width="140" height="100" rx="12" class="hub-rect"/>
+          <text x="600" y="340" class="hub-label">小秘书</text>
+          <text x="600" y="365" class="hub-sublabel">Central Hub</text>
         </g>
 
-        <!-- 连接线到任务区 -->
-        <line x1="190" y1="300" x2="280" y2="300" class="connection-line"/>
-
-        <!-- 任务中心节点 -->
-        <g class="mindmap-node task-center">
-          <rect x="280" y="280" width="60" height="40" rx="3" class="node-rect"/>
-          <text x="310" y="308" class="node-label" style="font-size: 18px;">⟳</text>
+        <!-- 摄影师 左上 -->
+        <g class="agent-circle agent-photo" data-agent="photo">
+          <circle cx="250" cy="150" r="60" class="agent-circle-shape"/>
+          <text x="250" y="160" class="agent-icon">📷</text>
         </g>
+        <path d="M 310 170 Q 420 220 530 330" class="connection-curve"/>
+        <text x="380" y="200" class="update-label">Unsplash</text>
+        <text x="380" y="220" class="update-time">09:00 UTC</text>
 
-        <!-- 从任务中心到三个子任务的连接 -->
-        <line x1="340" y1="280" x2="420" y2="160" class="connection-line"/>
-        <line x1="340" y1="300" x2="440" y2="300" class="connection-line"/>
-        <line x1="340" y1="320" x2="420" y2="440" class="connection-line"/>
-
-        <!-- 摄影师 (002) -->
-        <g class="mindmap-node agent agent-photo" data-agent="photo">
-          <rect x="420" y="130" width="70" height="60" rx="4" class="node-rect"/>
-          <text x="455" y="165" class="node-label">摄影师</text>
+        <!-- 飞书推送 右上 -->
+        <g class="output-circle output-feishu" data-agent="feishu">
+          <circle cx="950" cy="150" r="60" class="output-circle-shape"/>
+          <text x="950" y="160" class="output-icon">🔔</text>
         </g>
-        <line x1="490" y1="160" x2="580" y2="160" class="connection-line"/>
-        <text x="520" y="155" class="connection-label">09:00 UTC</text>
+        <path d="M 670 330 Q 780 220 890 170" class="connection-curve"/>
+        <text x="740" y="240" class="output-label">Feishu Push</text>
+        <text x="740" y="260" class="output-time">18:00 UTC</text>
 
-        <!-- 摄影师任务详情 -->
-        <g class="mindmap-node detail" data-agent="photo">
-          <rect x="580" y="130" width="80" height="60" rx="4" class="node-rect"/>
-          <text x="620" y="165" class="node-label">Unsplash</text>
+        <!-- 设计师 左下 -->
+        <g class="agent-circle agent-designer" data-agent="designer">
+          <circle cx="250" cy="550" r="60" class="agent-circle-shape"/>
+          <text x="250" y="560" class="agent-icon">🎨</text>
         </g>
+        <path d="M 310 530 Q 420 480 530 370" class="connection-curve"/>
+        <text x="340" y="520" class="update-label">Astra + Tokens</text>
+        <text x="340" y="540" class="update-time">Multi-Agent</text>
 
-        <!-- 知识管理 (003) -->
-        <g class="mindmap-node agent agent-knowledge" data-agent="knowledge">
-          <rect x="440" y="270" width="70" height="60" rx="4" class="node-rect"/>
-          <text x="475" y="305" class="node-label">知识管理</text>
+        <!-- 知识管理 右下（双输出） -->
+        <g class="agent-circle agent-knowledge" data-agent="knowledge">
+          <circle cx="950" cy="550" r="60" class="agent-circle-shape"/>
+          <text x="950" y="560" class="agent-icon">📚</text>
         </g>
-        <line x1="510" y1="300" x2="600" y2="300" class="connection-line"/>
-        <text x="540" y="295" class="connection-label">08:00+12:00</text>
+        <!-- 从小秘书到知识管理 -->
+        <path d="M 670 370 Q 780 480 890 530" class="connection-curve"/>
+        <text x="750" y="470" class="update-label">Feishu + GitLab</text>
+        <text x="750" y="490" class="update-time">08:00+12:00 UTC</text>
 
-        <!-- 知识管理数据源 -->
-        <g class="mindmap-node detail" data-agent="knowledge">
-          <rect x="600" y="270" width="70" height="55" rx="4" class="node-rect"/>
-          <text x="635" y="300" class="node-label">Feishu</text>
+        <!-- 知识管理到Notion的单独输出 -->
+        <path d="M 1010 550 L 1100 550" class="connection-line-direct"/>
+        <g class="output-box notion-output" data-agent="notion">
+          <rect x="1110" y="510" width="70" height="80" rx="6" class="notion-rect"/>
+          <text x="1145" y="545" class="notion-label">Notion</text>
+          <text x="1145" y="565" class="notion-sublabel">Database</text>
         </g>
+        <text x="1060" y="545" class="output-arrow">→</text>
 
-        <g class="mindmap-node detail" data-agent="knowledge">
-          <rect x="600" y="335" width="70" height="55" rx="4" class="node-rect"/>
-          <text x="635" y="365" class="node-label">GitLab</text>
-        </g>
-
-        <!-- 连接线（从两个数据源到中间汇聚点） -->
-        <line x1="670" y1="297" x2="750" y2="297" class="connection-line"/>
-        <line x1="670" y1="362" x2="750" y2="362" class="connection-line"/>
-        <line x1="750" y1="297" x2="820" y2="320" class="connection-line"/>
-        <line x1="750" y1="362" x2="820" y2="320" class="connection-line"/>
-
-        <!-- 设计师 (004) -->
-        <g class="mindmap-node agent agent-designer" data-agent="designer">
-          <rect x="420" y="410" width="70" height="60" rx="4" class="node-rect"/>
-          <text x="455" y="445" class="node-label">设计师</text>
-        </g>
-        <line x1="490" y1="440" x2="580" y2="440" class="connection-line"/>
-        <text x="530" y="435" class="connection-label">Multi-Agent</text>
-
-        <!-- 设计师专长 -->
-        <g class="mindmap-node detail" data-agent="designer">
-          <rect x="580" y="410" width="80" height="60" rx="4" class="node-rect"/>
-          <text x="620" y="445" class="node-label">Design</text>
-        </g>
-
-        <!-- 汇聚点 -->
-        <g class="mindmap-node sync-point" data-agent="sync">
-          <rect x="820" y="290" width="70" height="60" rx="4" class="node-rect"/>
-          <text x="855" y="325" class="node-label-sync">SYNC</text>
-        </g>
-
-        <!-- 最终输出 -->
-        <line x1="890" y1="320" x2="980" y2="320" class="connection-line-final"/>
-        <g class="mindmap-node notion" data-agent="notion">
-          <rect x="980" y="290" width="80" height="60" rx="4" class="node-rect"/>
-          <text x="1020" y="325" class="node-label-final">Notion</text>
-        </g>
+        <!-- 顶部信息流指示 -->
+        <line x1="100" y1="320" x2="1100" y2="320" class="flow-indicator"/>
+        <text x="600" y="310" class="flow-label">Information Flow</text>
       </svg>
     </div>
   </div>
