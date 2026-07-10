@@ -122,8 +122,8 @@
 
     /* 十字架模式 */
     .cursor-dot.crosshair {
-      width: 20px;
-      height: 20px;
+      width: 28px;
+      height: 28px;
       background: transparent;
       border: none;
       border-radius: 0;
@@ -134,25 +134,25 @@
     .cursor-dot.crosshair::after {
       content: '';
       position: absolute;
-      background: rgba(255, 255, 255, 0.8);
+      background: #ff3333;
     }
 
     .cursor-dot.crosshair::before {
       width: 2px;
-      height: 12px;
-      left: 9px;
-      top: 4px;
+      height: 16px;
+      left: 13px;
+      top: 6px;
     }
 
     .cursor-dot.crosshair::after {
-      width: 12px;
+      width: 16px;
       height: 2px;
-      left: 4px;
-      top: 9px;
+      left: 6px;
+      top: 13px;
     }
 
     .cursor-dot-outline.crosshair {
-      border: 1px solid rgba(255, 255, 255, 0);
+      border: 1px solid rgba(255, 51, 51, 0);
       width: 0;
       height: 0;
     }
@@ -1796,11 +1796,11 @@
                          target.closest('.dropdown-item');
 
       if (isClickable) {
-        // 十字架模式
+        // 十字架模式（红色，1.4倍大小）
         cursor.classList.add('crosshair');
         cursorOutline.classList.add('crosshair');
-        cursor.style.left = mouseX - 10 + 'px';
-        cursor.style.top = mouseY - 10 + 'px';
+        cursor.style.left = mouseX - 14 + 'px';
+        cursor.style.top = mouseY - 14 + 'px';
       } else {
         // 圆点模式
         cursor.classList.remove('crosshair');
