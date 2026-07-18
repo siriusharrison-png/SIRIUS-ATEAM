@@ -25,6 +25,17 @@ NOTION_API = "https://api.notion.com/v1"
 CACHE_FILE = Path.home() / ".claude/agents/knowledge-keeper/gitlab-cache.json"
 
 
+def raise_for_status_with_body(resp, label):
+    """在 HTTP 失败时保留响应体，方便排查 CI 日志。"""
+    if resp.ok:
+        return
+
+    body = resp.text.strip()
+    if len(body) > 1000:
+        body = body[:1000] + "...[truncated]"
+    raise Exception(f"{label} failed: HTTP {resp.status_code} {resp.reason}; body={body}")
+
+
 def get_gitlab_files(path, token):
     """获取 GitLab 仓库中指定路径的文件"""
     url = f"{GITLAB_API}/projects/{GITLAB_PROJECT_ID}/repository/tree"
@@ -33,7 +44,7 @@ def get_gitlab_files(path, token):
 
     try:
         resp = requests.get(url, headers=headers, params=params)
-        resp.raise_for_status()
+        raise_for_status_with_body(resp, "获取 GitLab 文件列表")
         return resp.json()
     except Exception as e:
         print(f"获取 GitLab 文件失败: {e}")
@@ -48,7 +59,7 @@ def get_file_content(file_path, token):
 
     try:
         resp = requests.get(url, headers=headers, params=params)
-        resp.raise_for_status()
+        raise_for_status_with_body(resp, f"获取 GitLab 文件内容 {file_path}")
         return resp.text
     except:
         return None
@@ -62,7 +73,7 @@ def get_file_last_commit(file_path, token):
 
     try:
         resp = requests.get(url, headers=headers, params=params)
-        resp.raise_for_status()
+        raise_for_status_with_body(resp, f"获取 GitLab 最后提交 {file_path}")
         commits = resp.json()
         if commits:
             return commits[0]["created_at"]
@@ -143,7 +154,7 @@ def add_to_notion(title, url, category="WorkSpace"):
 
     try:
         resp = requests.post(url_endpoint, headers=headers, json=payload)
-        resp.raise_for_status()
+        raise_for_status_with_body(resp, f"添加 Notion 页面 {title}")
         return True, resp.json().get("id")
     except Exception as e:
         print(f"添加到 Notion 失败: {e}")

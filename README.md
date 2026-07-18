@@ -25,30 +25,36 @@ https://siriusharrison-png.github.io/SIRIUS-ATEAM/
 SIRIUS-ATEAM/
 ├── index.html          ← 团队展示页面（像素风）
 ├── README.md           ← 本文件
-└── agents/             ← Agent 配置与协作中枢
+├── agents/             ← Agent 配置与协作中枢
     ├── RULES.md        ← 统一规则（所有 Agent 必须遵守）
     ├── hub.json        ← 协作状态（消息/任务/状态）
     ├── hub-schema.md   ← 数据格式说明
     ├── secretary/      ← 小秘书（中枢协调）
     ├── design-infra/   ← 设计师
-    ├── figma-designer/ ← Figma 设计员工
     ├── knowledge-keeper/ ← 知识管理
-    ├── design-qa/      ← 测试QA
     └── image-guardian/ ← 摄影师
+└── studio/             ← 展示 / 分享 / 临时存档 / 思考记录
 ```
 
 ---
 
-## 团队成员
+## 星群档案
 
-| Agent | 角色 | 状态 | 配置 |
-|-------|------|------|------|
-| 小秘书 | 中枢协调 | 仅本地 | `agents/secretary/config.json` |
-| 设计师 | 设计系统维护 | 开源 | `agents/design-infra/config.json` |
-| Figma 设计员工 | Figma 设计操作 | 仅本地 | `agents/figma-designer/config.json` |
-| 知识管理 | 学习知识管理 | 开源 | `agents/knowledge-keeper/config.json` |
-| 测试QA | 设计还原度检查 | 开源 | `agents/design-qa/config.json` |
-| 摄影师 | Unsplash 数据追踪 | 仅本地 | `agents/image-guardian/config.json` |
+### 在轨成员
+
+| 名称 | 有关能力 | 上线时间 | 当前版本 | 下线时间 | 更新计划 |
+|---|---|---|---|---|---|
+| 小秘书 | 中枢协调、任务分配、日报汇总、飞书推送 | 2026-03-05 | v1.0 | - | 作为团队中枢持续维护 |
+| 设计师 | 设计系统维护、Astra 设计支持、Token 规范审查 | 2026-03-05 | v1.0 | - | 持续同步 Astra 与 Design Token 规范 |
+| 知识管理 | 飞书文档同步、GitLab 同步、Notion 归档 | 2026-03-05 | v1.0 | - | 持续优化同步稳定性与日志可观测性 |
+| 摄影师 | Unsplash 数据追踪、趋势分析、日报推送 | 2026-03-05 | v1.0 | - | 保持日报链路稳定，按需优化数据展示 |
+
+### 已离轨成员
+
+| 名称 | 有关能力 | 上线时间 | 当前版本 | 下线时间 | 更新计划 |
+|---|---|---|---|---|---|
+| Figma 设计员工 | Figma 画布操作、元素创建/修改 | 2026-03-05 | 无独立版本（随主仓库） | 2026-07-10 | 已离轨；如需恢复，先从历史提交或外部备份恢复 |
+| 测试QA | 设计还原度检查、硬编码走查、报告生成 | 2026-03-05 | 无独立版本（随主仓库） | 2026-07-10 | 已离轨；如需恢复，需补回目录与任务流转入口 |
 
 ---
 
@@ -64,9 +70,8 @@ SIRIUS-ATEAM/
 │                 小秘书（中枢）                        │
 │         接收任务 → 分配 → 监控 → 汇总 → 汇报          │
 └─────────────────────────────────────────────────────┘
-           ↙      ↓       ↓       ↓      ↘
-      设计师   Figma    知识    测试    摄影师
-              设计员   管理     QA
+           ↙      ↓       ↓       ↘
+      设计师   知识管理   小秘书   摄影师
            ↘      ↓       ↓       ↓      ↙
               hub.json（协作状态文件）
 ```
@@ -128,7 +133,10 @@ agentData.photographer.unsplashStats = {
 
 - [design-token](https://github.com/siriusharrison-png/design-token) - 设计系统
 - [learn-to-notion](https://github.com/siriusharrison-png/learn-to-notion) - 知识管理
-- [design-qa-cli](https://github.com/siriusharrison-png/design-qa-cli) - 设计还原度检查
+
+## 已归档仓库 / 资产
+
+- [design-qa-cli](https://github.com/siriusharrison-png/design-qa-cli) - 设计还原度检查（历史引用）
 
 ---
 

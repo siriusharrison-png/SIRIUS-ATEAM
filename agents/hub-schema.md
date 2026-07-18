@@ -90,7 +90,7 @@ const hub = JSON.parse(fs.readFileSync('hub.json'));
 // 添加新消息
 hub.messages.push({
   id: `msg-${Date.now()}`,
-  from: "测试QA",
+  from: "设计师",
   time: new Date().toISOString(),
   type: "alert",
   content: "发现 3 处硬编码颜色",
@@ -196,13 +196,13 @@ fs.writeFileSync('hub.json', JSON.stringify(hub, null, 2));
 ```
 1. 用户要求检查代码
    ↓
-2. 小秘书创建任务，分配给测试QA
+2. 小秘书创建任务，分配给知识管理或设计师
    ↓
-3. 测试QA 更新状态为 busy，开始执行
+3. 对应成员更新状态为 busy，开始执行
    ↓
-4. 测试QA 发现问题，写入 alert 消息
+4. 对应成员发现问题，写入 alert 消息
    ↓
-5. 测试QA 完成任务，更新任务状态
+5. 对应成员完成任务，更新任务状态
    ↓
 6. 小秘书 读取消息，汇总到日报
 ```

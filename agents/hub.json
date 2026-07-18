@@ -2,7 +2,7 @@
   "meta": {
     "version": "1.0.0",
     "rulesVersion": "1.0.0",
-    "lastUpdate": "2026-03-05T20:00:00+08:00",
+    "lastUpdate": "2026-07-18T00:00:00+08:00",
     "description": "AI 团队协作中枢"
   },
   "agents": {
@@ -15,10 +15,6 @@
       "lastSeen": "2026-03-05T20:00:00+08:00"
     },
     "知识管理": {
-      "status": "active",
-      "lastSeen": "2026-03-05T20:00:00+08:00"
-    },
-    "测试QA": {
       "status": "active",
       "lastSeen": "2026-03-05T20:00:00+08:00"
     },
