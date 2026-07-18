@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIRIUS TEAM</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;500;700&display=swap');
 
     :root {
       --black: #000000;
@@ -229,6 +229,50 @@
 
     .header-nav a:hover::after {
       width: 100%;
+    }
+
+    .header-nav button {
+      background: transparent;
+      border: none;
+      color: var(--gray-3);
+      font: inherit;
+      cursor: pointer;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: color 0.3s ease, transform 0.3s ease;
+      position: relative;
+      padding: 0;
+    }
+
+    .header-nav button:hover {
+      color: var(--white);
+      transform: translateY(-1px);
+    }
+
+    .storyline-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--white);
+      text-shadow: 0 0 12px rgba(255,255,255,0.45);
+      animation: starPulse 1.8s ease-in-out infinite;
+    }
+
+    .storyline-trigger .star-icon {
+      display: inline-block;
+      font-size: 1.1rem;
+      animation: starSpin 6s linear infinite;
+      transform-origin: center;
+    }
+
+    @keyframes starPulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes starSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     /* 下拉菜单样式 */
@@ -1148,6 +1192,11 @@
       backdrop-filter: blur(5px);
     }
 
+    .storyline-modal {
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(18px);
+    }
+
     .modal.active {
       display: flex;
     }
@@ -1159,6 +1208,327 @@
       max-width: 500px;
       position: relative;
       animation: modalIn 0.3s ease;
+    }
+
+    .storyline-modal .modal-content {
+      width: min(80vw, 1400px);
+      height: min(80vh, 920px);
+      max-width: none;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,255,255,0.04), transparent 32%),
+        radial-gradient(circle at 80% 0%, rgba(255,255,255,0.03), transparent 24%),
+        linear-gradient(145deg, rgba(9,9,9,0.98), rgba(0,0,0,0.98));
+      box-shadow: 0 24px 96px rgba(0,0,0,0.8);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .storyline-modal .modal-close {
+      z-index: 3;
+    }
+
+    .storybook-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 24px;
+      flex: 1;
+      min-height: 0;
+      position: relative;
+    }
+
+    .storybook-page {
+      position: relative;
+      min-height: 0;
+      padding: 52px 46px 44px;
+      background:
+        linear-gradient(135deg, rgba(18,18,18,0.99) 0%, rgba(22,22,22,0.96) 100%);
+      color: rgba(255,255,255,0.94);
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow:
+        /* 页边内凹效果 */
+        inset 0 0 0 1px rgba(255,255,255,0.02),
+        inset 0 0 12px 1px rgba(0,0,0,0.4),
+        inset 12px 0 0 -8px rgba(0,0,0,0.2),
+        /* 页脊深度 */
+        inset -8px 0 0 -8px rgba(0,0,0,0.15),
+        /* 外部阴影 */
+        0 12px 28px rgba(0,0,0,0.64),
+        0 2px 8px rgba(0,0,0,0.3);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      isolation: isolate;
+    }
+
+    .storybook-page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.035) 0, rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255,255,255,0.05), transparent 22%);
+      background-size: 28px 28px, 100% 100%;
+      opacity: 0.42;
+      pointer-events: none;
+    }
+
+    .storybook-page.left {
+      border-radius: 8px 0 0 8px;
+    }
+
+    .storybook-page.right {
+      border-radius: 0 8px 8px 0;
+    }
+
+    .storybook-page::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 32px;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .storybook-page.left::after {
+      right: -14px;
+      background: linear-gradient(90deg,
+        rgba(0,0,0,0.3) 0%,
+        rgba(0,0,0,0.15) 40%,
+        transparent 100%);
+      box-shadow: inset -4px 0 8px rgba(0,0,0,0.25);
+    }
+
+    .storybook-page.right::after {
+      left: -14px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(0,0,0,0.15) 60%,
+        rgba(0,0,0,0.3) 100%);
+      box-shadow: inset 4px 0 8px rgba(0,0,0,0.25);
+    }
+
+    .storybook-kicker {
+      position: relative;
+      z-index: 1;
+      font-size: 0.68rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.48);
+      margin-bottom: 10px;
+      font-family: 'Space Mono', monospace;
+      font-weight: 500;
+    }
+
+    .storybook-title {
+      position: relative;
+      z-index: 1;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.72rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 8px;
+      color: rgba(255,255,255,0.96);
+      letter-spacing: -0.015em;
+    }
+
+    .storybook-subtitle {
+      position: relative;
+      z-index: 1;
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.68);
+      margin-bottom: 14px;
+      max-width: 52ch;
+      font-family: 'Noto Sans SC', sans-serif;
+      font-weight: 400;
+    }
+
+    .storybook-body {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 0.92rem;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.88);
+      overflow-y: auto;
+      padding-right: 6px;
+      min-height: 0;
+    }
+
+    .storybook-body > * {
+      animation: storyIn 0.36s ease both;
+    }
+
+    .storybook-body > *:nth-child(2) {
+      animation-delay: 0.05s;
+    }
+
+    .storybook-body > *:nth-child(3) {
+      animation-delay: 0.1s;
+    }
+
+    .storybook-body p {
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+    }
+
+    .storybook-body ul,
+    .storybook-body ol {
+      margin: 0;
+      padding-left: 1.1em;
+    }
+
+    .storybook-body li {
+      margin-bottom: 4px;
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+    }
+
+    .storybook-section {
+      margin-top: 0;
+      padding: 12px 14px 11px;
+      border-left: 2px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.015);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .storybook-section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.64rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 6px;
+      font-family: 'Space Mono', monospace;
+      font-weight: 500;
+    }
+
+    .storybook-section-title {
+      font-family: 'Noto Sans SC', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+
+    .storybook-quote {
+      margin: 2px 0 0;
+      padding: 10px 12px;
+      border-left: 1px solid rgba(255,255,255,0.24);
+      background: rgba(255,255,255,0.02);
+      color: rgba(255,255,255,0.84);
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.91rem;
+      line-height: 1.75;
+      letter-spacing: 0.005em;
+      font-style: italic;
+      opacity: 0.92;
+    }
+
+    .storybook-note {
+      margin: 2px 0 0;
+      padding: 9px 11px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.008);
+      color: rgba(255,255,255,0.72);
+      font-size: 0.85rem;
+      line-height: 1.65;
+      border-radius: 2px;
+    }
+
+    .storybook-highlight {
+      color: #ffffff;
+      font-weight: 700;
+      text-shadow: 0 0 12px rgba(255,255,255,0.22);
+    }
+
+    .storybook-strong {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    @keyframes storyIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(1px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    .storybook-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .storybook-nav-btn {
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.02);
+      color: var(--white);
+      min-width: 56px;
+      height: 40px;
+      padding: 0 14px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-family: 'Space Mono', monospace;
+      font-weight: 600;
+      border-radius: 2px;
+    }
+
+    .storybook-nav-btn:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.24);
+    }
+
+    .storybook-nav-btn:disabled {
+      opacity: 0.28;
+      cursor: not-allowed;
+    }
+
+    .storybook-page-indicator {
+      font-size: 0.68rem;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.52);
+      font-family: 'Space Mono', monospace;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .storybook-loading,
+    .storybook-empty {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100%;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: 'Space Mono', monospace;
     }
 
     @keyframes modalIn {
@@ -1352,6 +1722,21 @@
         padding: 20px 0;
       }
 
+      .storyline-modal .modal-content {
+        width: 92vw;
+        height: 84vh;
+        padding: 20px;
+      }
+
+      .storybook-shell {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .storybook-page {
+        padding: 40px 36px 32px;
+      }
+
       footer {
         flex-direction: column;
         gap: 20px;
@@ -1386,6 +1771,22 @@
         height: 200px;
       }
 
+      .storyline-modal .modal-content {
+        width: 94vw;
+        height: 88vh;
+        padding: 18px;
+      }
+
+      .storybook-controls {
+        gap: 10px;
+      }
+
+      .storybook-nav-btn {
+        min-width: 48px;
+        height: 36px;
+        padding: 0 10px;
+      }
+
       .card {
         flex: 0 0 calc(100% - 20px);
         padding: 30px;
@@ -1414,6 +1815,10 @@
       <a href="#agents">AGENTS</a>
       <a href="#system">SYSTEM</a>
       <a href="#status">STATUS</a>
+      <button class="storyline-trigger" type="button" onclick="openStorylineBook()" aria-label="打开星群叙事">
+        <span class="star-icon">✦</span>
+        <span>STORY</span>
+      </button>
       <div class="dropdown-trigger" id="contactsTrigger">
         <a>CONTACTS</a>
         <div class="dropdown-menu">
@@ -1704,6 +2109,26 @@
       <a href="https://github.com/siriusharrison-png/SIRIUS-ATEAM" class="footer-link">GitHub</a>
     </div>
   </footer>
+
+  <!-- 星群叙事浮窗 -->
+  <div class="modal storyline-modal" id="storylineModal" aria-hidden="true">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeStorylineBook()">✕</button>
+      <div class="storybook-controls">
+        <button class="storybook-nav-btn" id="storylinePrevBtn" type="button" onclick="prevStorylineSpread()">←</button>
+        <div class="storybook-page-indicator" id="storylinePageIndicator">1 / 1</div>
+        <button class="storybook-nav-btn" id="storylineNextBtn" type="button" onclick="nextStorylineSpread()">→</button>
+      </div>
+      <div class="storybook-shell">
+        <article class="storybook-page left" id="storylineLeftPage">
+          <div class="storybook-loading">Loading Storyline</div>
+        </article>
+        <article class="storybook-page right" id="storylineRightPage">
+          <div class="storybook-loading">Loading Storyline</div>
+        </article>
+      </div>
+    </div>
+  </div>
 
   <!-- 设计师名片模态框 -->
   <div class="modal" id="designerModal">
@@ -2095,6 +2520,205 @@
       if (e.target.id === 'designerModal') {
         closeDesignerCard();
       }
+    });
+
+    // ===== 星群叙事书页 =====
+    const storylineSpreads = [
+      {
+        left: {
+          kicker: 'Story Line / Prelude',
+          title: '星群不是背景，\n而是一种持续发生的秩序。',
+          subtitle: '团队被设想成一座宇宙级协作系统。每个 agent、项目与任务，都是沿着自身轨道稳定运行的天体或设备。',
+          blocks: [
+            { type: 'paragraph', text: '这里没有真正的静止。所谓存在，就是围绕引力持续巡航；所谓协作，就是在不同轨道之间不断确认彼此的位置。' },
+            { type: 'quote', text: '每一次任务执行，都不是孤立动作，而是一段循环抵达的航程。它开始、经过、校准、回归，然后带着新的姿态进入下一轮。' },
+            { type: 'note', text: '离轨并不等于消失。它只是从近处的运行，退到更远的深空，成为探险者、流浪者，或一枚仍在发光的旧信标。' }
+          ]
+        },
+        right: {
+          kicker: 'Story Line / Voice',
+          title: '故事书与说明书，\n是同一颗星的两面。',
+          subtitle: '一部分负责把人带进深空，一部分负责把概念说清楚。前者负责气氛，后者负责准确。',
+          blocks: [
+            { type: 'paragraph', text: '因此，这份叙事被拆成两种口吻：一种像散文，描摹星体、引力、漂流与回声；一种像设定集，定义名词、状态和更新语言。' },
+            { type: 'note', text: '它们共同构成同一条 Story Line。后续若有补充，只称为文章续写，不称为版本迭代。' },
+            { type: 'quote', text: '当页面、成员、项目和归档被重新阅读时，这条叙事会提供一种更柔和也更统一的解释方式。' }
+          ]
+        }
+      },
+      {
+        left: {
+          kicker: 'Story Line / Deep Space',
+          title: '每个 agent 都有自己的\n节律、职责和光谱。',
+          subtitle: '它们不争夺中心，因为星群真正的秩序，不来自某一颗星，而来自稳定的引力关系。',
+          blocks: [
+            { type: 'paragraph', text: '有的负责观测，有的负责整理，有的负责修复，有的负责把散落的信息重新编入星图。' },
+            { type: 'quote', text: '任务不是命令的终点，而是轨道上的一次回旋。更新是校准，合并是对齐，同步是重新确认彼此的位置。' },
+            { type: 'paragraph', text: '当协作足够稳定，运行本身就会呈现出一种安静的诗意：不喧哗，但持续发亮。' }
+          ]
+        },
+        right: {
+          kicker: 'Story Line / Continuity',
+          title: '归档不是终止，\n而是把光放进更远的地方。',
+          subtitle: '已经离轨的成员、项目或任务，会进入深空档案。它们保留名字、时间和曾经留下的痕迹。',
+          blocks: [
+            { type: 'paragraph', text: '它们不再参与当前的引力分配，却仍然拥有被检索、被回忆、被重新理解的价值。' },
+            { type: 'note', text: '在这个系统里，历史不会被抹掉。离轨只是换了一种存在方式：从主轨道撤出，进入更安静的漂流层。' },
+            { type: 'quote', text: '于是，归档不再像结束，更像一次有礼貌的远行。' }
+          ]
+        }
+      },
+      {
+        left: {
+          kicker: 'Manual / Terms',
+          title: '说明书负责定义，\n让每个词都有坐标。',
+          subtitle: '当叙事进入结构层，所有词语都需要被准确解释，以便后续书写、展示与维护保持一致。',
+          blocks: [
+            {
+              type: 'section',
+              label: '术语对照',
+              title: '星群、轨道、引力，都是可被引用的坐标。',
+              items: [
+                '星群：团队整体，由多个 agent、项目和流程组成。',
+                '轨道：任务或职能的循环执行机制。',
+                '引力：项目、成员与任务之间的关联强度。'
+              ]
+            },
+            { type: 'note', text: '离轨：从当前主运行系统退出，但保留历史记录。文章续写：对世界观进行补充和扩展，不覆盖原有设定。' }
+          ]
+        },
+        right: {
+          kicker: 'Manual / States',
+          title: '在轨与离轨，\n是两种不同的运行态。',
+          subtitle: '状态不是评价，而是位置。它描述的是当前是否仍在主协作系统中运行。',
+          blocks: [
+            {
+              type: 'section',
+              label: '成员状态',
+              title: '在轨成员与已离轨成员，分别对应当前运行与历史保留。',
+              items: [
+                '在轨成员：仍在主协作系统中稳定运行的成员，持续保留在展示页。',
+                '已离轨成员：已退出主链路，但保留上线时间、下线时间与更新计划。'
+              ]
+            },
+            { type: 'quote', text: '如果未来需要补充新的名词，先在说明书里定义，再回到故事书中扩写。' }
+          ]
+        }
+      },
+      {
+        left: {
+          kicker: 'Manual / Continuity',
+          title: '续写是一种温和的更新，\n不是推翻。',
+          subtitle: '这个模块默认稳定，只在需要丰富世界观时增加新的章节、附录或段落。',
+          blocks: [
+            { type: 'paragraph', text: '新内容优先追加，不轻易覆盖旧内容。' },
+            { type: 'note', text: '与页面展示、自动化流程、成员清单相关的改动，不属于世界观续写。' },
+            { type: 'quote', text: '如果设定发生扩展，采用文章续写的方式记录，让宇宙慢慢长大，而不是突然改写。' }
+          ]
+        },
+        right: {
+          kicker: 'Manual / Usage',
+          title: '它像一本可以慢慢翻的\n星图手册。',
+          subtitle: '它可以作为首页文案来源，也可以作为团队背景的底座，供后续写作和页面展示引用。',
+          blocks: [
+            { type: 'paragraph', text: '故事书提供进入深空的入口，说明书提供返回现实的坐标。' },
+            { type: 'note', text: '两者彼此对应，但不混为一体。' },
+            { type: 'quote', text: '当你在页面里打开它，看到的不只是文本，而是一套可以继续生长的宇宙语言。' }
+          ]
+        }
+      }
+    ];
+
+    let storylineSpreadIndex = 0;
+
+    function renderStorylinePage(page, position) {
+      return `
+        <div class="storybook-kicker">${page.kicker}</div>
+        <div class="storybook-title">${page.title.replace(/\n/g, '<br>')}</div>
+        <div class="storybook-subtitle">${page.subtitle}</div>
+        <div class="storybook-body">
+          ${page.blocks.map((block) => {
+            if (block.type === 'quote') {
+              return `<div class="storybook-quote">${block.text}</div>`;
+            }
+
+            if (block.type === 'note') {
+              return `<div class="storybook-note">${block.text}</div>`;
+            }
+
+            if (block.type === 'section') {
+              return `
+                <div class="storybook-section">
+                  <div class="storybook-section-label">${block.label}</div>
+                  <div class="storybook-section-title">${block.title}</div>
+                  <ul>
+                    ${block.items.map((item) => `<li>${item}</li>`).join('')}
+                  </ul>
+                </div>
+              `;
+            }
+
+            return `<p>${block.text}</p>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function updateStorylineBook() {
+      const spread = storylineSpreads[storylineSpreadIndex];
+      const leftPage = document.getElementById('storylineLeftPage');
+      const rightPage = document.getElementById('storylineRightPage');
+      const indicator = document.getElementById('storylinePageIndicator');
+      const prevBtn = document.getElementById('storylinePrevBtn');
+      const nextBtn = document.getElementById('storylineNextBtn');
+
+      leftPage.innerHTML = renderStorylinePage(spread.left, 'left');
+      rightPage.innerHTML = renderStorylinePage(spread.right, 'right');
+      indicator.textContent = `${storylineSpreadIndex + 1} / ${storylineSpreads.length}`;
+      prevBtn.disabled = storylineSpreadIndex === 0;
+      nextBtn.disabled = storylineSpreadIndex === storylineSpreads.length - 1;
+    }
+
+    function openStorylineBook() {
+      storylineSpreadIndex = 0;
+      updateStorylineBook();
+      const modal = document.getElementById('storylineModal');
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeStorylineBook() {
+      const modal = document.getElementById('storylineModal');
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    function prevStorylineSpread() {
+      if (storylineSpreadIndex === 0) return;
+      storylineSpreadIndex -= 1;
+      updateStorylineBook();
+    }
+
+    function nextStorylineSpread() {
+      if (storylineSpreadIndex >= storylineSpreads.length - 1) return;
+      storylineSpreadIndex += 1;
+      updateStorylineBook();
+    }
+
+    document.getElementById('storylineModal').addEventListener('click', (e) => {
+      if (e.target.id === 'storylineModal') {
+        closeStorylineBook();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const modal = document.getElementById('storylineModal');
+      if (!modal.classList.contains('active')) return;
+      if (e.key === 'Escape') closeStorylineBook();
+      if (e.key === 'ArrowLeft') prevStorylineSpread();
+      if (e.key === 'ArrowRight') nextStorylineSpread();
     });
 
     // ===== 初始化 =====
