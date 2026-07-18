@@ -15,12 +15,23 @@ import re
 # 配置
 FEISHU_APP_ID = os.environ.get("FEISHU_APP_ID", "")
 FEISHU_APP_SECRET = os.environ.get("FEISHU_APP_SECRET", "")
-FEISHU_WIKI_ID = "BW3ZwOSQZiHWGuk96wVcPRhynJb"  # 飞书文档 ID
+FEISHU_NODE_TOKEN = os.environ.get("FEISHU_NODE_TOKEN", "")
 NOTION_API_KEY = os.environ.get("NOTION_API_KEY", "")
 NOTION_DATABASE_ID = os.environ.get("NOTION_DATABASE_ID", "")
 
 NOTION_API = "https://api.notion.com/v1"
 FEISHU_API = "https://open.feishu.cn/open-apis"
+
+
+def raise_for_status_with_body(resp, label):
+    """在 HTTP 失败时保留响应体，方便排查 CI 日志。"""
+    if resp.ok:
+        return
+
+    body = resp.text.strip()
+    if len(body) > 1000:
+        body = body[:1000] + "...[truncated]"
+    raise Exception(f"{label} failed: HTTP {resp.status_code} {resp.reason}; body={body}")
 
 
 def get_feishu_tenant_token():
@@ -32,28 +43,88 @@ def get_feishu_tenant_token():
     }
 
     resp = requests.post(url, json=payload)
-    resp.raise_for_status()
+    raise_for_status_with_body(resp, "获取飞书 tenant token")
     data = resp.json()
 
     if data.get("code") != 0:
-        raise Exception(f"飞书认证失败: {data.get('msg')}")
+        raise Exception(f"飞书认证失败: code={data.get('code')} msg={data.get('msg')} raw={data}")
 
     return data["tenant_access_token"]
 
 
-def fetch_feishu_wiki_content(token):
-    """获取飞书 Wiki 文档内容"""
-    url = f"{FEISHU_API}/wiki/v2/spaces/{FEISHU_WIKI_ID}"
+def fetch_feishu_node_info(token):
+    """通过 node_token 获取知识库节点信息"""
+    url = f"{FEISHU_API}/wiki/v2/spaces/get_node"
+    params = {"token": FEISHU_NODE_TOKEN}
     headers = {"Authorization": f"Bearer {token}"}
 
-    resp = requests.get(url, headers=headers)
-    resp.raise_for_status()
+    resp = requests.get(url, headers=headers, params=params)
+    raise_for_status_with_body(resp, "获取飞书节点信息")
     data = resp.json()
 
     if data.get("code") != 0:
-        raise Exception(f"获取飞书文档失败: {data.get('msg')}")
+        raise Exception(f"获取飞书节点失败: code={data.get('code')} msg={data.get('msg')} raw={data}")
 
     return data.get("data", {})
+
+
+def fetch_docx_blocks(token, document_id):
+    """分页获取 docx 文档块内容。"""
+    url = f"{FEISHU_API}/docx/v1/documents/{document_id}/blocks"
+    headers = {"Authorization": f"Bearer {token}"}
+    blocks = []
+    page_token = None
+
+    while True:
+        params = {}
+        if page_token:
+            params["page_token"] = page_token
+
+        resp = requests.get(url, headers=headers, params=params)
+        raise_for_status_with_body(resp, "获取飞书文档块")
+        data = resp.json()
+
+        if data.get("code") != 0:
+            raise Exception(f"获取飞书文档块失败: code={data.get('code')} msg={data.get('msg')} raw={data}")
+
+        page_data = data.get("data", {})
+        blocks.extend(page_data.get("items", []))
+
+        if not page_data.get("has_more"):
+            break
+        page_token = page_data.get("page_token")
+        if not page_token:
+            break
+
+    return blocks
+
+
+def collect_strings(value):
+    """递归收集 JSON 中所有字符串值。"""
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        result = []
+        for item in value.values():
+            result.extend(collect_strings(item))
+        return result
+    if isinstance(value, list):
+        result = []
+        for item in value:
+            result.extend(collect_strings(item))
+        return result
+    return []
+
+
+def extract_urls_from_blocks(blocks):
+    """从 docx blocks 里提取所有 URL。"""
+    texts = collect_strings(blocks)
+    urls = []
+    for text in texts:
+        urls.extend(extract_urls_from_text(text))
+
+    # 去重且保持顺序
+    return list(dict.fromkeys(urls))
 
 
 def extract_urls_from_text(text):
@@ -77,7 +148,7 @@ def get_notion_existing_urls():
 
     try:
         resp = requests.post(url, headers=headers, json={})
-        resp.raise_for_status()
+        raise_for_status_with_body(resp, "查询 Notion 已有 URL")
         data = resp.json()
 
         existing_urls = set()
@@ -132,7 +203,7 @@ def add_to_notion(title, url, category="飞书文档"):
 
     try:
         resp = requests.post(url_endpoint, headers=headers, json=payload)
-        resp.raise_for_status()
+        raise_for_status_with_body(resp, f"添加 Notion 页面 {title}")
         return True, resp.json().get("id")
     except Exception as e:
         print(f"添加到 Notion 失败: {e}")
@@ -147,6 +218,10 @@ def main():
         print("错误: 缺少飞书认证信息 (FEISHU_APP_ID, FEISHU_APP_SECRET)")
         sys.exit(1)
 
+    if not FEISHU_NODE_TOKEN:
+        print("错误: 缺少飞书节点令牌 (FEISHU_NODE_TOKEN)")
+        sys.exit(1)
+
     if not NOTION_API_KEY or not NOTION_DATABASE_ID:
         print("错误: 缺少 Notion 配置 (NOTION_API_KEY, NOTION_DATABASE_ID)")
         sys.exit(1)
@@ -156,14 +231,25 @@ def main():
         print("获取飞书 token...")
         token = get_feishu_tenant_token()
 
-        # 2. 获取飞书文档内容
-        print("获取飞书文档内容...")
-        wiki_data = fetch_feishu_wiki_content(token)
+        # 2. 获取飞书节点信息
+        print("获取飞书节点信息...")
+        node_data = fetch_feishu_node_info(token)
 
-        # 3. 提取 URL
-        print("提取 URL...")
-        content = wiki_data.get("description", "")
-        urls = extract_urls_from_text(content)
+        node = node_data.get("node", {})
+        obj_type = node.get("obj_type")
+        obj_token = node.get("obj_token")
+        title = node.get("title") or node.get("name") or "飞书文档"
+
+        if not obj_token:
+            raise Exception(f"节点没有返回 obj_token: raw={node_data}")
+
+        if obj_type and obj_type != "docx":
+            raise Exception(f"当前节点类型不是 docx，无法提取正文: obj_type={obj_type} raw={node_data}")
+
+        # 3. 获取文档块并提取 URL
+        print("获取文档块并提取 URL...")
+        blocks = fetch_docx_blocks(token, obj_token)
+        urls = extract_urls_from_blocks(blocks)
         print(f"  发现 {len(urls)} 个 URL")
 
         # 4. 获取 Notion 中已有的 URL
@@ -174,11 +260,11 @@ def main():
         new_count = 0
         for url in urls:
             if url not in existing_urls:
-                title = url.split("/")[-1][:50]  # 简单的标题提取
-                success, page_id = add_to_notion(title, url, category="飞书文档")
+                item_title = url.split("/")[-1][:50]  # 简单的标题提取
+                success, page_id = add_to_notion(item_title, url, category="飞书文档")
                 if success:
                     new_count += 1
-                    print(f"  ✅ 添加: {title}")
+                    print(f"  ✅ 添加: {item_title}")
 
         print(f"\n✅ 同步完成: 新增 {new_count} 个知识条目")
 

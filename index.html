@@ -440,6 +440,16 @@
       text-align: center;
     }
 
+    .section-kicker {
+      max-width: 1200px;
+      margin: -36px auto 28px;
+      color: var(--gray-4);
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
     .cards-carousel {
       max-width: 1400px;
       margin: 0 auto 80px;
@@ -605,6 +615,75 @@
     .card-btn:hover {
       border-color: var(--white);
       background: var(--gray-8);
+    }
+
+    /* ===== 归档清单 ===== */
+    .archive-panel {
+      max-width: 1200px;
+      margin: 0 auto;
+      border: 1px solid var(--gray-6);
+      background: rgba(255, 255, 255, 0.02);
+      padding: 32px;
+    }
+
+    .archive-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .archive-header,
+    .archive-row {
+      display: grid;
+      grid-template-columns: 1.2fr 1.4fr 0.9fr 0.9fr 0.9fr 1.4fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .archive-header {
+      color: var(--gray-4);
+      font-size: 0.72rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--gray-6);
+    }
+
+    .archive-row {
+      padding: 18px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .archive-row:last-child {
+      border-bottom: none;
+    }
+
+    .archive-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+
+    .archive-tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border: 1px solid var(--gray-5);
+      color: var(--gray-3);
+      font-size: 0.68rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    .archive-value {
+      color: var(--gray-2);
+    }
+
+    .archive-muted {
+      color: var(--gray-4);
+      font-size: 0.82rem;
     }
 
     /* ===== 工作流 ===== */
@@ -1263,6 +1342,16 @@
         padding: 0 40px;
       }
 
+      .archive-header {
+        display: none;
+      }
+
+      .archive-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 20px 0;
+      }
+
       footer {
         flex-direction: column;
         gap: 20px;
@@ -1359,8 +1448,9 @@
         Four AI agents working together seamlessly. Automated workflows, knowledge sync, and design expertise in one integrated system.
       </div>
       <div class="hero-meta">
-        <span>✓ 4 Active Agents</span>
-        <span>✓ 4 Automated Workflows</span>
+        <span id="activeAgentsCount">✓ 4 Active Agents</span>
+        <span id="workflowCount">✓ 4 Automated Workflows</span>
+        <span id="retiredAgentsCount">✓ 2 Archived Members</span>
         <span>✓ Fully Operational</span>
       </div>
     </div>
@@ -1369,9 +1459,10 @@
   <!-- Agent 卡片 (滑动轮播) -->
   <div class="agents-section" id="agents">
     <div class="section-title">Agents</div>
+    <div class="section-kicker">在轨成员清单 / Active Members</div>
     <div class="cards-carousel">
       <div class="cards-grid" id="cardsGrid">
-        <!-- 小秘书 -->
+        <!-- TEAM_CARDS_START -->
         <div class="card">
           <div class="card-header">
             <div class="card-number">001 / Secretary</div>
@@ -1379,19 +1470,17 @@
           </div>
           <div class="card-body">
             <div class="card-role">Central Hub</div>
-            <div class="card-desc">任务分配、信息汇总、飞书推送。每天 18:00 北京时生成日报。</div>
+            <div class="card-desc">AI 团队中枢协调者。每天 18:00 北京时生成日报。</div>
             <div class="card-tasks">
-              <div><span class="task-marker">—</span> 每日日报汇总</div>
-              <div><span class="task-marker">—</span> 多源数据聚合</div>
-              <div><span class="task-marker">—</span> 飞书推送</div>
+<div><span class="task-marker">—</span> 任务分配</div>
+<div><span class="task-marker">—</span> 进度监控</div>
+<div><span class="task-marker">—</span> 日报生成</div>
             </div>
           </div>
           <div class="card-footer">
             <button class="card-btn" onclick="openGitHub('agents/secretary')">查看</button>
           </div>
         </div>
-
-        <!-- 摄影师 -->
         <div class="card">
           <div class="card-header">
             <div class="card-number">002 / Photographer</div>
@@ -1399,19 +1488,17 @@
           </div>
           <div class="card-body">
             <div class="card-role">Content Tracker</div>
-            <div class="card-desc">Unsplash 数据追踪与分析。每日 09:00 检查更新，进行内容分析推送。</div>
+            <div class="card-desc">Unsplash 数据追踪。每日 09:00 检查更新，进行内容分析推送。</div>
             <div class="card-tasks">
-              <div><span class="task-marker">—</span> 每日 09:00 自动检查</div>
-              <div><span class="task-marker">—</span> 内容分析</div>
-              <div><span class="task-marker">—</span> 推送汇报</div>
+<div><span class="task-marker">—</span> 每日数据追踪</div>
+<div><span class="task-marker">—</span> 趋势分析</div>
+<div><span class="task-marker">—</span> 标签优化</div>
             </div>
           </div>
           <div class="card-footer">
             <button class="card-btn" onclick="openGitHub('agents/image-guardian')">查看</button>
           </div>
         </div>
-
-        <!-- 知识管理 -->
         <div class="card">
           <div class="card-header">
             <div class="card-number">003 / Knowledge</div>
@@ -1419,11 +1506,11 @@
           </div>
           <div class="card-body">
             <div class="card-role">Data Sync</div>
-            <div class="card-desc">飞书文档 + GitLab Workspace 双源同步到 Notion。</div>
+            <div class="card-desc">学习知识收集与管理 + 飞书文档和 GitLab 同步。双源同步到 Notion。</div>
             <div class="card-tasks">
-              <div><span class="task-marker">—</span> 飞书 08:00 同步</div>
-              <div><span class="task-marker">—</span> GitLab 12:00 同步</div>
-              <div><span class="task-marker">—</span> Notion 更新</div>
+<div><span class="task-marker">—</span> 知识收集</div>
+<div><span class="task-marker">—</span> Notion 同步</div>
+<div><span class="task-marker">—</span> 飞书同步</div>
             </div>
           </div>
           <div class="card-footer">
@@ -1431,8 +1518,6 @@
             <button class="card-btn" onclick="openGitHub('agents/knowledge-keeper')">查看</button>
           </div>
         </div>
-
-        <!-- 设计师 -->
         <div class="card">
           <div class="card-header">
             <div class="card-number">004 / Designer</div>
@@ -1440,11 +1525,11 @@
           </div>
           <div class="card-body">
             <div class="card-role">Multi-Agent Expert</div>
-            <div class="card-desc">Astra Foundation + Design System Token Standard。参与 Multi-Agent 协作。</div>
+            <div class="card-desc">设计系统基础设施维护 + Astra 知识库 + Design System Token 规范。参与 Multi-Agent 协作。</div>
             <div class="card-tasks">
-              <div><span class="task-marker">—</span> 设计系统评审</div>
-              <div><span class="task-marker">—</span> Token 规范维护</div>
-              <div><span class="task-marker">—</span> 设计咨询</div>
+<div><span class="task-marker">—</span> 设计 Token</div>
+<div><span class="task-marker">—</span> Figma 同步</div>
+<div><span class="task-marker">—</span> 映射维护</div>
             </div>
           </div>
           <div class="card-footer">
@@ -1452,6 +1537,49 @@
             <button class="card-btn" onclick="openGitHub('agents/design-infra')">查看</button>
           </div>
         </div>
+        <!-- TEAM_CARDS_END -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 归档档案 -->
+  <div class="agents-section" id="archive">
+    <div class="section-title">Archive</div>
+    <div class="section-kicker">已离轨成员清单 / Archived Members</div>
+    <div class="archive-panel">
+      <div class="archive-grid" id="archiveGrid">
+        <!-- TEAM_ARCHIVE_START -->
+        <div class="archive-header">
+          <div>名称</div>
+          <div>有关能力</div>
+          <div>上线时间</div>
+          <div>当前版本</div>
+          <div>下线时间</div>
+          <div>更新计划</div>
+        </div>
+        <div class="archive-row">
+          <div>
+            <div class="archive-name">Figma 设计员工</div>
+            <div class="archive-tag">已离轨</div>
+          </div>
+          <div class="archive-value">Figma 画布操作、元素创建/修改</div>
+          <div class="archive-value">2026-03-05</div>
+          <div class="archive-value">无独立版本</div>
+          <div class="archive-value">2026-07-10</div>
+          <div class="archive-muted">如需恢复，先从历史提交或外部备份恢复。</div>
+        </div>
+        <div class="archive-row">
+          <div>
+            <div class="archive-name">测试QA</div>
+            <div class="archive-tag">已离轨</div>
+          </div>
+          <div class="archive-value">设计还原度检查、硬编码走查、报告生成</div>
+          <div class="archive-value">2026-03-05</div>
+          <div class="archive-value">无独立版本</div>
+          <div class="archive-value">2026-07-10</div>
+          <div class="archive-muted">如需恢复，需补回目录与任务流转入口。</div>
+        </div>
+        <!-- TEAM_ARCHIVE_END -->
       </div>
     </div>
   </div>
@@ -1550,7 +1678,7 @@
       </div>
       <div class="status-card">
         <div class="status-card-top">
-          <div class="status-label">Agents Online: 4</div>
+          <div class="status-label" id="onlineAgentsLabel">Agents Online: 4</div>
         </div>
         <div class="status-indicator">
           <div class="status-light"></div>
