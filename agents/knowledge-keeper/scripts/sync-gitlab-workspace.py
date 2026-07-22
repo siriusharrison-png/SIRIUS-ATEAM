@@ -11,6 +11,14 @@ import requests
 from datetime import datetime
 from pathlib import Path
 
+# 导入 HubManager（如果可用）
+try:
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+    from lib.hub_manager import HubManager
+    HAS_HUB_MANAGER = True
+except ImportError:
+    HAS_HUB_MANAGER = False
+
 # 配置
 GITLAB_TOKEN = os.environ.get("GITLAB_TOKEN", "")
 GITLAB_PROJECT_ID = "45898"  # product-agent/product_workspace
@@ -227,8 +235,44 @@ def main():
 
         print(f"\n✅ 同步完成: 新增 {new_count} 个，更新 {updated_count} 个")
 
+        # 5. 更新协作中枢（hub.json）
+        if HAS_HUB_MANAGER:
+            try:
+                hub = HubManager(Path(__file__).parent.parent.parent / "hub.json")
+                hub.update_agent_status("知识管理", "active")
+                hub.add_message(
+                    "知识管理",
+                    "update",
+                    f"GitLab Workspace 同步完成 - 新增 {new_count} 个，更新 {updated_count} 个",
+                    data={
+                        "source": "GitLab",
+                        "new_count": new_count,
+                        "updated_count": updated_count,
+                        "date": datetime.now().strftime("%Y-%m-%d")
+                    }
+                )
+                print("✅ 已更新协作中枢")
+            except Exception as e:
+                print(f"⚠️ 更新协作中枢失败: {e}")
+        else:
+            print("⚠️ HubManager 不可用，跳过协作中枢更新")
+
     except Exception as e:
         print(f"❌ 同步失败: {e}")
+
+        # 失败时也要更新协作中枢（记录错误）
+        if HAS_HUB_MANAGER:
+            try:
+                hub = HubManager(Path(__file__).parent.parent.parent / "hub.json")
+                hub.add_message(
+                    "知识管理",
+                    "alert",
+                    f"GitLab Workspace 同步失败: {str(e)[:100]}",
+                    data={"error": str(e)}
+                )
+            except:
+                pass
+
         sys.exit(1)
 
 

@@ -12,6 +12,14 @@ from datetime import datetime
 from pathlib import Path
 import re
 
+# 导入 HubManager（如果可用）
+try:
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+    from lib.hub_manager import HubManager
+    HAS_HUB_MANAGER = True
+except ImportError:
+    HAS_HUB_MANAGER = False
+
 # 配置
 FEISHU_APP_ID = os.environ.get("FEISHU_APP_ID", "")
 FEISHU_APP_SECRET = os.environ.get("FEISHU_APP_SECRET", "")
@@ -268,8 +276,44 @@ def main():
 
         print(f"\n✅ 同步完成: 新增 {new_count} 个知识条目")
 
+        # 6. 更新协作中枢（hub.json）
+        if HAS_HUB_MANAGER:
+            try:
+                hub = HubManager(Path(__file__).parent.parent.parent / "hub.json")
+                hub.update_agent_status("知识管理", "active")
+                hub.add_message(
+                    "知识管理",
+                    "update",
+                    f"飞书文档同步完成 - 新增 {new_count} 个知识条目",
+                    data={
+                        "source": "飞书",
+                        "new_count": new_count,
+                        "existing_count": len(existing_urls),
+                        "date": datetime.now().strftime("%Y-%m-%d")
+                    }
+                )
+                print("✅ 已更新协作中枢")
+            except Exception as e:
+                print(f"⚠️ 更新协作中枢失败: {e}")
+        else:
+            print("⚠️ HubManager 不可用，跳过协作中枢更新")
+
     except Exception as e:
         print(f"❌ 同步失败: {e}")
+
+        # 失败时也要更新协作中枢（记录错误）
+        if HAS_HUB_MANAGER:
+            try:
+                hub = HubManager(Path(__file__).parent.parent.parent / "hub.json")
+                hub.add_message(
+                    "知识管理",
+                    "alert",
+                    f"飞书文档同步失败: {str(e)[:100]}",
+                    data={"error": str(e)}
+                )
+            except:
+                pass
+
         sys.exit(1)
 
 
