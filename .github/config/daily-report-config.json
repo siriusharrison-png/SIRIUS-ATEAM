@@ -1,0 +1,22 @@
+{
+  "reports": {
+    "secretary": {
+      "enabled": true,
+      "title": "Claude 小秘书日报",
+      "webhook_secret": "FEISHU_WEBHOOK_SECRETARY"
+    },
+    "claude-code": {
+      "enabled": false,
+      "title": "Claude Code 日报",
+      "reason": "用户请求关闭 - 仅保留小秘书推送"
+    },
+    "device": {
+      "enabled": true,
+      "title": "设备日报",
+      "aggregateAllDevices": true,
+      "description": "聚合所有设备的 Claude 使用数据"
+    }
+  },
+  "lastUpdated": "2026-07-22",
+  "notes": "配置于 GitHub Actions 工作流中，用于控制日报推送的内容"
+}
