@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent 日志仪表板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #1a73e8;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a73e8;
+        }
+
+        .logs-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .agent-logs {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .agent-header {
+            background: #f5f7fa;
+            padding: 15px;
+            border-bottom: 2px solid #e8eaed;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .agent-logs.active .agent-header {
+            background: #e8f0fe;
+            border-bottom-color: #1a73e8;
+        }
+
+        .agent-logs.warning .agent-header {
+            background: #fef7e0;
+            border-bottom-color: #fbbc04;
+        }
+
+        .agent-logs.error .agent-header {
+            background: #fce8e6;
+            border-bottom-color: #ea4335;
+        }
+
+        .log-entries {
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .log-entry {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+            border-left: 3px solid transparent;
+        }
+
+        .log-entry.debug {
+            background: #f5f5f5;
+            color: #666;
+            border-left-color: #bdc3c7;
+        }
+
+        .log-entry.info {
+            background: #e8f0fe;
+            color: #0d47a1;
+            border-left-color: #1a73e8;
+        }
+
+        .log-entry.warning {
+            background: #fef7e0;
+            color: #7f6000;
+            border-left-color: #fbbc04;
+        }
+
+        .log-entry.error {
+            background: #fce8e6;
+            color: #c5221f;
+            border-left-color: #ea4335;
+        }
+
+        .log-entry.critical {
+            background: #fce8e6;
+            color: #d33427;
+            border-left-color: #d33427;
+            font-weight: 600;
+        }
+
+        .log-time {
+            color: #999;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        .log-level {
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-right: 8px;
+        }
+
+        .log-message {
+            word-break: break-word;
+        }
+
+        .log-data {
+            margin-top: 5px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+            font-size: 12px;
+            color: #666;
+            font-family: monospace;
+        }
+
+        .refresh-btn {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .refresh-btn:hover {
+            background: #0d47a1;
+        }
+
+        .refresh-time {
+            font-size: 12px;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        .no-logs {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #d4f1de;
+            color: #055d49;
+        }
+
+        .status-warning {
+            background: #fef7e0;
+            color: #7f6000;
+        }
+
+        .status-error {
+            background: #fce8e6;
+            color: #c5221f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>📊 Agent 日志仪表板</h1>
+                <p style="color: #666; margin-top: 5px;">实时监控所有 Agent 运行状态</p>
+            </div>
+            <div>
+                <button class="refresh-btn" onclick="refreshDashboard()">🔄 刷新</button>
+                <span class="refresh-time">最后刷新: <span id="refresh-time">-</span></span>
+            </div>
+        </header>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-label">总日志条数</div>
+                <div class="stat-value" id="total-logs">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">活跃 Agent</div>
+                <div class="stat-value" id="active-agents">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">错误记录</div>
+                <div class="stat-value" id="error-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">告警数</div>
+                <div class="stat-value" id="warning-count">0</div>
+            </div>
+        </div>
+
+        <div class="logs-container" id="logs-container">
+            <div class="no-logs">加载中...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadLogs() {
+            try {
+                // 获取所有日志文件
+                const response = await fetch('./logs-api');
+                const agents = await response.json();
+
+                const logsContainer = document.getElementById('logs-container');
+                logsContainer.innerHTML = '';
+
+                let totalLogs = 0;
+                let errorCount = 0;
+                let warningCount = 0;
+                const agentNames = new Set();
+
+                for (const agent of agents) {
+                    const logs = agent.logs || [];
+                    const agentDiv = document.createElement('div');
+                    agentDiv.className = 'agent-logs';
+
+                    // 确定 agent 状态
+                    let status = 'active';
+                    if (logs.some(l => l.level === 'ERROR' || l.level === 'CRITICAL')) {
+                        status = 'error';
+                        agentDiv.classList.add('error');
+                    } else if (logs.some(l => l.level === 'WARNING')) {
+                        status = 'warning';
+                        agentDiv.classList.add('warning');
+                    } else if (logs.length > 0) {
+                        agentDiv.classList.add('active');
+                    }
+
+                    if (logs.length > 0) {
+                        agentNames.add(agent.name);
+                    }
+
+                    let html = `<div class="agent-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>${agent.name}</span>
+                            <span class="status-badge status-${status}">${status}</span>
+                        </div>
+                    </div>`;
+
+                    if (logs.length === 0) {
+                        html += '<div class="no-logs">暂无日志</div>';
+                    } else {
+                        html += '<div class="log-entries">';
+
+                        // 显示最近的日志（倒序）
+                        const recentLogs = logs.slice(-30);
+                        for (const log of recentLogs) {
+                            const levelClass = log.level.toLowerCase();
+                            const logTime = new Date(log.timestamp).toLocaleTimeString('zh-CN');
+
+                            html += `<div class="log-entry ${levelClass}">
+                                <span class="log-time">${logTime}</span>
+                                <span class="log-level">${log.level}</span>
+                                <span class="log-message">${escapeHtml(log.message)}</span>`;
+
+                            if (log.context && Object.keys(log.context).length > 0) {
+                                html += `<div class="log-data">${escapeHtml(JSON.stringify(log.context, null, 2))}</div>`;
+                            }
+
+                            html += '</div>';
+                        }
+
+                        html += '</div>';
+                    }
+
+                    agentDiv.innerHTML = html;
+                    logsContainer.appendChild(agentDiv);
+
+                    totalLogs += logs.length;
+                    errorCount += logs.filter(l => l.level === 'ERROR' || l.level === 'CRITICAL').length;
+                    warningCount += logs.filter(l => l.level === 'WARNING').length;
+                }
+
+                // 更新统计信息
+                document.getElementById('total-logs').textContent = totalLogs;
+                document.getElementById('active-agents').textContent = agentNames.size;
+                document.getElementById('error-count').textContent = errorCount;
+                document.getElementById('warning-count').textContent = warningCount;
+
+                // 更新刷新时间
+                const now = new Date();
+                document.getElementById('refresh-time').textContent = now.toLocaleTimeString('zh-CN');
+
+            } catch (error) {
+                console.error('加载日志失败:', error);
+                document.getElementById('logs-container').innerHTML =
+                    '<div class="no-logs">加载日志失败（可能是离线模式）</div>';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function refreshDashboard() {
+            loadLogs();
+        }
+
+        // 页面加载时获取日志
+        loadLogs();
+
+        // 每 5 秒自动刷新一次
+        setInterval(loadLogs, 5000);
+    </script>
+</body>
+</html>
