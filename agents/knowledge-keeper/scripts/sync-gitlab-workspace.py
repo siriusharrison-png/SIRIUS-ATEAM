@@ -11,13 +11,18 @@ import requests
 from datetime import datetime
 from pathlib import Path
 
-# 导入 HubManager（如果可用）
+# 导入 HubManager 和 AgentLogger（如果可用）
 try:
     sys.path.insert(0, str(Path(__file__).parent.parent.parent))
     from lib.hub_manager import HubManager
+    from lib.agent_logger import AgentLogger
     HAS_HUB_MANAGER = True
+    HAS_LOGGER = True
+    logger = AgentLogger("知识管理")
 except ImportError:
     HAS_HUB_MANAGER = False
+    HAS_LOGGER = False
+    logger = None
 
 # 配置
 GITLAB_TOKEN = os.environ.get("GITLAB_TOKEN", "")
@@ -235,6 +240,13 @@ def main():
 
         print(f"\n✅ 同步完成: 新增 {new_count} 个，更新 {updated_count} 个")
 
+        if HAS_LOGGER:
+            logger.info(
+                f"GitLab Workspace 同步完成",
+                new_count=new_count,
+                updated_count=updated_count
+            )
+
         # 5. 更新协作中枢（hub.json）
         if HAS_HUB_MANAGER:
             try:
@@ -259,6 +271,9 @@ def main():
 
     except Exception as e:
         print(f"❌ 同步失败: {e}")
+
+        if HAS_LOGGER:
+            logger.error(f"GitLab Workspace 同步失败: {str(e)}")
 
         # 失败时也要更新协作中枢（记录错误）
         if HAS_HUB_MANAGER:
