@@ -10,6 +10,15 @@ import json
 import requests
 import time
 from datetime import datetime, timezone, timedelta
+from pathlib import Path
+
+# 导入 HubManager（如果可用）
+try:
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+    from lib.hub_manager import HubManager
+    HAS_HUB_MANAGER = True
+except ImportError:
+    HAS_HUB_MANAGER = False
 
 # 从环境变量读取配置
 ACCESS_KEY = os.environ.get("UNSPLASH_ACCESS_KEY", "")
@@ -193,6 +202,28 @@ def main():
     # 3. 推送飞书
     print("推送飞书...")
     push_to_feishu(stats, trending)
+
+    # 4. 更新协作中枢（hub.json）
+    if HAS_HUB_MANAGER:
+        try:
+            hub = HubManager(Path(__file__).parent.parent.parent / "hub.json")
+            hub.update_agent_status("摄影师", "active")
+            hub.add_message(
+                "摄影师",
+                "update",
+                f"完成每日数据采集 - 下载 {stats['summary']['downloads']:,}，浏览 {stats['summary']['views']:,}",
+                data={
+                    "downloads": stats['summary']['downloads'],
+                    "views": stats['summary']['views'],
+                    "likes": stats['summary']['likes'],
+                    "date": stats['date']
+                }
+            )
+            print("✅ 已更新协作中枢")
+        except Exception as e:
+            print(f"⚠️ 更新协作中枢失败: {e}")
+    else:
+        print("⚠️ HubManager 不可用，跳过协作中枢更新")
 
     print("云端任务完成")
 
