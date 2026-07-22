@@ -12,13 +12,18 @@ import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-# 导入 HubManager（如果可用）
+# 导入 HubManager 和 AgentLogger（如果可用）
 try:
     sys.path.insert(0, str(Path(__file__).parent.parent.parent))
     from lib.hub_manager import HubManager
+    from lib.agent_logger import AgentLogger
     HAS_HUB_MANAGER = True
+    HAS_LOGGER = True
+    logger = AgentLogger("摄影师")
 except ImportError:
     HAS_HUB_MANAGER = False
+    HAS_LOGGER = False
+    logger = None
 
 # 从环境变量读取配置
 ACCESS_KEY = os.environ.get("UNSPLASH_ACCESS_KEY", "")
@@ -158,6 +163,9 @@ def push_to_feishu(stats, trending):
 def main():
     print(f"影像守门员 - 云端任务开始 ({datetime.now().strftime('%Y-%m-%d %H:%M')})")
 
+    if HAS_LOGGER:
+        logger.info("开始每日数据采集")
+
     # 检查必需的环境变量
     missing = []
     if not ACCESS_KEY:
@@ -166,66 +174,94 @@ def main():
         missing.append("FEISHU_WEBHOOK")
 
     if missing:
-        print(f"错误: 缺少必需的环境变量: {', '.join(missing)}")
+        msg = f"缺少必需的环境变量: {', '.join(missing)}"
+        print(f"错误: {msg}")
+        if HAS_LOGGER:
+            logger.error(msg)
         print("请在 GitHub Settings > Secrets and variables > Actions 中配置")
-        sys.exit(1)  # 非零退出码，让 GitHub Actions 显示失败
+        sys.exit(1)
 
-    # 1. 获取统计
-    print("获取 Unsplash 统计...")
-    user_stats = fetch_user_stats()
-    photos_stats = fetch_photos_stats()
+    try:
+        # 1. 获取统计
+        print("获取 Unsplash 统计...")
+        if HAS_LOGGER:
+            logger.info("获取 Unsplash 统计数据")
+        user_stats = fetch_user_stats()
+        photos_stats = fetch_photos_stats()
 
-    total_likes = sum(p.get("likes", 0) for p in photos_stats)
+        total_likes = sum(p.get("likes", 0) for p in photos_stats)
 
-    stats = {
-        "date": datetime.now().strftime("%Y-%m-%d"),
-        "summary": {
-            "downloads": user_stats["downloads"]["total"],
-            "views": user_stats["views"]["total"],
-            "likes": total_likes
-        },
-        "history": {
-            "downloads": user_stats["downloads"]["historical"]["values"],
-            "views": user_stats["views"]["historical"]["values"]
+        stats = {
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "summary": {
+                "downloads": user_stats["downloads"]["total"],
+                "views": user_stats["views"]["total"],
+                "likes": total_likes
+            },
+            "history": {
+                "downloads": user_stats["downloads"]["historical"]["values"],
+                "views": user_stats["views"]["historical"]["values"]
+            }
         }
-    }
 
-    print(f"  下载: {stats['summary']['downloads']:,}")
-    print(f"  浏览: {stats['summary']['views']:,}")
-    print(f"  点赞: {stats['summary']['likes']:,}")
+        print(f"  下载: {stats['summary']['downloads']:,}")
+        print(f"  浏览: {stats['summary']['views']:,}")
+        print(f"  点赞: {stats['summary']['likes']:,}")
 
-    # 2. 获取热门关键词
-    print("获取热门关键词...")
-    trending = fetch_trending()
-    print(f"  {', '.join(trending[:5])}...")
-
-    # 3. 推送飞书
-    print("推送飞书...")
-    push_to_feishu(stats, trending)
-
-    # 4. 更新协作中枢（hub.json）
-    if HAS_HUB_MANAGER:
-        try:
-            hub = HubManager(Path(__file__).parent.parent.parent / "hub.json")
-            hub.update_agent_status("摄影师", "active")
-            hub.add_message(
-                "摄影师",
-                "update",
-                f"完成每日数据采集 - 下载 {stats['summary']['downloads']:,}，浏览 {stats['summary']['views']:,}",
-                data={
-                    "downloads": stats['summary']['downloads'],
-                    "views": stats['summary']['views'],
-                    "likes": stats['summary']['likes'],
-                    "date": stats['date']
-                }
+        if HAS_LOGGER:
+            logger.info(
+                "Unsplash 数据采集完成",
+                downloads=stats['summary']['downloads'],
+                views=stats['summary']['views'],
+                likes=stats['summary']['likes']
             )
-            print("✅ 已更新协作中枢")
-        except Exception as e:
-            print(f"⚠️ 更新协作中枢失败: {e}")
-    else:
-        print("⚠️ HubManager 不可用，跳过协作中枢更新")
 
-    print("云端任务完成")
+        # 2. 获取热门关键词
+        print("获取热门关键词...")
+        if HAS_LOGGER:
+            logger.info("获取热门关键词")
+        trending = fetch_trending()
+        print(f"  {', '.join(trending[:5])}...")
+
+        # 3. 推送飞书
+        print("推送飞书...")
+        if HAS_LOGGER:
+            logger.info("推送飞书日报")
+        push_to_feishu(stats, trending)
+
+        # 4. 更新协作中枢（hub.json）
+        if HAS_HUB_MANAGER:
+            try:
+                hub = HubManager(Path(__file__).parent.parent.parent / "hub.json")
+                hub.update_agent_status("摄影师", "active")
+                hub.add_message(
+                    "摄影师",
+                    "update",
+                    f"完成每日数据采集 - 下载 {stats['summary']['downloads']:,}，浏览 {stats['summary']['views']:,}",
+                    data={
+                        "downloads": stats['summary']['downloads'],
+                        "views": stats['summary']['views'],
+                        "likes": stats['summary']['likes'],
+                        "date": stats['date']
+                    }
+                )
+                print("✅ 已更新协作中枢")
+            except Exception as e:
+                print(f"⚠️ 更新协作中枢失败: {e}")
+        else:
+            print("⚠️ HubManager 不可用，跳过协作中枢更新")
+
+        if HAS_LOGGER:
+            logger.info("每日任务完成")
+
+        print("云端任务完成")
+
+    except Exception as e:
+        error_msg = f"任务执行失败: {str(e)}"
+        print(f"❌ {error_msg}")
+        if HAS_LOGGER:
+            logger.error(error_msg)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
