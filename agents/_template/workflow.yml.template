@@ -1,0 +1,69 @@
+name: [AGENT_NAME] Workflow
+
+on:
+  schedule:
+    # 北京时间 HH:MM = UTC X:Y
+    # 示例: 北京时间 10:00 = UTC 02:00，则 cron: '0 2 * * *'
+    - cron: '0 0 * * *'  # 修改为你的调度时间
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 安装依赖（如果有 requirements.txt）
+      - name: Install dependencies
+        run: |
+          pip install -r agents/[AGENT_NAME]/requirements.txt
+        continue-on-error: true  # 如果没有 requirements.txt 则继续
+
+      # 运行 Agent
+      - name: Run [AGENT_NAME] task
+        env:
+          # 在这里添加你的环境变量
+          # YOUR_API_KEY: ${{ secrets.YOUR_API_KEY }}
+          # YOUR_WEBHOOK: ${{ secrets.YOUR_WEBHOOK }}
+          pass
+        run: python agents/[AGENT_NAME]/scripts/main.py
+
+      # 成功时的处理（可选）
+      - name: Log success
+        if: success()
+        run: |
+          echo "✅ [AGENT_NAME] 工作流成功"
+
+      # 失败时告警
+      - name: Send failure alert to Feishu
+        if: failure()
+        env:
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK_SECRETARY }}
+        run: |
+          python3 << 'EOF'
+          import requests
+          import json
+          import os
+
+          webhook = os.environ.get("FEISHU_WEBHOOK")
+          if not webhook:
+              exit(0)
+
+          message = {
+              "msg_type": "text",
+              "content": {
+                  "text": "🚨 [AGENT_NAME] 工作流失败\n"
+                          f"Run: https://github.com/siriusharrison-png/SIRIUS-ATEAM/actions/runs/{os.environ.get('GITHUB_RUN_ID')}"
+              }
+          }
+
+          try:
+              resp = requests.post(webhook, json=message, timeout=10)
+              print(f"告警已发送: {resp.status_code}")
+          except Exception as e:
+              print(f"告警发送失败: {e}")
+          EOF
