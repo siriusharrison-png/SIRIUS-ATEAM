@@ -30,6 +30,24 @@ jobs:
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
         run: python agents/knowledge-keeper/scripts/sync-feishu-docs.py
 
+      - name: Send failure alert to Feishu
+        if: failure()
+        env:
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK_SECRETARY }}
+        run: |
+          python3 << 'EOF'
+          import requests, os
+          webhook = os.environ.get("FEISHU_WEBHOOK")
+          if webhook:
+              msg = {
+                  "msg_type": "text",
+                  "content": {
+                      "text": f"🚨 Knowledge Sync (飞书) 失败\nRun: https://github.com/siriusharrison-png/SIRIUS-ATEAM/actions/runs/{os.environ.get('GITHUB_RUN_ID')}"
+                  }
+              }
+              requests.post(webhook, json=msg, timeout=10)
+          EOF
+
   sync-gitlab:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 4 * * *'
@@ -48,3 +66,21 @@ jobs:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
         run: python agents/knowledge-keeper/scripts/sync-gitlab-workspace.py
+
+      - name: Send failure alert to Feishu
+        if: failure()
+        env:
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK_SECRETARY }}
+        run: |
+          python3 << 'EOF'
+          import requests, os
+          webhook = os.environ.get("FEISHU_WEBHOOK")
+          if webhook:
+              msg = {
+                  "msg_type": "text",
+                  "content": {
+                      "text": f"🚨 Knowledge Sync (GitLab) 失败\nRun: https://github.com/siriusharrison-png/SIRIUS-ATEAM/actions/runs/{os.environ.get('GITHUB_RUN_ID')}"
+                  }
+              }
+              requests.post(webhook, json=msg, timeout=10)
+          EOF

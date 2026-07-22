@@ -21,3 +21,33 @@ jobs:
           UNSPLASH_USERNAME: ${{ secrets.UNSPLASH_USERNAME }}
           FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK_PHOTOGRAPHER }}
         run: python agents/image-guardian/scripts/run-daily-cloud.py
+
+      # 失败时告警
+      - name: Send failure alert to Feishu
+        if: failure()
+        env:
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK_SECRETARY }}
+        run: |
+          python3 << 'EOF'
+          import requests
+          import json
+          import os
+
+          webhook = os.environ.get("FEISHU_WEBHOOK")
+          if not webhook:
+              exit(0)
+
+          message = {
+              "msg_type": "text",
+              "content": {
+                  "text": "🚨 Daily Report (摄影师) 工作流失败\n"
+                          f"Run: https://github.com/siriusharrison-png/SIRIUS-ATEAM/actions/runs/{os.environ.get('GITHUB_RUN_ID')}"
+              }
+          }
+
+          try:
+              resp = requests.post(webhook, json=message, timeout=10)
+              print(f"告警已发送: {resp.status_code}")
+          except Exception as e:
+              print(f"告警发送失败: {e}")
+          EOF
