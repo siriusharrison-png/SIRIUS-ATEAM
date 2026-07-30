@@ -2,16 +2,17 @@ name: Knowledge Manager Sync
 
 on:
   schedule:
-    # 北京时间 08:00 = UTC 00:00（同步飞书）
-    - cron: '0 0 * * *'
     # 北京时间 12:00 = UTC 04:00（同步 GitLab）
     - cron: '0 4 * * *'
+    # 飞书同步已停用（不再用飞书做知识收集）。如需恢复，取消下一行注释：
+    # - cron: '0 0 * * *'   # 北京时间 08:00 = UTC 00:00（同步飞书）
   workflow_dispatch:
 
 jobs:
   sync-feishu:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 0 * * *'
+    # 飞书同步已停用。恢复时改回：github.event_name == 'workflow_dispatch' || github.event.schedule == '0 0 * * *'
+    if: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
