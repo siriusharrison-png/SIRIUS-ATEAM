@@ -22,9 +22,13 @@ agents/posterdesigner/
 ├── scripts/
 │   ├── prompt_compiler.py         # zine 风格 prompt 编译器（skill 规则落地）
 │   ├── design_poster.py           # 主程序：读图 → 编译 → 出图 → 写 hub
+│   ├── serve.py                   # 本地工作台服务（复用主程序核心逻辑）
 │   ├── poster_from_finder.sh      # 访达右键调用的包装脚本
 │   └── install_quick_action.sh    # 一键安装/卸载访达右键快捷指令
+├── web/
+│   └── index.html                 # 工作台前端（拖图/预览/重出，纯本地）
 ├── poster.command                 # 双击打开、拖图出海报
+├── workbench.command              # 双击打开、启动可视化工作台
 ├── tests/
 │   └── test_prompt_compiler.py
 ├── input/                         # 放待优化的图片（不入库）
@@ -67,7 +71,19 @@ bash agents/posterdesigner/scripts/install_quick_action.sh
 
 双击 `agents/posterdesigner/poster.command`，把图片从访达拖进窗口（可多张，含空格路径也行），回车即可。会先问一句可选主题，留空则按文件名。
 
-> 两种入口都从与脚本同目录的 `.env` 读网关 Key，先按下面「准备」配好即可。
+### C. 本地工作台（可视化，推荐反复调风格时用）
+
+双击 `agents/posterdesigner/workbench.command`，浏览器自动打开一个网页：拖图 → 选主题/单色/锁定布局 → 点生成 → 网格里看大图、下载、一键换配方重出。
+
+```bash
+# 或命令行启动
+python3 scripts/serve.py            # 默认 http://127.0.0.1:8765
+python3 scripts/serve.py --port 9000
+```
+
+纯本地服务（标准库 http.server，无新依赖），只监听 `127.0.0.1`，图和 Key 都不出本机。
+
+> 以上入口都从与脚本同目录的 `.env` 读网关 Key，先按下面「准备」配好即可。
 
 ## 命令行用法
 
