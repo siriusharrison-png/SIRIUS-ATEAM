@@ -62,7 +62,8 @@ const memberOrder = [
     summary: '把上传图片/主题优化成极简 zine 纸感海报',
     scheduleText: '访达右键或拖拽进终端，随手出图。',
     tasks: ['图生图优化', 'Prompt 编译', '批量出图'],
-    primaryButton: { label: '查看', action: "openGitHub('agents/posterdesigner')" },
+    primaryButton: { label: '打开工作台', action: 'openWorkbench()' },
+    secondaryButton: { label: '查看', action: "openGitHub('agents/posterdesigner')" },
   },
 ];
 

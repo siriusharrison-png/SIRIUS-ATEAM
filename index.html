@@ -1957,6 +1957,7 @@
             </div>
           </div>
           <div class="card-footer">
+            <button class="card-btn" onclick="openWorkbench()">打开工作台</button>
             <button class="card-btn" onclick="openGitHub('agents/posterdesigner')">查看</button>
           </div>
         </div>
@@ -2519,6 +2520,21 @@
 
     function triggerSync() {
       showNotification('✓ 同步已触发');
+    }
+
+    async function openWorkbench() {
+      const url = 'http://127.0.0.1:8765';
+      // 工作台是本机 Python 服务，网页无法直接启动它，只能在其已运行时跳转。
+      // 先探测端口是否可达：可达则新开标签，不可达则提示如何启动。
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 1200);
+        await fetch(url + '/api/layouts', { mode: 'no-cors', signal: ctrl.signal });
+        clearTimeout(timer);
+        window.open(url, '_blank');
+      } catch (e) {
+        showNotification('工作台未启动：双击 agents/posterdesigner/workbench.command 后再试');
+      }
     }
 
     function openDesignerCard() {
