@@ -5,3 +5,14 @@ projects/design-qa-cli/
 projects/design-token/
 projects/learn-to-notion/
 .superpowers/
+__pycache__/
+*.pyc
+
+# 环境变量 / 密钥，禁止入库
+.env
+*.env
+!.env.example
+
+# Agent 运行日志，不入库
+.claude/logs/
+**/.claude/logs/

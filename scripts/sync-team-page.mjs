@@ -53,6 +53,17 @@ const memberOrder = [
     primaryButton: { label: '名片', action: 'openDesignerCard()' },
     secondaryButton: { label: '查看', action: "openGitHub('agents/design-infra')" },
   },
+  {
+    name: '海报设计师',
+    number: '005 / Poster',
+    role: 'Zine Poster Maker',
+    folder: 'agents/posterdesigner',
+    config: 'agents/posterdesigner/config.json',
+    summary: '把上传图片/主题优化成极简 zine 纸感海报',
+    scheduleText: '访达右键或拖拽进终端，随手出图。',
+    tasks: ['图生图优化', 'Prompt 编译', '批量出图'],
+    primaryButton: { label: '查看', action: "openGitHub('agents/posterdesigner')" },
+  },
 ];
 
 const archivedMembers = [
@@ -94,6 +105,10 @@ const capabilityLabels = {
   version_control: '版本管理',
   astra_based_design: 'Astra 设计支持',
   multi_agent_collaboration: '多 Agent 协作',
+  image_to_poster: '图生图优化',
+  prompt_compile: 'Prompt 编译',
+  style_optimize: '风格优化',
+  batch_generate: '批量出图',
 };
 
 function readJson(relPath) {

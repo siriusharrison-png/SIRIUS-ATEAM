@@ -10,6 +10,7 @@
 | 知识管理 | knowledge-keeper | 同步飞书文档和 GitLab 工作空间到 Notion | 08:00 / 12:00 (UTC 00:00 / 04:00) | P1 |
 | 秘书 | secretary | 生成日报，汇总所有设备的使用情况 | 每日 18:00 (UTC 10:00) | P1 |
 | 设计基础设施 | design-infra | 设计系统维护（预留） | 按需 | P2 |
+| 海报设计师 | posterdesigner | 把上传图片/主题优化成 zine 纸感海报（Gemini 图生图） | 手动 `/poster` | P2 |
 
 ## 1. Agent 详细定义
 
@@ -104,6 +105,16 @@
 ### 1.4 设计基础设施 (design-infra)
 
 **职责**：预留，待定义
+
+### 1.5 海报设计师 (posterdesigner)
+
+**职责**：把转转上传的图片或主题，按 `gc-minimal-zine-poster-v0-1` skill 风格优化成极简 zine 纸感海报。
+
+- **引擎**：Google Gemini `gemini-2.5-flash-image`（图生图）
+- **触发**：手动 `/poster`、"做海报"、"优化成海报"
+- **输入**：`agents/posterdesigner/input/` 图片 + 主题文字
+- **输出**：`agents/posterdesigner/output/` + 上报 `hub.json`
+- **详见**：[agents/posterdesigner/README.md](agents/posterdesigner/README.md)
 
 ---
 

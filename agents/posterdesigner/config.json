@@ -1,0 +1,38 @@
+{
+  "name": "海报设计师",
+  "role": "specialist",
+  "description": "把上传图片/主题优化为极简 zine 纸感海报",
+  "skill": "gc-minimal-zine-poster-v0-1",
+  "capabilities": [
+    "image_to_poster",
+    "prompt_compile",
+    "style_optimize",
+    "batch_generate"
+  ],
+  "triggers": [
+    "/poster",
+    "做海报",
+    "zine 海报",
+    "优化成海报",
+    "纸感海报"
+  ],
+  "engine": {
+    "provider": "openai-compatible-gateway",
+    "model": "gpt-image-2",
+    "mode": "image-to-image",
+    "api": "images.edit / images.generate",
+    "envKey": "GATEWAY_API_KEY",
+    "envBaseUrl": "GATEWAY_BASE_URL"
+  },
+  "inputFrom": [
+    "input/ 上传图片",
+    "用户主题文字",
+    "hub.json"
+  ],
+  "outputTo": [
+    "output/",
+    "hub.json"
+  ],
+  "reportTo": "小秘书",
+  "deployment": "本地交互 / 手动触发"
+}
