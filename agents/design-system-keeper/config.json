@@ -1,0 +1,21 @@
+{
+  "name": "设计系统管家",
+  "role": "specialist",
+  "type": "knowledge-base",
+  "description": "承载设计系统组件风格的规范、延展与探索；当前以拉姆斯风格为演示 MVP，未来扩展多风格统一管理。",
+  "capabilities": ["style_catalog", "component_spec", "extending_guide"],
+  "triggers": ["/designcomponent"],
+  "styles": [
+    {
+      "id": "rams",
+      "name": "拉姆斯风格",
+      "status": "mvp",
+      "repo": "https://github.com/siriusharrison-png/rams-system",
+      "playground": "https://rams-system.vercel.app"
+    }
+  ],
+  "inputFrom": ["hub.json", "user_input"],
+  "outputTo": ["hub.json", "knowledge/"],
+  "reportTo": "小秘书",
+  "deployment": "静态知识库 / 无脚本"
+}
