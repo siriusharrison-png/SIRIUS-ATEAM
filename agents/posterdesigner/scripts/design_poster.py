@@ -40,6 +40,7 @@ REPO_ROOT = AGENTS_ROOT.parent                           # 仓库根
 sys.path.insert(0, str(AGENTS_ROOT))
 
 from prompt_compiler import choose_recipe, compile_prompt  # noqa: E402
+import editorial_prompt as ep  # noqa: E402
 
 # lib 为可选依赖：缺失时降级为本地打印，不阻断出图
 try:
@@ -250,18 +251,35 @@ def run(args) -> int:
 
     for idx, img in enumerate(images):
         subject = args.subject or _subject_from_path(img)
-        seed = f"{subject}|{img}|{_ts_slug()}|{idx}"
-        recipe = choose_recipe(seed, mono=args.mono, avoid_layout=last_layout)
-        prompt = compile_prompt(
-            subject, recipe,
-            text_line=args.text,
-            has_reference_image=img is not None,
-        )
+
+        if args.skill == "editorial":
+            # editorial：照片必需，无变体配方
+            if img is None:
+                _log(logger, "ERROR", "editorial 需要参考照片，跳过纯文生图")
+                continue
+            recipe = ep.build_recipe(subject_hint=args.subject or "",
+                                     subtitle_hint=args.subtitle)
+            try:
+                prompt = ep.compile_prompt(recipe, has_reference_image=True)
+            except ep.PhotoRequiredError as e:
+                _log(logger, "ERROR", str(e))
+                continue
+            suffix = "editorial"
+        else:
+            # zine：种子配方引擎 + 四段式
+            seed = f"{subject}|{img}|{_ts_slug()}|{idx}"
+            recipe = choose_recipe(seed, mono=args.mono, avoid_layout=last_layout)
+            prompt = compile_prompt(
+                subject, recipe,
+                text_line=args.text,
+                has_reference_image=img is not None,
+            )
+            suffix = "zine"
 
         stem = img.stem if img is not None else "poster"
-        out_path = OUTPUT_DIR / f"{stem}-zine-{_ts_slug()}-{idx}.png"
+        out_path = OUTPUT_DIR / f"{stem}-{suffix}-{_ts_slug()}-{idx}.png"
 
-        print(f"\n=== [{idx+1}/{len(images)}] {stem} ===")
+        print(f"\n=== [{idx+1}/{len(images)}] {stem} ({args.skill}) ===")
         print(f"Recipe: {recipe.as_line()}")
         print(f"参考图: {img if img else '（无，纯文生图）'}")
         print("-" * 60)
@@ -275,10 +293,13 @@ def run(args) -> int:
             if ok:
                 out_files.append(out_path)
 
-        last_layout = recipe.layout_key
+        # 只有 zine 有 layout 轴需要记忆
+        if args.skill != "editorial":
+            last_layout = recipe.layout_key
 
     save_seed_history(last_layout)
-    report_to_hub(args.subject or "（按文件名）", recipe, out_files, args.dry_run)
+    if recipe is not None:   # 全部跳过（如 editorial 无照片）时 recipe 为 None
+        report_to_hub(args.subject or "（按文件名）", recipe, out_files, args.dry_run)
 
     if not args.dry_run and not out_files:
         _log(logger, "ERROR", "没有成功产出任何图片")
@@ -289,7 +310,11 @@ def run(args) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="海报设计师：把图片/主题优化成 zine 纸感海报")
+    p = argparse.ArgumentParser(description="海报设计师：把图片/主题优化成 zine 海报或照片抽象编辑作品")
+    p.add_argument("--skill", choices=["zine", "editorial"], default="zine",
+                   help="出图风格：zine（纸感海报，默认）/ editorial（原照片+抽象记忆面板，照片必需）")
+    p.add_argument("--subtitle", action="store_true",
+                   help="editorial 专用：允许生成副标题（默认只出主标题）")
     p.add_argument("--subject", help="主题 / 核心意象（一句话）；省略时按每张图文件名生成")
     p.add_argument("--image", nargs="+", metavar="PATH",
                    help="参考图路径，可多张，也可传目录（拖拽进终端/访达右键都走这里）")

@@ -1,8 +1,27 @@
 {
   "name": "海报设计师",
   "role": "specialist",
-  "description": "把上传图片/主题优化为极简 zine 纸感海报",
+  "description": "把上传图片/主题优化为极简 zine 纸感海报，或保留原照片＋抽象记忆面板的编辑作品",
   "skill": "gc-minimal-zine-poster-v0-1",
+  "defaultSkill": "zine",
+  "skills": [
+    {
+      "id": "zine",
+      "name": "极简 Zine 海报",
+      "skill": "gc-minimal-zine-poster-v0-1",
+      "compiler": "prompt_compiler",
+      "photoRequired": false,
+      "desc": "把图片/主题重构成纸感 zine 海报，高饱和单色锚点；照片可选。"
+    },
+    {
+      "id": "editorial",
+      "name": "照片抽象编辑",
+      "skill": "photo-abstract-editorial",
+      "compiler": "editorial_prompt",
+      "photoRequired": true,
+      "desc": "保留原照片＋下方象牙色抽象记忆面板＋诗意英文标题；照片必需。"
+    }
+  ],
   "capabilities": [
     "image_to_poster",
     "prompt_compile",
