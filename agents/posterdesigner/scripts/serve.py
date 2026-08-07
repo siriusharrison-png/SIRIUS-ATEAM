@@ -26,11 +26,33 @@ AGENT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(AGENT_DIR / "scripts"))
 
 from prompt_compiler import choose_recipe, compile_prompt  # noqa: E402
+import editorial_prompt as ep  # noqa: E402
 import design_poster as dp  # noqa: E402
 
 OUTPUT_DIR = AGENT_DIR / "output"
 UPLOAD_DIR = AGENT_DIR / "output" / ".uploads"  # 临时上传图，随 output 一并被 gitignore
 STATIC_HTML = AGENT_DIR / "web" / "index.html"
+
+# 可用出图 skill 的清单：驱动前端 tab 与表单字段的动态渲染。
+# fields 里声明每个 skill 各自需要的控件，前端据此显隐。
+SKILLS = [
+    {
+        "id": "zine",
+        "name": "极简 Zine 海报",
+        "desc": "把图片/主题重构成纸感 zine 海报，高饱和单色锚点；照片可选。",
+        "photoRequired": False,
+        "fields": ["subject", "text", "layout", "mono"],
+    },
+    {
+        "id": "editorial",
+        "name": "照片抽象编辑",
+        "desc": "保留原照片＋下方象牙色抽象记忆面板＋诗意英文标题；照片必需。",
+        "photoRequired": True,
+        "fields": ["subject", "subtitle"],
+    },
+]
+DEFAULT_SKILL = "zine"
+VALID_SKILLS = {s["id"] for s in SKILLS}
 
 
 def _load_env():
@@ -81,23 +103,27 @@ def _parse_multipart(body: bytes, boundary: bytes) -> dict:
     return result
 
 
-def _do_generate(fields: dict) -> dict:
-    """执行一次出图，返回给前端的 JSON 结果。"""
+def _save_upload(fields: dict) -> Path | None:
+    """把可选的上传图落到临时目录，返回路径（无图返回 None）。"""
+    up = fields.get("image")
+    if not isinstance(up, tuple):
+        return None
+    filename, data = up
+    if not data:
+        return None
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    safe = dp._ts_slug() + "-" + Path(filename).name
+    img_path = UPLOAD_DIR / safe
+    img_path.write_bytes(data)
+    return img_path
+
+
+def _generate_zine(fields: dict, img_path: Path | None) -> dict:
+    """zine skill：种子配方引擎 + 四段式 prompt。照片可选。"""
     subject = (fields.get("subject") or "").strip()
     mono = fields.get("mono") in ("1", "true", "on")
     text_line = (fields.get("text") or "").strip() or None
     lock_layout = (fields.get("lock_layout") or "").strip() or None
-
-    # 处理上传图（可选）
-    img_path = None
-    up = fields.get("image")
-    if isinstance(up, tuple):
-        filename, data = up
-        if data:
-            UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-            safe = dp._ts_slug() + "-" + Path(filename).name
-            img_path = UPLOAD_DIR / safe
-            img_path.write_bytes(data)
 
     if not subject:
         subject = dp._subject_from_path(img_path)
@@ -125,6 +151,7 @@ def _do_generate(fields: dict) -> dict:
         dp.report_to_hub(subject, recipe, [out_path], dry_run=False)
         return {
             "ok": True,
+            "skill": "zine",
             "subject": subject,
             "recipe": recipe.as_line(),
             "layout": recipe.layout_key,
@@ -133,6 +160,50 @@ def _do_generate(fields: dict) -> dict:
             "url": f"/output/{out_path.name}",
         }
     return {"ok": False, "error": "出图失败，检查 .env 里的网关 Key 与额度。"}
+
+
+def _generate_editorial(fields: dict, img_path: Path | None) -> dict:
+    """editorial skill：保留原照片 + 抽象记忆面板 + 诗意标题。照片必需。"""
+    if img_path is None:
+        return {"ok": False, "error": "照片抽象编辑需要先上传一张照片作为唯一内容来源。"}
+
+    subject_hint = (fields.get("subject") or "").strip()
+    subtitle = fields.get("subtitle") in ("1", "true", "on")
+    recipe = ep.build_recipe(subject_hint=subject_hint, subtitle_hint=subtitle)
+
+    try:
+        prompt = ep.compile_prompt(recipe, has_reference_image=True)
+    except ep.PhotoRequiredError as e:
+        return {"ok": False, "error": str(e)}
+
+    out_path = OUTPUT_DIR / f"{img_path.stem}-editorial-{dp._ts_slug()}.png"
+
+    ok = dp.generate_image(prompt, img_path, out_path, None)
+    if ok:
+        subject_for_hub = subject_hint or dp._subject_from_path(img_path)
+        dp.report_to_hub(subject_for_hub, recipe, [out_path], dry_run=False)
+        return {
+            "ok": True,
+            "skill": "editorial",
+            "subject": subject_for_hub,
+            "recipe": recipe.as_line(),
+            "file": out_path.name,
+            "url": f"/output/{out_path.name}",
+        }
+    return {"ok": False, "error": "出图失败，检查 .env 里的网关 Key 与额度。"}
+
+
+def _do_generate(fields: dict) -> dict:
+    """执行一次出图，按 skill 分流后返回给前端的 JSON 结果。"""
+    skill = (fields.get("skill") or DEFAULT_SKILL).strip()
+    if skill not in VALID_SKILLS:
+        skill = DEFAULT_SKILL
+
+    img_path = _save_upload(fields)
+
+    if skill == "editorial":
+        return _generate_editorial(fields, img_path)
+    return _generate_zine(fields, img_path)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -161,6 +232,9 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, f.read_bytes(), "image/png")
             else:
                 self._send(404, b"not found")
+            return
+        if path == "/api/skills":
+            self._send(200, json.dumps(SKILLS, ensure_ascii=False).encode("utf-8"))
             return
         if path == "/api/layouts":
             import prompt_compiler as pc
