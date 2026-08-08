@@ -7,7 +7,7 @@
   "skills": [
     {
       "id": "zine",
-      "name": "极简 Zine 海报",
+      "name": "旧杂志风格",
       "skill": "gc-minimal-zine-poster-v0-1",
       "compiler": "prompt_compiler",
       "photoRequired": false,
@@ -15,11 +15,19 @@
     },
     {
       "id": "editorial",
-      "name": "照片抽象编辑",
+      "name": "元素抽象风格",
       "skill": "photo-abstract-editorial",
       "compiler": "editorial_prompt",
       "photoRequired": true,
       "desc": "保留原照片＋下方象牙色抽象记忆面板＋诗意英文标题；照片必需。"
+    },
+    {
+      "id": "scenes",
+      "name": "实景杂志风格",
+      "skill": "scenes-gathered-zine-v1-3",
+      "compiler": "scenes_gathered_prompt",
+      "photoRequired": true,
+      "desc": "真景为锚＋插画成场＋撕纸成界：把繁复细节压成安静图形，一色作结构，手撕纤维毛边；照片必需。作者 Zeejay0。"
     }
   ],
   "capabilities": [
@@ -33,7 +41,9 @@
     "做海报",
     "zine 海报",
     "优化成海报",
-    "纸感海报"
+    "纸感海报",
+    "实景拼贴",
+    "撕纸海报"
   ],
   "engine": {
     "provider": "openai-compatible-gateway",

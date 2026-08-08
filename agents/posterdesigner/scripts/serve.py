@@ -27,6 +27,7 @@ sys.path.insert(0, str(AGENT_DIR / "scripts"))
 
 from prompt_compiler import choose_recipe, compile_prompt  # noqa: E402
 import editorial_prompt as ep  # noqa: E402
+import scenes_gathered_prompt as sg  # noqa: E402
 import design_poster as dp  # noqa: E402
 
 OUTPUT_DIR = AGENT_DIR / "output"
@@ -38,17 +39,38 @@ STATIC_HTML = AGENT_DIR / "web" / "index.html"
 SKILLS = [
     {
         "id": "zine",
-        "name": "极简 Zine 海报",
+        "name": "旧杂志风格",
         "desc": "把图片/主题重构成纸感 zine 海报，高饱和单色锚点；照片可选。",
         "photoRequired": False,
         "fields": ["subject", "text", "layout", "mono"],
+        "subjectLabel": "主题 / 核心意象（可选，留空按文件名）",
+        "placeholders": {
+            "subject": "例：海边的旧信箱 / 雨后的旧车站",
+            "text": "海报内短句，宜短，例：still raining",
+        },
     },
     {
         "id": "editorial",
-        "name": "照片抽象编辑",
+        "name": "元素抽象风格",
         "desc": "保留原照片＋下方象牙色抽象记忆面板＋诗意英文标题；照片必需。",
         "photoRequired": True,
         "fields": ["subject", "subtitle"],
+        "subjectLabel": "意象提示（可选，辅助命名与情绪，不覆盖照片事实）",
+        "placeholders": {
+            "subject": "例：黄昏的长椅 / 窗边的光",
+        },
+    },
+    {
+        "id": "scenes",
+        "name": "实景杂志风格",
+        "desc": "真景为锚＋插画成场＋撕纸成界：把繁复细节压成安静图形，一色作结构，手撕纤维毛边；照片必需。",
+        "photoRequired": True,
+        "fields": ["subject", "text"],
+        "subjectLabel": "意象提示（可选，辅助命名，不覆盖照片事实）",
+        "placeholders": {
+            "subject": "例：雨后山间的旧屋 / 海边的清晨",
+            "text": "微文字，留空自动生成英文短句，例：Almost home",
+        },
     },
 ]
 DEFAULT_SKILL = "zine"
@@ -104,18 +126,27 @@ def _parse_multipart(body: bytes, boundary: bytes) -> dict:
 
 
 def _save_upload(fields: dict) -> Path | None:
-    """把可选的上传图落到临时目录，返回路径（无图返回 None）。"""
+    """定位本次出图的参考图，返回路径（无图返回 None）。
+
+    两种来源：
+    - 新上传的图（multipart 里的 image 字段）→ 落盘到 UPLOAD_DIR。
+    - reuse_upload：重出历史作品时复用已存在的 upload 文件（只认文件名，防目录穿越）。
+    """
     up = fields.get("image")
-    if not isinstance(up, tuple):
-        return None
-    filename, data = up
-    if not data:
-        return None
-    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    safe = dp._ts_slug() + "-" + Path(filename).name
-    img_path = UPLOAD_DIR / safe
-    img_path.write_bytes(data)
-    return img_path
+    if isinstance(up, tuple) and up[1]:
+        filename, data = up
+        UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        safe = dp._ts_slug() + "-" + Path(filename).name
+        img_path = UPLOAD_DIR / safe
+        img_path.write_bytes(data)
+        return img_path
+
+    reuse = (fields.get("reuse_upload") or "").strip()
+    if reuse:
+        cand = UPLOAD_DIR / Path(reuse).name   # 只取文件名，拒绝路径穿越
+        if cand.exists():
+            return cand
+    return None
 
 
 def _generate_zine(fields: dict, img_path: Path | None) -> dict:
@@ -158,6 +189,7 @@ def _generate_zine(fields: dict, img_path: Path | None) -> dict:
             "color": recipe.color_name,
             "file": out_path.name,
             "url": f"/output/{out_path.name}",
+            "upload": img_path.name if img_path else "",
         }
     return {"ok": False, "error": "出图失败，检查 .env 里的网关 Key 与额度。"}
 
@@ -189,6 +221,39 @@ def _generate_editorial(fields: dict, img_path: Path | None) -> dict:
             "recipe": recipe.as_line(),
             "file": out_path.name,
             "url": f"/output/{out_path.name}",
+            "upload": img_path.name if img_path else "",
+        }
+    return {"ok": False, "error": "出图失败，检查 .env 里的网关 Key 与额度。"}
+
+
+def _generate_scenes(fields: dict, img_path: Path | None) -> dict:
+    """scenes skill：真景为锚＋插画成场＋撕纸成界。照片必需，text 为可选微文字。"""
+    if img_path is None:
+        return {"ok": False, "error": "实景拼贴 Zine 需要先上传一张照片作为唯一内容来源。"}
+
+    subject_hint = (fields.get("subject") or "").strip()
+    text_line = (fields.get("text") or "").strip()
+    recipe = sg.build_recipe(subject_hint=subject_hint, text_line=text_line)
+
+    try:
+        prompt = sg.compile_prompt(recipe, has_reference_image=True)
+    except sg.PhotoRequiredError as e:
+        return {"ok": False, "error": str(e)}
+
+    out_path = OUTPUT_DIR / f"{img_path.stem}-scenes-{dp._ts_slug()}.png"
+
+    ok = dp.generate_image(prompt, img_path, out_path, None)
+    if ok:
+        subject_for_hub = subject_hint or dp._subject_from_path(img_path)
+        dp.report_to_hub(subject_for_hub, recipe, [out_path], dry_run=False)
+        return {
+            "ok": True,
+            "skill": "scenes",
+            "subject": subject_for_hub,
+            "recipe": recipe.as_line(),
+            "file": out_path.name,
+            "url": f"/output/{out_path.name}",
+            "upload": img_path.name if img_path else "",
         }
     return {"ok": False, "error": "出图失败，检查 .env 里的网关 Key 与额度。"}
 
@@ -203,6 +268,8 @@ def _do_generate(fields: dict) -> dict:
 
     if skill == "editorial":
         return _generate_editorial(fields, img_path)
+    if skill == "scenes":
+        return _generate_scenes(fields, img_path)
     return _generate_zine(fields, img_path)
 
 
@@ -272,8 +339,25 @@ def main():
     _load_env()
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    url = f"http://127.0.0.1:{args.port}"
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
+    # 端口被占用时（多为上次的服务还在跑）自动顺延，最多试 10 个，避免直接崩
+    server = None
+    port = args.port
+    for cand in range(args.port, args.port + 10):
+        try:
+            server = ThreadingHTTPServer(("127.0.0.1", cand), Handler)
+            port = cand
+            break
+        except OSError:
+            continue
+    if server is None:
+        print(f"端口 {args.port}–{args.port + 9} 都被占用，"
+              f"可能已有工作台在运行；请直接打开浏览器，或关掉旧窗口后重试。")
+        return
+
+    if port != args.port:
+        print(f"端口 {args.port} 被占用，已改用 {port}。")
+
+    url = f"http://127.0.0.1:{port}"
     key_ok = "✓ 已就位" if os.environ.get("GATEWAY_API_KEY") else "✗ 缺失（出图会失败）"
     print(f"海报设计师工作台 → {url}")
     print(f"网关 Key: {key_ok}")
