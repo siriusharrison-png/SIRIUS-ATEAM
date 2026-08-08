@@ -38,6 +38,7 @@
 | 趋势分析 | 30天数据变化趋势 |
 | 推送日报 | 飞书通知 |
 | 标签优化 | 根据热门关键词优化图片标签 |
+| 图片打标签 | 用 tag-image 工具批量为上传素材生成 Unsplash 标签 |
 
 ## 配置
 
@@ -48,3 +49,25 @@
 - 获取统计：`python scripts/fetch-unsplash-stats.py`
 - 生成报告：`python scripts/generate-report.py`
 - 抓取热词：`python scripts/fetch-trending.py`
+
+## 工具：tag-image（图片打标签）
+
+基于 Imagga AI，为上传 Unsplash 前的素材批量生成逗号分隔标签。详见 `tag-image/README.md`。
+
+**准备**：在 `tag-image/.env.local` 填入 Imagga 凭证（[imagga.com](https://imagga.com/) 免费注册，每月约 1000 次）：
+
+```
+IMAGGA_API_KEY=你的key
+IMAGGA_API_SECRET=你的secret
+```
+
+**本地批量**（推荐）：把照片放进 `tag-image/photos/`，然后：
+
+```bash
+node tag-image/tag-local.js            # 处理 tag-image/photos/
+node tag-image/tag-local.js /某/文件夹  # 处理指定文件夹
+```
+
+逐张打印标签，并在照片文件夹里生成 `tags.csv`（文件名 + 标签），上传时对着复制。
+
+**网页版**：`cd tag-image && npm run dev`，逐张上传或贴 URL。

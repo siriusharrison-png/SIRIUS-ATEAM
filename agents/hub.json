@@ -2,7 +2,7 @@
   "meta": {
     "version": "1.0.0",
     "rulesVersion": "1.1.0",
-    "lastUpdate": "2026-08-07T10:25:35.393795+00:00",
+    "lastUpdate": "2026-08-08T07:17:22.918225+00:00",
     "description": "AI 团队协作中枢 - 已激活（2026-07-22）"
   },
   "agents": {
@@ -20,11 +20,11 @@
     },
     "摄影师": {
       "status": "active",
-      "lastSeen": "2026-07-18T20:00:00+08:00"
+      "lastSeen": "2026-08-08T07:17:22.915250+00:00"
     },
     "海报设计师": {
       "status": "active",
-      "lastSeen": "2026-08-07T10:25:35.385608+00:00"
+      "lastSeen": "2026-08-08T07:02:04.635158+00:00"
     },
     "设计系统管家": {
       "status": "active",
@@ -791,6 +791,36 @@
           "/Users/ppio-dn-275/Desktop/SIRIUS-ATEAM/agents/posterdesigner/output/20260807-182450-P1010112-editorial-20260807-182450.png"
         ],
         "dryRun": false
+      }
+    },
+    {
+      "id": "msg-1786172524644",
+      "from": "海报设计师",
+      "time": "2026-08-08T07:02:04.644795+00:00",
+      "type": "update",
+      "content": "海报出图：主题「20260808 150101 P1010112」，配方 photo-abstract-editorial / 含副标题，产出 1 张",
+      "read": false,
+      "data": {
+        "subject": "20260808 150101 P1010112",
+        "recipe": "photo-abstract-editorial / 含副标题",
+        "outputs": [
+          "/Users/ppio-dn-275/Desktop/SIRIUS-ATEAM/agents/posterdesigner/output/20260808-150101-P1010112-editorial-20260808-150101.png"
+        ],
+        "dryRun": false
+      }
+    },
+    {
+      "id": "msg-1786173442918",
+      "from": "摄影师",
+      "time": "2026-08-08T07:17:22.918221+00:00",
+      "type": "update",
+      "content": "tag-image 图片打标签工具归入摄影师：基于 Imagga AI 批量生成 Unsplash 标签，落地了 tag_optimize/tag_generate 能力",
+      "read": false,
+      "data": {
+        "tool": "tag-image",
+        "location": "agents/image-guardian/tag-image/",
+        "entry": "node tag-image/tag-local.js",
+        "requires": "tag-image/.env.local (IMAGGA_API_KEY/SECRET)"
       }
     }
   ],
