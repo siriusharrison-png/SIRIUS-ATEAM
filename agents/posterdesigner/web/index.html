@@ -33,6 +33,17 @@
   .skill-desc { font-size: 12px; color: var(--muted); margin-bottom: 4px; line-height: 1.5; }
   .req-note { font-size: 11px; color: #a33; margin-top: 8px; display: none; }
   .req-note.show { display: block; }
+  .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+  .thumbs:empty { margin-top: 0; }
+  .thumb-item { position: relative; aspect-ratio: 1; border-radius: 5px; overflow: hidden; border: 1px solid var(--line); background: #fff; }
+  .thumb-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb-item .del {
+    position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; line-height: 15px;
+    text-align: center; border-radius: 50%; background: rgba(20,18,15,.72); color: #fff;
+    font-size: 12px; cursor: pointer; border: none; padding: 0;
+  }
+  .thumb-item .del:hover { background: #a33; }
+  .thumb-count { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: right; }
   [data-field] { display: none; }
   [data-field].on { display: block; }
   .row[data-field] { display: none; }
@@ -90,9 +101,10 @@
       <div id="tabs" class="tabs"></div>
       <div id="skillDesc" class="skill-desc"></div>
       <div id="drop" class="drop">
-        <div id="dropText">把图片拖到这里<br>或点击选择（可留空，纯主题生成）</div>
-        <input id="file" type="file" accept="image/*" hidden>
+        <div id="dropText">把图片拖到这里<br>或点击选择（可多张，可留空纯主题生成）</div>
+        <input id="file" type="file" accept="image/*" multiple hidden>
       </div>
+      <div id="thumbs" class="thumbs"></div>
       <div id="reqNote" class="req-note">此风格需要一张照片作为唯一内容来源，请先上传图片。</div>
 
       <div data-field="subject">
@@ -122,7 +134,7 @@
 <div id="overlay" class="overlay"><img id="overlayImg" src="" alt=""></div>
 <script>
 const $ = (id) => document.getElementById(id);
-let pickedFile = null;
+let pickedFiles = [];     // 多图：批量上传的文件列表
 let SKILLS = [];
 let currentSkill = null;
 
@@ -168,76 +180,138 @@ function selectSkill(id) {
     el.classList.toggle('on', on.has(el.dataset.field));
   });
 
-  // 照片必需时：主题标签改措辞、拖拽区文案改
+  // 照片必需时：拖拽区文案改（多图版）
   if (skill.photoRequired) {
-    $('dropText').dataset.hint = '把照片拖到这里<br>或点击选择（此风格必需）';
-    if ($('subjectLabel')) $('subjectLabel').textContent = '意象提示（可选，辅助命名，不覆盖照片事实）';
+    $('dropText').dataset.hint = '把照片拖到这里<br>或点击选择（可多张，此风格必需）';
   } else {
-    $('dropText').dataset.hint = '把图片拖到这里<br>或点击选择（可留空，纯主题生成）';
-    if ($('subjectLabel')) $('subjectLabel').textContent = '主题 / 核心意象（可选，留空按文件名）';
+    $('dropText').dataset.hint = '把图片拖到这里<br>或点击选择（可多张，可留空纯主题生成）';
   }
-  // 未选图时才刷新占位文案（已选图保留预览）
-  if (!pickedFile) $('dropText').innerHTML = $('dropText').dataset.hint;
+
+  // 每个 skill 各自的 subject 标签与输入框占位（提示词引导）
+  const ph = skill.placeholders || {};
+  if ($('subjectLabel') && skill.subjectLabel) $('subjectLabel').textContent = skill.subjectLabel;
+  if (ph.subject) $('subject').placeholder = ph.subject;
+  if (ph.text) $('text').placeholder = ph.text;
+
+  // 未选图时才刷新占位文案（已选图保留缩略图网格）
+  if (!pickedFiles.length) $('dropText').innerHTML = $('dropText').dataset.hint;
 
   refreshGate();
 }
 
 // 照片必需但未上传 → 禁用按钮 + 红字提示
 function refreshGate() {
-  const need = currentSkill && currentSkill.photoRequired && !pickedFile;
+  const need = currentSkill && currentSkill.photoRequired && !pickedFiles.length;
   $('reqNote').classList.toggle('show', !!need);
   $('go').disabled = !!need;
+  // 生成按钮文案随张数变化
+  const n = pickedFiles.length;
+  $('go').textContent = n > 1 ? `批 量 生 成 ${n} 张` : '生 成 作 品';
 }
 
-// 拖拽 + 点击选图
+// 拖拽 + 点击选图（多图）
 const drop = $('drop'), fileInput = $('file');
 drop.addEventListener('click', () => fileInput.click());
 drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
 drop.addEventListener('dragleave', () => drop.classList.remove('over'));
 drop.addEventListener('drop', e => {
   e.preventDefault(); drop.classList.remove('over');
-  if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
 });
-fileInput.addEventListener('change', () => { if (fileInput.files.length) setFile(fileInput.files[0]); });
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) addFiles(fileInput.files);
+  fileInput.value = '';   // 清空以便再次选到同名文件
+});
 
-function setFile(f) {
-  pickedFile = f;
-  const reader = new FileReader();
-  reader.onload = e => {
-    $('dropText').innerHTML = '';
-    const img = document.createElement('img');
-    img.src = e.target.result;
-    $('dropText').appendChild(img);
-    const cap = document.createElement('div');
-    cap.style.cssText = 'margin-top:8px;font-size:12px';
-    cap.textContent = f.name + '（点击可换图）';
-    $('dropText').appendChild(cap);
-  };
-  reader.readAsDataURL(f);
+// 追加图片（去重：按 name+size），重画缩略图网格
+function addFiles(fileList) {
+  for (const f of fileList) {
+    if (!f.type.startsWith('image/')) continue;
+    const dup = pickedFiles.some(p => p.name === f.name && p.size === f.size);
+    if (!dup) pickedFiles.push(f);
+  }
+  renderThumbs();
   refreshGate();
 }
 
-// 生成
+function removeFile(idx) {
+  pickedFiles.splice(idx, 1);
+  renderThumbs();
+  refreshGate();
+}
+
+function renderThumbs() {
+  const box = $('thumbs');
+  box.innerHTML = '';
+  if (!pickedFiles.length) {
+    $('dropText').innerHTML = $('dropText').dataset.hint || '把图片拖到这里<br>或点击选择';
+    return;
+  }
+  // 拖拽区收起为一行提示，缩略图移到网格
+  $('dropText').innerHTML = `已选 ${pickedFiles.length} 张，点此继续添加`;
+  pickedFiles.forEach((f, i) => {
+    const item = document.createElement('div');
+    item.className = 'thumb-item';
+    const img = document.createElement('img');
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; };
+    reader.readAsDataURL(f);
+    img.title = f.name;
+    const del = document.createElement('button');
+    del.className = 'del'; del.textContent = '×'; del.title = '移除';
+    del.addEventListener('click', ev => { ev.stopPropagation(); removeFile(i); });
+    item.appendChild(img); item.appendChild(del);
+    box.appendChild(item);
+  });
+}
+
+// 组装一次出图的表单。
+// opts.file: 新上传的图；opts.reuseUpload: 复用已存 upload 文件名（重出用）；
+// opts.override: 覆盖表单字段（重出时用作品自身的 skill/subject，而非当前面板值）。
+function buildForm(opts) {
+  opts = opts || {};
+  const o = opts.override || {};
+  const fd = new FormData();
+  fd.append('skill', o.skill || (currentSkill ? currentSkill.id : 'zine'));
+  if (opts.file) fd.append('image', opts.file);
+  if (opts.reuseUpload) fd.append('reuse_upload', opts.reuseUpload);
+  fd.append('subject', o.subject != null ? o.subject : $('subject').value);
+  fd.append('text', o.text != null ? o.text : $('text').value);
+  fd.append('lock_layout', o.lock_layout != null ? o.lock_layout : $('layout').value);
+  fd.append('mono', o.mono != null ? o.mono : ($('mono').checked ? '1' : '0'));
+  fd.append('subtitle', o.subtitle != null ? o.subtitle : ($('subtitle').checked ? '1' : '0'));
+  return fd;
+}
+
+// 出一张图；成功 append 结果，失败返回错误文案
+async function generateOne(opts) {
+  try {
+    const r = await fetch('/api/generate', { method: 'POST', body: buildForm(opts) });
+    const data = await r.json();
+    if (data.ok) { addResult(data); return null; }
+    return data.error || '出图失败';
+  } catch (e) {
+    return '请求失败：' + e.message;
+  }
+}
+
+// 生成：有多张图则串行批量（避免网关限流），无图则纯主题单次
 $('go').addEventListener('click', async () => {
   const btn = $('go'); $('err').textContent = '';
   btn.disabled = true;
-  const label = btn.textContent;
-  btn.innerHTML = '<span class="spinner"></span> 出图中…';
-  const fd = new FormData();
-  fd.append('skill', currentSkill ? currentSkill.id : 'zine');
-  if (pickedFile) fd.append('image', pickedFile);
-  fd.append('subject', $('subject').value);
-  fd.append('text', $('text').value);
-  fd.append('lock_layout', $('layout').value);
-  fd.append('mono', $('mono').checked ? '1' : '0');
-  fd.append('subtitle', $('subtitle').checked ? '1' : '0');
+  const label = pickedFiles.length > 1 ? `批 量 生 成 ${pickedFiles.length} 张` : '生 成 作 品';
+
+  const jobs = pickedFiles.length ? [...pickedFiles] : [null];
+  const errors = [];
   try {
-    const r = await fetch('/api/generate', { method: 'POST', body: fd });
-    const data = await r.json();
-    if (data.ok) addResult(data);
-    else $('err').textContent = data.error || '出图失败';
-  } catch (e) {
-    $('err').textContent = '请求失败：' + e.message;
+    for (let i = 0; i < jobs.length; i++) {
+      btn.innerHTML = jobs.length > 1
+        ? `<span class="spinner"></span> 出图中… ${i + 1}/${jobs.length}`
+        : '<span class="spinner"></span> 出图中…';
+      const err = await generateOne({ file: jobs[i] });
+      if (err) errors.push((jobs[i] ? jobs[i].name + '：' : '') + err);
+    }
+    if (errors.length) $('err').innerHTML = errors.join('<br>');
   } finally {
     btn.textContent = label;
     refreshGate();   // 按 skill/照片状态决定是否重新启用
@@ -250,8 +324,8 @@ function addResult(data) {
   if (empty) empty.remove();
   const el = document.createElement('div');
   el.className = 'result';
-  // editorial 无「配方」概念，重出即同图重跑；zine 则换配方
-  const regenLabel = data.skill === 'editorial' ? '重新生成' : '换配方重出';
+  // editorial / scenes 无「配方」概念，重出即同图重跑；zine 则换配方
+  const regenLabel = (data.skill === 'editorial' || data.skill === 'scenes') ? '重新生成' : '换配方重出';
   el.innerHTML = `
     <div class="thumb">
       <img src="${data.url}" alt="poster" loading="lazy">
@@ -262,20 +336,22 @@ function addResult(data) {
       <button>${regenLabel}</button>
     </div>`;
   el.querySelector('img').addEventListener('click', () => showOverlay(data.url));
-  el.querySelector('button').addEventListener('click', () => regen(data));
+  const regenBtn = el.querySelector('button');
+  regenBtn.addEventListener('click', () => regen(data, regenBtn));
   box.prepend(el);
 }
 
-function regen(data) {
-  // 切回该作品所用 skill，再触发一次生成
-  if (data.skill && currentSkill && data.skill !== currentSkill.id) {
-    selectSkill(data.skill);
-  }
-  if (data.skill !== 'editorial') {
-    $('subject').value = data.subject || '';
-    $('layout').value = '';   // 放开锁定，让它自动避开上次布局
-  }
-  if (!$('go').disabled) $('go').click();
+// 重出单张历史作品：复用该作品原图（后端 upload），用作品自身的 skill/subject，
+// 与当前面板选图、批量队列互不影响。
+async function regen(data, btnEl) {
+  const override = { skill: data.skill, subject: data.subject || '' };
+  // zine：放开布局锁定，让它自动避开上次；editorial/scenes 无配方，同图重跑
+  if (data.skill === 'zine') override.lock_layout = '';
+  const oldText = btnEl ? btnEl.textContent : '';
+  if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="spinner"></span>'; }
+  const err = await generateOne({ reuseUpload: data.upload || '', override });
+  if (btnEl) { btnEl.disabled = false; btnEl.textContent = oldText; }
+  if (err) $('err').innerHTML = err;
 }
 
 function showOverlay(url) {

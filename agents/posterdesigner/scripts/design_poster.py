@@ -41,6 +41,7 @@ sys.path.insert(0, str(AGENTS_ROOT))
 
 from prompt_compiler import choose_recipe, compile_prompt  # noqa: E402
 import editorial_prompt as ep  # noqa: E402
+import scenes_gathered_prompt as sg  # noqa: E402
 
 # lib 为可选依赖：缺失时降级为本地打印，不阻断出图
 try:
@@ -265,6 +266,19 @@ def run(args) -> int:
                 _log(logger, "ERROR", str(e))
                 continue
             suffix = "editorial"
+        elif args.skill == "scenes":
+            # scenes：照片必需，无变体配方；--text 作为可选微文字
+            if img is None:
+                _log(logger, "ERROR", "scenes 需要参考照片，跳过纯文生图")
+                continue
+            recipe = sg.build_recipe(subject_hint=args.subject or "",
+                                     text_line=args.text or "")
+            try:
+                prompt = sg.compile_prompt(recipe, has_reference_image=True)
+            except sg.PhotoRequiredError as e:
+                _log(logger, "ERROR", str(e))
+                continue
+            suffix = "scenes"
         else:
             # zine：种子配方引擎 + 四段式
             seed = f"{subject}|{img}|{_ts_slug()}|{idx}"
@@ -293,8 +307,8 @@ def run(args) -> int:
             if ok:
                 out_files.append(out_path)
 
-        # 只有 zine 有 layout 轴需要记忆
-        if args.skill != "editorial":
+        # 只有 zine 有 layout 轴需要记忆（editorial / scenes 无变体配方）
+        if args.skill == "zine":
             last_layout = recipe.layout_key
 
     save_seed_history(last_layout)
@@ -311,8 +325,9 @@ def run(args) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="海报设计师：把图片/主题优化成 zine 海报或照片抽象编辑作品")
-    p.add_argument("--skill", choices=["zine", "editorial"], default="zine",
-                   help="出图风格：zine（纸感海报，默认）/ editorial（原照片+抽象记忆面板，照片必需）")
+    p.add_argument("--skill", choices=["zine", "editorial", "scenes"], default="zine",
+                   help="出图风格：zine（纸感海报，默认）/ editorial（原照片+抽象记忆面板，照片必需）"
+                        "/ scenes（实景拼贴：真景为锚+插画成场+撕纸成界，照片必需）")
     p.add_argument("--subtitle", action="store_true",
                    help="editorial 专用：允许生成副标题（默认只出主标题）")
     p.add_argument("--subject", help="主题 / 核心意象（一句话）；省略时按每张图文件名生成")
