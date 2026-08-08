@@ -14,8 +14,8 @@
     "tag-image": {
       "path": "tag-image/",
       "description": "基于 Imagga AI 的批量图片打标签工具，输出 Unsplash 友好的逗号分隔标签",
+      "workbench": "双击 tag-image/workbench.command（推荐，浏览器里拖图出标签）",
       "localBatch": "node tag-image/tag-local.js [照片文件夹]",
-      "web": "cd tag-image && npm run dev",
       "requires": "tag-image/.env.local（IMAGGA_API_KEY / IMAGGA_API_SECRET）"
     }
   },

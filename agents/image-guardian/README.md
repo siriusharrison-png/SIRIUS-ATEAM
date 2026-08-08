@@ -61,13 +61,6 @@ IMAGGA_API_KEY=你的key
 IMAGGA_API_SECRET=你的secret
 ```
 
-**本地批量**（推荐）：把照片放进 `tag-image/photos/`，然后：
+**工作台**（推荐）：双击 `tag-image/workbench.command`，浏览器自动打开，把照片拖进去即自动出标签。每张点标签即复制，或「导出 CSV」一次拿走全部。关闭终端窗口即停。
 
-```bash
-node tag-image/tag-local.js            # 处理 tag-image/photos/
-node tag-image/tag-local.js /某/文件夹  # 处理指定文件夹
-```
-
-逐张打印标签，并在照片文件夹里生成 `tags.csv`（文件名 + 标签），上传时对着复制。
-
-**网页版**：`cd tag-image && npm run dev`，逐张上传或贴 URL。
+**命令行批量**：照片放进 `tag-image/photos/`，跑 `node tag-image/tag-local.js`，逐张打印并生成 `tags.csv`。
