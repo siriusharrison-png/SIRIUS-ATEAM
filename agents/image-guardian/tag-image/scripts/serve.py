@@ -220,16 +220,34 @@ def main():
     _load_env()
 
     url = f"http://127.0.0.1:{args.port}"
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
+    # 若端口被占用，自动向后找一个可用端口，避免双击后静默失败
+    import socket
+    port = args.port
+    for _ in range(10):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            if s.connect_ex(("127.0.0.1", port)) != 0:
+                break  # 端口空闲
+        port += 1
+    url = f"http://127.0.0.1:{port}"
+
+    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     key_ok = "✓ 已就位" if _auth_header() else "✗ 缺失（打标签会失败）"
     print(f"图片打标签工作台 → {url}")
     print(f"Imagga Key: {key_ok}")
-    print("按 Ctrl+C 停止。")
+    print("按 Ctrl+C 停止。\n")
+    print(f"若浏览器没自动打开或显示「无法连接」，手动访问：{url}")
+
+    # 服务已 bind、即将 serve_forever；延迟一小会儿再开浏览器，确保能连上
     if not args.no_open:
-        try:
-            webbrowser.open(url)
-        except Exception:
-            pass
+        import threading
+        def _open_later():
+            import time
+            time.sleep(0.8)
+            try:
+                webbrowser.open(url)
+            except Exception:
+                pass
+        threading.Thread(target=_open_later, daemon=True).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:
