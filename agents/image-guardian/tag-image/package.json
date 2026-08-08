@@ -1,0 +1,16 @@
+{
+  "name": "tag-image",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Imagga 图片标签工具 - 批量给图片生成 Unsplash 友好的标签",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "engines": {
+    "node": ">=20.x"
+  },
+  "dependencies": {
+    "formidable": "^3.5.2"
+  }
+}

@@ -1,19 +1,31 @@
 {
   "name": "摄影师",
   "role": "specialist",
-  "description": "Unsplash 数据追踪",
+  "description": "Unsplash 数据追踪 + 图片标签生成",
   "homepage": "https://unsplash.com/@siriusharrison/stats",
   "capabilities": [
     "stats_fetch",
     "trend_analyze",
     "tag_optimize",
+    "tag_generate",
     "report_push"
   ],
+  "tools": {
+    "tag-image": {
+      "path": "tag-image/",
+      "description": "基于 Imagga AI 的批量图片打标签工具，输出 Unsplash 友好的逗号分隔标签",
+      "workbench": "双击 tag-image/workbench.command（推荐，浏览器里拖图出标签）",
+      "localBatch": "node tag-image/tag-local.js [照片文件夹]",
+      "requires": "tag-image/.env.local（IMAGGA_API_KEY / IMAGGA_API_SECRET）"
+    }
+  },
   "triggers": [
     "/unsplash",
     "Unsplash 数据",
     "图片统计",
-    "下载量"
+    "下载量",
+    "打标签",
+    "图片标签"
   ],
   "schedule": {
     "dailyStats": "09:00"
