@@ -42,6 +42,7 @@ sys.path.insert(0, str(AGENTS_ROOT))
 from prompt_compiler import choose_recipe, compile_prompt  # noqa: E402
 import editorial_prompt as ep  # noqa: E402
 import scenes_gathered_prompt as sg  # noqa: E402
+import stamp_archive_prompt as st  # noqa: E402
 
 # lib 为可选依赖：缺失时降级为本地打印，不阻断出图
 try:
@@ -59,10 +60,33 @@ IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 CST = timezone(timedelta(hours=8))  # 北京时间
 
 
+def load_env():
+    """把 agent 目录下的 .env 读进环境变量（已设置的不覆盖）。
+
+    CLI、工作台、访达右键三条入口都要先调它，否则配在 .env 里的
+    GATEWAY_API_KEY 读不到，出图会直接失败。
+    """
+    env_file = AGENT_DIR / ".env"
+    if not env_file.exists():
+        return
+    for line in env_file.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        os.environ.setdefault(k.strip(), v.strip())
+
+
 def _log(logger, level, msg):
-    """有 AgentLogger 用之，否则退化为 stderr 打印。"""
+    """有 AgentLogger 用之，否则退化为 stderr 打印。
+
+    注意：ERROR 级别同时打到 stderr，否则 AgentLogger 会把报错只写进
+    .claude/logs/*.jsonl，命令行上静默失败、看不到原因。
+    """
     if logger is not None:
         getattr(logger, level.lower(), logger.info)(msg)
+        if level.upper() in ("ERROR", "CRITICAL"):
+            print(f"[{level}] {msg}", file=sys.stderr)
     else:
         print(f"[{level}] {msg}", file=sys.stderr)
 
@@ -144,18 +168,24 @@ def _save_image_response(resp, out_path: Path, logger) -> bool:
 
 
 def generate_image(prompt: str, image_path: Path | None,
-                   out_path: Path, logger) -> bool:
+                   out_path: Path, logger, size: str | None = None) -> bool:
     """
     通过 OpenAI 兼容网关的 Images API 出图，写出 PNG。返回是否成功。
 
     - 有参考图 → images.edit（图生图/编辑，对应 /v1/images/edits）
     - 无参考图 → images.generate（文生图，对应 /v1/images/generations）
+
+    Args:
+        size: 画布尺寸。传 None 时按竖版默认（zine/editorial/scenes 都是竖版）；
+              stamp skill 的左右拼接需要横版，由调用方按 recipe.size 显式传入。
+              POSTER_SIZE 环境变量优先级最高，便于整体覆盖。
     """
     api_key = os.environ.get("GATEWAY_API_KEY")
     base_url = os.environ.get("GATEWAY_BASE_URL")
     model = os.environ.get("POSTER_MODEL", DEFAULT_MODEL)
-    # gpt-image 竖版尺寸，最接近 zine 的 3:5（可用 POSTER_SIZE 覆盖）
-    size = os.environ.get("POSTER_SIZE", "1024x1536")
+    # 默认 gpt-image 竖版尺寸，最接近 zine 的 3:5；skill 可传 size 覆盖，
+    # POSTER_SIZE 再覆盖二者（手动兜底）
+    size = os.environ.get("POSTER_SIZE") or size or "1024x1536"
 
     if not api_key:
         _log(logger, "ERROR", "缺少 GATEWAY_API_KEY，无法出图（可用 --dry-run 只出 prompt）")
@@ -212,6 +242,7 @@ def report_to_hub(subject, recipe, out_files, dry_run):
 
 
 def run(args) -> int:
+    load_env()   # 先读 .env，否则 GATEWAY_API_KEY 拿不到
     logger = AgentLogger(AGENT_NAME) if _HAS_LIB else None
     _log(logger, "INFO", f"开始：主题「{args.subject or '（按文件名）'}」 dry_run={args.dry_run} batch={args.batch}")
 
@@ -279,6 +310,24 @@ def run(args) -> int:
                 _log(logger, "ERROR", str(e))
                 continue
             suffix = "scenes"
+        elif args.skill == "stamp":
+            # stamp：照片必需，无种子配方；但有图章形状/位置/拼接三条显式轴
+            if img is None:
+                _log(logger, "ERROR", "stamp 需要参考照片，跳过纯文生图")
+                continue
+            recipe = st.build_recipe(
+                seal_shape=args.seal_shape,
+                seal_corner=args.seal_corner,
+                splice=args.splice,
+                subject_hint=args.subject or "",
+                text_line=args.text or "",
+            )
+            try:
+                prompt = st.compile_prompt(recipe, has_reference_image=True)
+            except st.PhotoRequiredError as e:
+                _log(logger, "ERROR", str(e))
+                continue
+            suffix = "stamp"
         else:
             # zine：种子配方引擎 + 四段式
             seed = f"{subject}|{img}|{_ts_slug()}|{idx}"
@@ -303,7 +352,9 @@ def run(args) -> int:
         if args.dry_run:
             _log(logger, "INFO", "dry-run：跳过实际出图")
         else:
-            ok = generate_image(prompt, img, out_path, logger)
+            # 只有 stamp 的 recipe 带 size（左右拼接走横版）；其余为 None → 竖版默认
+            ok = generate_image(prompt, img, out_path, logger,
+                                size=getattr(recipe, "size", None))
             if ok:
                 out_files.append(out_path)
 
@@ -325,11 +376,18 @@ def run(args) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="海报设计师：把图片/主题优化成 zine 海报或照片抽象编辑作品")
-    p.add_argument("--skill", choices=["zine", "editorial", "scenes"], default="zine",
+    p.add_argument("--skill", choices=["zine", "editorial", "scenes", "stamp"], default="zine",
                    help="出图风格：zine（纸感海报，默认）/ editorial（原照片+抽象记忆面板，照片必需）"
-                        "/ scenes（实景拼贴：真景为锚+插画成场+撕纸成界，照片必需）")
+                        "/ scenes（实景拼贴：真景为锚+插画成场+撕纸成界，照片必需）"
+                        "/ stamp（档案图章：原片+暖白纸+定制手工图章，照片必需）")
     p.add_argument("--subtitle", action="store_true",
                    help="editorial 专用：允许生成副标题（默认只出主标题）")
+    p.add_argument("--seal-shape", choices=list(st.SEAL_SHAPES), default=st.DEFAULT_SEAL_SHAPE,
+                   help="stamp 专用：图章形状（默认 auto，按主体轮廓自动定形）")
+    p.add_argument("--seal-corner", choices=list(st.SEAL_CORNERS), default=st.DEFAULT_SEAL_CORNER,
+                   help="stamp 专用：图章所在角落（默认 auto，按视觉重量平衡）")
+    p.add_argument("--splice", choices=list(st.SPLICE_MODES), default=st.DEFAULT_SPLICE,
+                   help="stamp 专用：拼接方向 lr=左右(横版，默认) / tb=上下(竖版)")
     p.add_argument("--subject", help="主题 / 核心意象（一句话）；省略时按每张图文件名生成")
     p.add_argument("--image", nargs="+", metavar="PATH",
                    help="参考图路径，可多张，也可传目录（拖拽进终端/访达右键都走这里）")

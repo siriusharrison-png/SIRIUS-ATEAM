@@ -45,7 +45,9 @@ if [ ${#args[@]} -eq 0 ]; then
   exit 0
 fi
 
-python3 scripts/design_poster.py "${args[@]}"
+source scripts/_python.sh || { read -r -p "按回车关闭…" _; exit 1; }
+
+"$PY" scripts/design_poster.py "${args[@]}"
 status=$?
 
 echo ""

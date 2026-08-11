@@ -16,3 +16,8 @@ __pycache__/
 # Agent 运行日志，不入库
 .claude/logs/
 **/.claude/logs/
+
+# Python 虚拟环境，不入库
+.venv/
+**/.venv/
+venv/

@@ -28,6 +28,7 @@ sys.path.insert(0, str(AGENT_DIR / "scripts"))
 from prompt_compiler import choose_recipe, compile_prompt  # noqa: E402
 import editorial_prompt as ep  # noqa: E402
 import scenes_gathered_prompt as sg  # noqa: E402
+import stamp_archive_prompt as st  # noqa: E402
 import design_poster as dp  # noqa: E402
 
 OUTPUT_DIR = AGENT_DIR / "output"
@@ -72,22 +73,31 @@ SKILLS = [
             "text": "微文字，留空自动生成英文短句，例：Almost home",
         },
     },
+    {
+        "id": "stamp",
+        "name": "档案图章风格",
+        "desc": "一侧忠实保留原照片＋一侧暖白档案纸盖定制手工图章，直缝相接；照片必需。",
+        "photoRequired": True,
+        "fields": ["subject", "text", "seal_shape", "seal_corner", "splice"],
+        "subjectLabel": "意象提示（可选，辅助命名，不覆盖照片事实）",
+        "placeholders": {
+            "subject": "例：老城的钟楼 / 街角的旧书店",
+            "text": "图章旁小字，留空自动生成英文，例：HARBOUR",
+        },
+        # 三条可选轴：交给前端渲染下拉，value/label 由 compiler 单一事实来源导出
+        "options": {
+            "seal_shape": [{"value": k, "label": v[0]} for k, v in st.SEAL_SHAPES.items()],
+            "seal_corner": [{"value": k, "label": v[0]} for k, v in st.SEAL_CORNERS.items()],
+            "splice": [{"value": k, "label": v[0]} for k, v in st.SPLICE_MODES.items()],
+        },
+    },
 ]
 DEFAULT_SKILL = "zine"
 VALID_SKILLS = {s["id"] for s in SKILLS}
 
 
-def _load_env():
-    """把同级 .env 读进环境变量（若尚未设置）。"""
-    env_file = AGENT_DIR / ".env"
-    if not env_file.exists():
-        return
-    for line in env_file.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        os.environ.setdefault(k.strip(), v.strip())
+# .env 读取复用 design_poster.load_env（单一实现，避免两处逻辑漂移）
+_load_env = dp.load_env
 
 
 def _parse_multipart(body: bytes, boundary: bytes) -> dict:
@@ -258,6 +268,49 @@ def _generate_scenes(fields: dict, img_path: Path | None) -> dict:
     return {"ok": False, "error": "出图失败，检查 .env 里的网关 Key 与额度。"}
 
 
+def _generate_stamp(fields: dict, img_path: Path | None) -> dict:
+    """stamp skill：原片忠实＋暖白纸面＋定制手工图章。照片必需，三条轴可选。"""
+    if img_path is None:
+        return {"ok": False, "error": "档案图章风格需要先上传一张照片作为唯一内容来源。"}
+
+    subject_hint = (fields.get("subject") or "").strip()
+    text_line = (fields.get("text") or "").strip()
+    recipe = st.build_recipe(
+        seal_shape=fields.get("seal_shape") or st.DEFAULT_SEAL_SHAPE,
+        seal_corner=fields.get("seal_corner") or st.DEFAULT_SEAL_CORNER,
+        splice=fields.get("splice") or st.DEFAULT_SPLICE,
+        subject_hint=subject_hint,
+        text_line=text_line,
+    )
+
+    try:
+        prompt = st.compile_prompt(recipe, has_reference_image=True)
+    except st.PhotoRequiredError as e:
+        return {"ok": False, "error": str(e)}
+
+    out_path = OUTPUT_DIR / f"{img_path.stem}-stamp-{dp._ts_slug()}.png"
+
+    # stamp 的画布横竖由拼接方向决定，必须把 recipe.size 传下去
+    ok = dp.generate_image(prompt, img_path, out_path, None, size=recipe.size)
+    if ok:
+        subject_for_hub = subject_hint or dp._subject_from_path(img_path)
+        dp.report_to_hub(subject_for_hub, recipe, [out_path], dry_run=False)
+        return {
+            "ok": True,
+            "skill": "stamp",
+            "subject": subject_for_hub,
+            "recipe": recipe.as_line(),
+            "file": out_path.name,
+            "url": f"/output/{out_path.name}",
+            "upload": img_path.name if img_path else "",
+            # 回传三条轴，供前端「重新生成」时原样复用
+            "seal_shape": recipe.seal_shape,
+            "seal_corner": recipe.seal_corner,
+            "splice": recipe.splice,
+        }
+    return {"ok": False, "error": "出图失败，检查 .env 里的网关 Key 与额度。"}
+
+
 def _do_generate(fields: dict) -> dict:
     """执行一次出图，按 skill 分流后返回给前端的 JSON 结果。"""
     skill = (fields.get("skill") or DEFAULT_SKILL).strip()
@@ -270,6 +323,8 @@ def _do_generate(fields: dict) -> dict:
         return _generate_editorial(fields, img_path)
     if skill == "scenes":
         return _generate_scenes(fields, img_path)
+    if skill == "stamp":
+        return _generate_stamp(fields, img_path)
     return _generate_zine(fields, img_path)
 
 

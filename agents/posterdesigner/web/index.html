@@ -119,6 +119,18 @@
         <label class="field">锁定布局（可选，默认自动避开上次）</label>
         <select id="layout"><option value="">自动</option></select>
       </div>
+      <div data-field="seal_shape">
+        <label class="field">图章形状</label>
+        <select id="seal_shape"></select>
+      </div>
+      <div data-field="seal_corner">
+        <label class="field">图章位置</label>
+        <select id="seal_corner"></select>
+      </div>
+      <div data-field="splice">
+        <label class="field">拼接方向</label>
+        <select id="splice"></select>
+      </div>
       <div class="row" data-field="mono"><input id="mono" type="checkbox"><label for="mono">单色模式（弱化高饱和色）</label></div>
       <div class="row" data-field="subtitle"><input id="subtitle" type="checkbox"><label for="subtitle">允许副标题（默认只出主标题）</label></div>
 
@@ -192,6 +204,22 @@ function selectSkill(id) {
   if ($('subjectLabel') && skill.subjectLabel) $('subjectLabel').textContent = skill.subjectLabel;
   if (ph.subject) $('subject').placeholder = ph.subject;
   if (ph.text) $('text').placeholder = ph.text;
+
+  // skill 自带的下拉选项（如 stamp 的图章形状/位置/拼接方向）
+  // 选项来自后端 compiler，前端不写死，避免两处命名漂移
+  const opts = skill.options || {};
+  Object.keys(opts).forEach(key => {
+    const sel = $(key);
+    if (!sel) return;
+    const keep = sel.value;          // 切 tab 回来时尽量保留上次选择
+    sel.innerHTML = '';
+    opts[key].forEach(o => {
+      const op = document.createElement('option');
+      op.value = o.value; op.textContent = o.label;
+      sel.appendChild(op);
+    });
+    if (keep && opts[key].some(o => o.value === keep)) sel.value = keep;
+  });
 
   // 未选图时才刷新占位文案（已选图保留缩略图网格）
   if (!pickedFiles.length) $('dropText').innerHTML = $('dropText').dataset.hint;
@@ -280,6 +308,11 @@ function buildForm(opts) {
   fd.append('lock_layout', o.lock_layout != null ? o.lock_layout : $('layout').value);
   fd.append('mono', o.mono != null ? o.mono : ($('mono').checked ? '1' : '0'));
   fd.append('subtitle', o.subtitle != null ? o.subtitle : ($('subtitle').checked ? '1' : '0'));
+  // stamp 三条轴：重出时用作品自身的取值，否则读当前面板
+  ['seal_shape', 'seal_corner', 'splice'].forEach(k => {
+    const el = $(k);
+    fd.append(k, o[k] != null ? o[k] : (el ? el.value : ''));
+  });
   return fd;
 }
 
@@ -291,9 +324,25 @@ async function generateOne(opts) {
     if (data.ok) { addResult(data); return null; }
     return data.error || '出图失败';
   } catch (e) {
+    // fetch 抛异常＝请求根本没到服务端（最常见就是本地服务已停）。
+    // 浏览器只给一句 "Failed to fetch"，对使用者没有信息量，这里换成能照着做的话。
+    const offline = /failed to fetch|networkerror|load failed/i.test(e.message || '');
+    if (offline) {
+      return '连不上本地服务 —— 出图服务已经停了（多半是那个终端窗口被关掉了）。'
+           + '重新双击 <b>workbench.command</b> 启动，然后刷新这个页面重试。';
+    }
     return '请求失败：' + e.message;
   }
 }
+
+// 页面重新可见时探一下服务还在不在，早点提示而不是等用户点了生成才报错
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  fetch('/api/skills', { method: 'GET' }).catch(() => {
+    $('err').innerHTML = '连不上本地服务 —— 出图服务可能已停止。'
+      + '重新双击 <b>workbench.command</b> 启动后刷新页面。';
+  });
+});
 
 // 生成：有多张图则串行批量（避免网关限流），无图则纯主题单次
 $('go').addEventListener('click', async () => {
@@ -324,8 +373,8 @@ function addResult(data) {
   if (empty) empty.remove();
   const el = document.createElement('div');
   el.className = 'result';
-  // editorial / scenes 无「配方」概念，重出即同图重跑；zine 则换配方
-  const regenLabel = (data.skill === 'editorial' || data.skill === 'scenes') ? '重新生成' : '换配方重出';
+  // 只有 zine 有种子配方可换；其余 skill 重出即同参数同图重跑
+  const regenLabel = data.skill === 'zine' ? '换配方重出' : '重新生成';
   el.innerHTML = `
     <div class="thumb">
       <img src="${data.url}" alt="poster" loading="lazy">
@@ -345,8 +394,14 @@ function addResult(data) {
 // 与当前面板选图、批量队列互不影响。
 async function regen(data, btnEl) {
   const override = { skill: data.skill, subject: data.subject || '' };
-  // zine：放开布局锁定，让它自动避开上次；editorial/scenes 无配方，同图重跑
+  // zine：放开布局锁定，让它自动避开上次；其余无种子配方，同参数重跑
   if (data.skill === 'zine') override.lock_layout = '';
+  // stamp：沿用该作品自己的三条轴，不受当前面板选择影响
+  if (data.skill === 'stamp') {
+    override.seal_shape = data.seal_shape || '';
+    override.seal_corner = data.seal_corner || '';
+    override.splice = data.splice || '';
+  }
   const oldText = btnEl ? btnEl.textContent : '';
   if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="spinner"></span>'; }
   const err = await generateOne({ reuseUpload: data.upload || '', override });
