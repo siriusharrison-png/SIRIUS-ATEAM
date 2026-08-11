@@ -37,7 +37,9 @@ echo "────────────────────────�
 echo "  海报设计师 · 出图中（${#imgs[@]} 张）"
 echo "──────────────────────────────────"
 
-python3 scripts/design_poster.py --image "${imgs[@]}"
+source scripts/_python.sh || { read -r -p "按回车关闭…" _; exit 1; }
+
+"$PY" scripts/design_poster.py --image "${imgs[@]}"
 status=$?
 
 echo ""

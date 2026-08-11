@@ -11,7 +11,9 @@ echo "────────────────────────�
 echo "浏览器会自动打开。关闭本窗口即停止服务。"
 echo ""
 
-python3 scripts/serve.py
+source scripts/_python.sh || { read -r -p "按回车关闭…" _; exit 1; }
+
+"$PY" scripts/serve.py
 
 echo ""
 read -r -p "服务已停止，按回车关闭…" _

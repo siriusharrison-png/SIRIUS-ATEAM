@@ -1,2 +1,6 @@
 openai
 pillow
+
+# 本机走 SOCKS 代理时必需：否则 openai 底层的 httpx 会报
+# "Using SOCKS proxy, but the 'socksio' package is not installed"
+httpx[socks]

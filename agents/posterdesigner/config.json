@@ -1,7 +1,7 @@
 {
   "name": "海报设计师",
   "role": "specialist",
-  "description": "把上传图片/主题优化为极简 zine 纸感海报，或保留原照片＋抽象记忆面板的编辑作品",
+  "description": "把上传图片/主题优化为极简 zine 纸感海报、抽象记忆面板编辑作品、实景拼贴，或原片＋手工图章的档案拼接",
   "skill": "gc-minimal-zine-poster-v0-1",
   "defaultSkill": "zine",
   "skills": [
@@ -28,6 +28,14 @@
       "compiler": "scenes_gathered_prompt",
       "photoRequired": true,
       "desc": "真景为锚＋插画成场＋撕纸成界：把繁复细节压成安静图形，一色作结构，手撕纤维毛边；照片必需。作者 Zeejay0。"
+    },
+    {
+      "id": "stamp",
+      "name": "档案图章风格",
+      "skill": "make-photo-stamp-archive",
+      "compiler": "stamp_archive_prompt",
+      "photoRequired": true,
+      "desc": "原片忠实＋暖白档案纸＋定制手工图章，两块面板直缝相接；图章形状/位置/拼接方向可选。照片必需。来源 Dlcccc71913（MIT）。"
     }
   ],
   "capabilities": [
@@ -43,7 +51,11 @@
     "优化成海报",
     "纸感海报",
     "实景拼贴",
-    "撕纸海报"
+    "撕纸海报",
+    "图章",
+    "印章",
+    "照片档案",
+    "档案拼接"
   ],
   "engine": {
     "provider": "openai-compatible-gateway",
