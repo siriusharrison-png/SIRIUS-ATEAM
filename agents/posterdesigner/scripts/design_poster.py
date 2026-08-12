@@ -53,7 +53,10 @@ except Exception:  # pragma: no cover - 环境降级路径
     _HAS_LIB = False
 
 AGENT_NAME = "海报设计师"
-DEFAULT_MODEL = "gpt-image-2"
+# 网关把 gpt-image-2 拆成两个独立模型名：文生图与图生图分别调用不同 endpoint。
+# 各自可用环境变量覆盖；POSTER_MODEL 若设置则同时覆盖两者（整体兜底）。
+DEFAULT_MODEL_EDIT = "gpt-image-2-edit"          # 有参考图 → images.edit
+DEFAULT_MODEL_GENERATE = "gpt-image-2-text-to-image"  # 无参考图 → images.generate
 INPUT_DIR = AGENT_DIR / "input"
 OUTPUT_DIR = AGENT_DIR / "output"
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
@@ -167,25 +170,91 @@ def _save_image_response(resp, out_path: Path, logger) -> bool:
     return False
 
 
+def _ssl_context():
+    """返回带 CA 证书的 SSL context。优先用 certifi（urllib 默认拿不到
+    macOS 系统证书，会 CERTIFICATE_VERIFY_FAILED），降级系统默认。"""
+    import ssl
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        return ssl.create_default_context()
+
+
+def _save_v3_response(data: dict, out_path: Path, logger) -> bool:
+    """解析 /v3 native 返回并写盘。返回结构为 {"images": [<url 或 base64>, ...]}。
+
+    每个元素可能是：URL 字符串（下载）、纯 base64 字符串、或 {url|b64_json|image} 对象。
+    """
+    import base64
+    if not isinstance(data, dict):
+        _log(logger, "ERROR", f"网关返回非 JSON 对象：{type(data).__name__}")
+        return False
+
+    images = data.get("images")
+    if not images:
+        # 可能是错误体或结构变更，把 key 打出来便于定位
+        _log(logger, "ERROR", f"网关返回无 images 字段，keys={list(data.keys())}")
+        return False
+
+    item = images[0]
+    # 对象形态：取其中的 url / b64_json / image 字段
+    if isinstance(item, dict):
+        item = item.get("url") or item.get("b64_json") or item.get("image")
+    if not isinstance(item, str) or not item:
+        _log(logger, "ERROR", "网关 images[0] 无法解析为图像")
+        return False
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if item.startswith("http://") or item.startswith("https://"):
+        try:
+            import urllib.request
+            with urllib.request.urlopen(item, timeout=120, context=_ssl_context()) as r:
+                out_path.write_bytes(r.read())
+            _log(logger, "INFO", f"已出图(下载): {out_path}")
+            return True
+        except Exception as e:
+            _log(logger, "ERROR", f"下载图像失败: {e}")
+            return False
+
+    # 非 URL 则按 base64 处理（可能带 data: 前缀）
+    try:
+        b64 = item.split(",", 1)[1] if item.startswith("data:") else item
+        out_path.write_bytes(base64.b64decode(b64))
+        _log(logger, "INFO", f"已出图: {out_path}")
+        return True
+    except Exception as e:
+        _log(logger, "ERROR", f"图像 base64 解码失败: {e}")
+        return False
+
+
 def generate_image(prompt: str, image_path: Path | None,
                    out_path: Path, logger, size: str | None = None) -> bool:
     """
-    通过 OpenAI 兼容网关的 Images API 出图，写出 PNG。返回是否成功。
+    通过网关的 provider-native 图像接口出图，写出 PNG。返回是否成功。
 
-    - 有参考图 → images.edit（图生图/编辑，对应 /v1/images/edits）
-    - 无参考图 → images.generate（文生图，对应 /v1/images/generations）
+    网关已把图像能力迁移到 /v3/{model} native 协议（不再是 OpenAI 兼容的
+    /v1/images/*）：
+    - 有参考图 → POST /v3/gpt-image-2-edit         （图生图，body 带 image）
+    - 无参考图 → POST /v3/gpt-image-2-text-to-image （文生图）
+    返回结构为 {"images": [<url 或 base64>, ...]}。
 
     Args:
-        size: 画布尺寸。传 None 时按竖版默认（zine/editorial/scenes 都是竖版）；
-              stamp skill 的左右拼接需要横版，由调用方按 recipe.size 显式传入。
+        size: 画布尺寸，必须落在网关枚举内（竖版如 1024x1536 / 1152x2048，
+              横版如 1536x1024）。传 None 时按竖版默认。
               POSTER_SIZE 环境变量优先级最高，便于整体覆盖。
     """
     api_key = os.environ.get("GATEWAY_API_KEY")
     base_url = os.environ.get("GATEWAY_BASE_URL")
-    model = os.environ.get("POSTER_MODEL", DEFAULT_MODEL)
-    # 默认 gpt-image 竖版尺寸，最接近 zine 的 3:5；skill 可传 size 覆盖，
-    # POSTER_SIZE 再覆盖二者（手动兜底）
+    # POSTER_MODEL 若设置则整体覆盖两条路径；否则按有无参考图各走各的默认名。
+    _override = os.environ.get("POSTER_MODEL")
+    model = _override or (
+        os.environ.get("POSTER_MODEL_EDIT", DEFAULT_MODEL_EDIT) if image_path is not None
+        else os.environ.get("POSTER_MODEL_GENERATE", DEFAULT_MODEL_GENERATE)
+    )
     size = os.environ.get("POSTER_SIZE") or size or "1024x1536"
+    quality = os.environ.get("POSTER_QUALITY", "medium")
 
     if not api_key:
         _log(logger, "ERROR", "缺少 GATEWAY_API_KEY，无法出图（可用 --dry-run 只出 prompt）")
@@ -194,29 +263,50 @@ def generate_image(prompt: str, image_path: Path | None,
         _log(logger, "ERROR", "缺少 GATEWAY_BASE_URL（网关地址），无法出图")
         return False
 
+    # 图像走 /v3/{model}，与 chat 的 /v1 不同根：从 base_url 剥掉尾部 /v1。
+    root = base_url.rstrip("/")
+    if root.endswith("/v1"):
+        root = root[:-3].rstrip("/")
+    api_url = f"{root}/v3/{model}"
+
+    body = {"prompt": prompt, "size": size, "quality": quality}
+    if image_path is not None:
+        import base64
+        raw = Path(image_path).read_bytes()
+        ext = Path(image_path).suffix.lower()
+        mime = "image/jpeg" if ext in (".jpg", ".jpeg") else \
+               "image/webp" if ext == ".webp" else \
+               "image/gif" if ext == ".gif" else "image/png"
+        body["image"] = f"data:{mime};base64,{base64.b64encode(raw).decode()}"
+
+    import json as _json
+    import urllib.request
+    import urllib.error
+    req = urllib.request.Request(
+        api_url,
+        data=_json.dumps(body).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
     try:
-        from openai import OpenAI
-    except ImportError:
-        _log(logger, "ERROR", "缺少依赖 openai，请 pip install openai pillow")
+        with urllib.request.urlopen(req, timeout=300, context=_ssl_context()) as r:
+            data = _json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        detail = ""
+        try:
+            detail = e.read().decode("utf-8")[:300]
+        except Exception:
+            pass
+        _log(logger, "ERROR", f"网关出图失败 HTTP {e.code}: {detail}")
         return False
-
-    client = OpenAI(api_key=api_key, base_url=base_url)
-
-    try:
-        if image_path is not None:
-            with open(image_path, "rb") as f:
-                resp = client.images.edit(
-                    model=model, image=f, prompt=prompt, size=size,
-                )
-        else:
-            resp = client.images.generate(
-                model=model, prompt=prompt, size=size,
-            )
     except Exception as e:
-        _log(logger, "ERROR", f"网关 Images API 调用失败: {e}")
+        _log(logger, "ERROR", f"网关出图请求异常: {e}")
         return False
 
-    return _save_image_response(resp, out_path, logger)
+    return _save_v3_response(data, out_path, logger)
 
 
 def report_to_hub(subject, recipe, out_files, dry_run):
