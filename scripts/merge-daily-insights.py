@@ -86,7 +86,6 @@ def merge_insights(all_insights, target_date):
         "devices": [],
         "totals": {
             "total_sessions": 0,
-            "total_duration_minutes": 0,
             "total_input_tokens": 0,
             "total_output_tokens": 0,
             "total_cache_read_tokens": 0,
@@ -105,7 +104,6 @@ def merge_insights(all_insights, target_date):
         merged["devices"].append({
             "device_id": device_id,
             "sessions": stats.get("total_sessions", 0),
-            "duration": stats.get("total_duration_minutes", 0),
             "input_tokens": stats.get("total_input_tokens", 0),
             "output_tokens": stats.get("total_output_tokens", 0),
             "cache_read_tokens": stats.get("total_cache_read_tokens", 0),
@@ -116,7 +114,6 @@ def merge_insights(all_insights, target_date):
 
         # 累加统计
         merged["totals"]["total_sessions"] += stats.get("total_sessions", 0)
-        merged["totals"]["total_duration_minutes"] += stats.get("total_duration_minutes", 0)
         merged["totals"]["total_input_tokens"] += stats.get("total_input_tokens", 0)
         merged["totals"]["total_output_tokens"] += stats.get("total_output_tokens", 0)
         merged["totals"]["total_cache_read_tokens"] += stats.get("total_cache_read_tokens", 0)
@@ -168,12 +165,10 @@ def push_to_feishu(all_insights, merged, target_date):
     totals = merged["totals"]
     in_t = totals["total_input_tokens"]
     out_t = totals["total_output_tokens"]
-    cache_r = totals.get("total_cache_read_tokens", 0)
 
     # ========== 汇总统计（一行） ==========
     summary_line = (
         f"**📊 今日汇总** ｜ {totals['total_sessions']} 会话 ｜ "
-        f"{totals['total_duration_minutes']} 分钟 ｜ "
         f"输入 {format_tokens(in_t)} ／ 输出 {format_tokens(out_t)} ｜ "
         f"**比例 {totals.get('io_ratio', '-')}**"
     )
@@ -191,7 +186,6 @@ def push_to_feishu(all_insights, merged, target_date):
     for device in merged["devices"]:
         device_id = device["device_id"]
         sessions = device["sessions"]
-        duration = device["duration"]
         input_t = device["input_tokens"]
         output_t = device["output_tokens"]
         ratio = format_ratio(input_t, output_t)
@@ -205,14 +199,14 @@ def push_to_feishu(all_insights, merged, target_date):
         dev_model_text = ", ".join(short_model(m) for m in dev_models) or "-"
 
         device_rows.append(
-            f"| 🖥️ {device_id} | {sessions} | {duration}min | {format_tokens(input_t)} "
+            f"| 🖥️ {device_id} | {sessions} | {format_tokens(input_t)} "
             f"| {format_tokens(output_t)} | {ratio} | {dev_model_text} | {tools_text} |"
         )
 
     devices_table = f"""**📱 设备明细**
 
-| 设备 | 会话 | 时长 | 输入 | 输出 | 比例 | 模型 | 工具 |
-|:-----|:----:|:----:|:----:|:----:|:----:|:-----|:-----|
+| 设备 | 会话 | 输入 | 输出 | 比例 | 模型 | 工具 |
+|:-----|:----:|:----:|:----:|:----:|:-----|:-----|
 {chr(10).join(device_rows)}"""
 
     # ========== 构建卡片 ==========
@@ -253,10 +247,7 @@ def push_to_feishu(all_insights, merged, target_date):
                     "elements": [
                         {
                             "tag": "plain_text",
-                            "content": (
-                                f"共 {len(all_insights)} 台设备 ｜ "
-                                f"另有缓存读取 {format_tokens(cache_r)}（不计入上方输入）"
-                            )
+                            "content": f"共 {len(all_insights)} 台设备"
                         }
                     ]
                 }
