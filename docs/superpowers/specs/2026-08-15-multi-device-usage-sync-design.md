@@ -127,8 +127,44 @@ claude-config
 4. 用 `workflow_dispatch` 手动触发 `secretary-daily.yml`，确认日志不再输出「没有找到数据」，飞书收到含设备明细的卡片
 5. 确认 `main` 分支未被本次操作改动
 
-## 七、已知限制
+## 七、日报内容调整（2026-08-15 追加）
 
-- 另一台设备未接入前，日报只显示一台设备的数据。仍优于当前的「没有找到数据」
+原汇总卡片显示估算成本，实测严重失真，已移除。
+
+**失真原因**：原实现按「全量输入 × Opus 单价（$15/M in、$75/M out）」计算，未区分缓存命中。实测单个会话的 token 分项：
+
+| 项 | 数量 |
+|---|---|
+| 真实新增输入 | 7,456,648 |
+| 缓存读取 | 21,627,358 |
+| 缓存写入 | 1,100,309 |
+| 输出 | 128,683 |
+
+缓存读取占上下文总量的七成以上，计费远低于新增输入，混算导致成本高估数倍。此外卡片脚注写「按 Sonnet 估算」而代码用的是 Opus 单价，标签与实现不一致。
+
+**改为展示**：
+
+- 输入 / 输出 token 分别列出，加上比例（如 `58:1`）
+- 当天实际使用的模型及调用次数（如 `opus-5 × 406`）
+- 缓存读取量移至脚注，明确标注不计入上方输入
+
+**涉及改动**：
+
+| 文件 | 改动 |
+|---|---|
+| `~/.claude/scripts/extract-session-data.py` | 新增采集 `cache_read_tokens`、`cache_write_tokens`、`models`。排除 `<synthetic>`（本地合成消息，非真实 API 调用） |
+| `scripts/merge-daily-insights.py`（本仓库新增） | 移除 `calculate_cost` 与 `COST_PER_M_*`，新增 `format_ratio`、`short_model`，卡片改版 |
+| `.github/workflows/secretary-daily.yml` | 脚本解析顺序改为优先本仓库的 `scripts/`，`claude-config` 仅作回退 |
+
+汇总脚本改放本仓库的原因：`claude-config` 的 main 分支长期分叉、推送受阻，脚本放在那里无法更新。
+
+**同时清理了两个空转步骤**：
+
+- `Collect device insights from all machines` — 在 runner 上读 `~/.claude/usage-data/devices`，但 runner 家目录是 `/home/runner`，路径永不存在，历次运行零输出
+- `Sync device insights from repository` — 读 `.github/device-insights/`，该目录不存在
+
+## 八、已知限制
+
+- 另一台设备未接入前，日报只显示一台设备的数据。仍优于此前的「没有找到数据」
 - 另一台设备的实际状态无法从本机验证，可能已装或未装收集脚本
-- 汇总脚本按 Claude Opus 单价估算成本（输入 $15/M、输出 $75/M），若实际用了其他模型，成本为高估
+- 输入 / 输出比是原始 token 比值，不代表计费比例。缓存命中的实际单价低于新增输入，若需精确成本需按官方缓存定价单独核算
