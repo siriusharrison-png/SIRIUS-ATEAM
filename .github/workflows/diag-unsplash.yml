@@ -1,0 +1,40 @@
+name: Diag Unsplash
+on:
+  workflow_dispatch:
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Dump raw stats
+        env:
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          UNSPLASH_USERNAME: ${{ secrets.UNSPLASH_USERNAME }}
+        run: |
+          python3 << 'EOF'
+          import os, requests, json
+          from datetime import datetime, timezone, timedelta
+          key = os.environ["UNSPLASH_ACCESS_KEY"]
+          user = os.environ.get("UNSPLASH_USERNAME") or "siriusharrison"
+          bj = datetime.now(timezone(timedelta(hours=8)))
+          print("runner UTC :", datetime.now(timezone.utc).isoformat())
+          print("Beijing    :", bj.isoformat())
+          print("script date:", datetime.now().strftime("%Y-%m-%d"))
+          print("username   :", user)
+          r = requests.get(f"https://api.unsplash.com/users/{user}/statistics",
+                           headers={"Authorization": f"Client-ID {key}"},
+                           params={"resolution":"days","quantity":10})
+          print("http:", r.status_code)
+          for h in ("date","cache-control","age","x-cache","last-modified"):
+              if h in r.headers: print(f"  hdr {h}: {r.headers[h]}")
+          d = r.json()
+          for k in ("downloads","views"):
+              print(f"\n== {k} total = {d[k]['total']}")
+              for v in d[k]["historical"]["values"]:
+                  print("   ", v["date"], v["value"])
+              print("   values[-1] ->", d[k]["historical"]["values"][-1])
+          EOF
