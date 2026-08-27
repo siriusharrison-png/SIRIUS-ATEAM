@@ -33,22 +33,33 @@ NOTION_TOKEN = os.environ.get("NOTION_TOKEN", "")
 NOTION_GALLERY_DB = os.environ.get("NOTION_GALLERY_DB", "")
 
 
+# Unsplash 的统计接口带 24h CDN 缓存（cache-control: max-age=86400），
+# 两次请求间隔不足 24h 会拿到字节级相同的旧响应，导致日报重复。
+NO_CACHE_HEADERS = {"Cache-Control": "no-cache", "Pragma": "no-cache"}
+
+
+def _cache_bust():
+    """给 CDN 一个没见过的 query key，强制回源。"""
+    return {"_cb": str(int(time.time()))}
+
+
 def fetch_user_stats():
     """获取用户统计"""
     url = f"https://api.unsplash.com/users/{USERNAME}/statistics"
-    headers = {"Authorization": f"Client-ID {ACCESS_KEY}"}
-    params = {"resolution": "days", "quantity": 30}
+    headers = {"Authorization": f"Client-ID {ACCESS_KEY}", **NO_CACHE_HEADERS}
+    params = {"resolution": "days", "quantity": 30, **_cache_bust()}
 
     resp = requests.get(url, headers=headers, params=params)
     resp.raise_for_status()
+    print(f"  [stats] x-cache={resp.headers.get('x-cache', 'n/a')} age={resp.headers.get('age', 'n/a')}")
     return resp.json()
 
 
 def fetch_photos_stats():
     """获取照片统计"""
     url = f"https://api.unsplash.com/users/{USERNAME}/photos"
-    headers = {"Authorization": f"Client-ID {ACCESS_KEY}"}
-    params = {"stats": "true", "per_page": 30, "order_by": "popular"}
+    headers = {"Authorization": f"Client-ID {ACCESS_KEY}", **NO_CACHE_HEADERS}
+    params = {"stats": "true", "per_page": 30, "order_by": "popular", **_cache_bust()}
 
     resp = requests.get(url, headers=headers, params=params)
     resp.raise_for_status()
@@ -67,6 +78,27 @@ def fetch_trending():
         return [t["slug"] for t in resp.json()]
     except:
         return ["wallpapers", "nature", "travel", "architecture", "film"]
+
+
+def pick_latest_day(stats):
+    """取 history 中日期最大的一天，返回 (日期, 下载, 浏览)。
+
+    Unsplash 的 historical.values 末尾是**上一个自然日**，不是当天：
+    今天跑批时数组最后一项是昨天。直接用 values[-1] 而不标日期，
+    会让卡片标题写今天、数字却是别的一天，跨缓存窗口时还会两天重复。
+    """
+    history = (stats or {}).get("history") or {}
+
+    def latest(key):
+        items = [v for v in (history.get(key) or []) if v.get("date")]
+        if not items:
+            return None, 0
+        top = max(items, key=lambda v: v["date"])
+        return top["date"], top.get("value", 0)
+
+    d_date, downloads = latest("downloads")
+    v_date, views = latest("views")
+    return (d_date or v_date), downloads, views
 
 
 def wait_until_send_time():
@@ -108,16 +140,10 @@ def push_to_feishu(stats, trending):
     # 等待到 9:00
     wait_until_send_time()
 
-    # 当日数据
-    today_downloads = 0
-    today_views = 0
-    if "history" in stats:
-        downloads_history = stats["history"].get("downloads", [])
-        views_history = stats["history"].get("views", [])
-        if downloads_history:
-            today_downloads = downloads_history[-1].get("value", 0)
-        if views_history:
-            today_views = views_history[-1].get("value", 0)
+    # 最近一个完整自然日的数据（Unsplash 不提供当天实时值）
+    day_date, day_downloads, day_views = pick_latest_day(stats)
+    day_label = day_date or "最近一日"
+    print(f"  最近完整日 {day_label}: 下载 +{day_downloads}, 浏览 +{day_views}")
 
     trending_text = ", ".join(trending[:8])
 
@@ -138,10 +164,10 @@ def push_to_feishu(stats, trending):
                         "tag": "lark_md",
                         "content": f"""**@{USERNAME}**
 
-| 指标 | 当日 | 累计 |
+| 指标 | {day_label} | 累计 |
 |------|------|------|
-| 下载 | +{today_downloads:,} | {stats['summary']['downloads']:,} |
-| 浏览 | +{today_views:,} | {stats['summary']['views']:,} |
+| 下载 | +{day_downloads:,} | {stats['summary']['downloads']:,} |
+| 浏览 | +{day_views:,} | {stats['summary']['views']:,} |
 | 点赞 | - | {stats['summary']['likes']:,} |
 
 **热门关键词**

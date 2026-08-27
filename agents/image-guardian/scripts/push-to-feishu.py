@@ -40,27 +40,32 @@ def format_change(value):
         return f"↓{abs(value):,}"
     return "→0"
 
-def get_today_data(stats):
-    """从 history 中获取当日数据"""
-    today_downloads = 0
-    today_views = 0
+def pick_latest_day(stats):
+    """取 history 中日期最大的一天，返回 (日期, 下载, 浏览)。
 
-    if "history" in stats:
-        downloads_history = stats["history"].get("downloads", [])
-        views_history = stats["history"].get("views", [])
+    Unsplash 的 historical.values 末尾是上一个自然日，不是当天。
+    必须把数据归属的真实日期一起带出来做表头，否则卡片标题写今天、
+    数字却是别的一天，看起来就是"两天数据一样"。
+    """
+    history = (stats or {}).get("history") or {}
 
-        if downloads_history:
-            today_downloads = downloads_history[-1].get("value", 0)
-        if views_history:
-            today_views = views_history[-1].get("value", 0)
+    def latest(key):
+        items = [v for v in (history.get(key) or []) if v.get("date")]
+        if not items:
+            return None, 0
+        top = max(items, key=lambda v: v["date"])
+        return top["date"], top.get("value", 0)
 
-    return today_downloads, today_views
+    d_date, downloads = latest("downloads")
+    v_date, views = latest("views")
+    return (d_date or v_date), downloads, views
 
 def build_feishu_card(stats, trending):
     """构建飞书卡片消息"""
 
-    # 获取当日数据
-    today_downloads, today_views = get_today_data(stats)
+    # 最近一个完整自然日的数据（Unsplash 不提供当天实时值）
+    day_date, day_downloads, day_views = pick_latest_day(stats)
+    day_label = day_date or "最近一日"
 
     # 获取热门关键词（取前 8 个）
     trending_keywords = []
@@ -85,10 +90,10 @@ def build_feishu_card(stats, trending):
                         "tag": "lark_md",
                         "content": f"""**@{stats['username']}**
 
-| 指标 | 当日 | 累计 |
+| 指标 | {day_label} | 累计 |
 |------|------|------|
-| 下载 | +{today_downloads:,} | {stats['summary']['downloads']:,} |
-| 浏览 | +{today_views:,} | {stats['summary']['views']:,} |
+| 下载 | +{day_downloads:,} | {stats['summary']['downloads']:,} |
+| 浏览 | +{day_views:,} | {stats['summary']['views']:,} |
 | 点赞 | - | {stats['summary']['likes']:,} |
 
 **热门关键词**
