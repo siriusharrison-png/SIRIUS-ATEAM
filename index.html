@@ -502,42 +502,18 @@
       padding: 40px 0;
     }
 
+    /* 静态网格：一屏内排开，窄屏自动换行 */
     .cards-grid {
-      display: flex;
-      gap: 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
       padding: 0;
-      cursor: grab;
-      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-      user-select: none;
-    }
-
-    .cards-grid.paused {
-      animation-play-state: paused;
-    }
-
-    .cards-grid.dragging {
-      cursor: grabbing;
-      transition: none;
-    }
-
-    /* 自动无限滚动 */
-    @keyframes carousel-scroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(calc(-35% - 10px)); }
-    }
-
-    .cards-grid {
-      animation: carousel-scroll 25s linear infinite;
-      width: fit-content;
     }
 
     .card {
-      flex: 0 0 35%;
-      max-width: 360px;
-      min-width: 280px;
       background: var(--black);
       border: 2px dashed var(--gray-6);
-      padding: 50px;
+      padding: 32px;
       position: relative;
       min-height: 400px;
       display: flex;
@@ -546,17 +522,10 @@
       transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       transform: scale(1);
       cursor: grab;
-      animation: fadeInLeft 0.6s ease-out forwards;
-      opacity: 0;
     }
 
-    .card:nth-child(1) { animation-delay: 0.1s; }
-    .card:nth-child(2) { animation-delay: 0.2s; }
-    .card:nth-child(3) { animation-delay: 0.3s; }
-    .card:nth-child(4) { animation-delay: 0.4s; }
-
+    /* hover 的位移/缩放由 gsap 控制（避免与出场 transform 冲突）；此处只管配色与阴影 */
     .card:hover {
-      transform: scale(1.2);
       border-color: var(--white);
       background: var(--gray-8);
       box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(255,255,255,0.1);
@@ -1065,14 +1034,8 @@
       flex-direction: column;
       justify-content: space-between;
       min-height: 140px;
-      animation: fadeInUp 0.6s ease-out forwards;
       transition: all 0.3s ease;
     }
-
-    .status-card:nth-child(1) { animation-delay: 0.1s; }
-    .status-card:nth-child(2) { animation-delay: 0.2s; }
-    .status-card:nth-child(3) { animation-delay: 0.3s; }
-    .status-card:nth-child(4) { animation-delay: 0.4s; }
 
     @keyframes fadeInScale {
       from {
@@ -1107,13 +1070,9 @@
       }
     }
 
+    /* gsap ScrollTrigger 接管区块入场；默认可见以保证降级 */
     .scroll-fade-in {
-      opacity: 0;
-      animation: fadeInScale 0.6s ease-out forwards;
-    }
-
-    .scroll-fade-in.visible {
-      animation: fadeInScale 0.6s ease-out forwards;
+      opacity: 1;
     }
 
     .status-card:hover {
@@ -1702,8 +1661,8 @@
         font-size: 1rem;
       }
 
-      .card {
-        flex: 0 0 calc(50% - 20px);
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
 
       .status-section {
@@ -1787,8 +1746,11 @@
         padding: 0 10px;
       }
 
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
       .card {
-        flex: 0 0 calc(100% - 20px);
         padding: 30px;
       }
 
@@ -2189,291 +2151,136 @@
     </div>
   </div>
 
+  <!-- gsap 动效库（cdnjs） -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+
   <script>
     const text = 'SIRIUS';
     const titleEl = document.getElementById('title');
-    let currentMode = 0;
-    const modes = [
-      'fadeIn', 'typewriter', 'scroll', 'flip', 'bounce',
-      'wave', 'blur', 'glow', 'scale', 'rotate',
-      'skew', 'rainbow', 'stroke', 'shadow', 'distort'
-    ];
 
-    // ===== 动态标题效果 =====
-    function animateTitleMode(mode) {
+    // ===== 页头标题：载入逐字入场一次，静置，hover 轻微波动 =====
+    function buildTitleChars() {
       titleEl.innerHTML = '';
+      const chars = [];
+      text.split('').forEach((char) => {
+        const span = document.createElement('span');
+        span.className = 'text-char';
+        span.textContent = char;
+        titleEl.appendChild(span);
+        chars.push(span);
+      });
+      return chars;
+    }
 
-      switch (mode) {
-        case 'fadeIn':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `fadeIn 0.6s ease forwards`;
-            span.style.animationDelay = `${i * 0.1}s`;
-            titleEl.appendChild(span);
+    function initTitle() {
+      const chars = buildTitleChars();
+
+      if (!window.gsap) return;  // 降级：字符已可见，静态呈现
+
+      gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+        // 入场：逐字上浮淡入一次
+        gsap.from(chars, {
+          opacity: 0, yPercent: 120, duration: 0.6, ease: 'power3.out', stagger: 0.08,
+        });
+
+        // hover 页头：字符轻微波动一次（不打断、不循环）
+        titleEl.addEventListener('mouseenter', () => {
+          gsap.to(chars, {
+            yPercent: -18, duration: 0.22, ease: 'power2.out', stagger: 0.04,
+            yoyo: true, repeat: 1, overwrite: 'auto',
           });
-          break;
+        });
+      });
+    }
 
-        case 'typewriter':
-          let index = 0;
-          titleEl.textContent = '';
-          function type() {
-            if (index < text.length) {
-              const span = document.createElement('span');
-              span.className = 'text-char';
-              span.textContent = text[index];
-              span.style.animation = `typeEffect 0.05s ease forwards`;
-              titleEl.appendChild(span);
-              index++;
-              setTimeout(type, 100);
-            }
+    // ===== gsap 滚动叙事 + 入场编排 =====
+    function initScrollNarrative() {
+      gsap.registerPlugin(ScrollTrigger);
+      const EASE = 'power3.out';
+
+      gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+        // Hero 内容依次落位
+        gsap.timeline({ defaults: { duration: 0.7, ease: EASE } })
+          .from('.triangle-container', { opacity: 0, scale: 0.9, duration: 0.9 })
+          .from('.hero-title', { opacity: 0, y: 30 }, '-=0.5')
+          .from('.hero-desc', { opacity: 0, y: 20 }, '-=0.45')
+          .from('.hero-meta span', { opacity: 0, y: 14, stagger: 0.08 }, '-=0.4');
+
+        // 各区块标题随滚动淡入上移
+        gsap.utils.toArray('.section-title, .section-kicker').forEach((el) => {
+          gsap.from(el, {
+            opacity: 0, y: 28, duration: 0.6, ease: EASE,
+            scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' },
+          });
+        });
+
+        // ===== Agents 卡片三段式：入场翻起 → 固定 → 出场左移 =====
+        // 入场：从平躺(rotationX)立起，居中原点、统一透视，逐张错开翻正
+        gsap.set('.cards-grid', { perspective: 1000 });
+        gsap.set(teamCards, { transformOrigin: 'center center' });
+        gsap.from(teamCards, {
+          opacity: 0, rotationX: -80, y: 40, duration: 0.7, ease: 'power3.out', stagger: 0.1,
+          scrollTrigger: { trigger: '.cards-carousel', start: 'top 78%', once: true },
+          onComplete: () => gsap.set(teamCards, { clearProps: 'transform,rotationX,y' }),
+        });
+
+        // 出场：模块开始滚出视窗顶部时，卡片逐张向左移出（scrub 可逆，清空视窗感）
+        gsap.to(teamCards, {
+          xPercent: -140, opacity: 0, ease: 'none', stagger: 0.06,
+          scrollTrigger: {
+            trigger: '.cards-carousel',
+            start: 'top top',      // 模块顶部抵达视窗顶部才开始移出
+            end: 'bottom top',     // 模块底部离开视窗顶部时移尽
+            scrub: 0.6,
+          },
+        });
+
+        // 强调：hover 放大浮起（gsap 控制 y/scale，与出场 xPercent 互不干扰）
+        teamCards.forEach((card) => {
+          card.addEventListener('mouseenter', () =>
+            gsap.to(card, { y: -8, scale: 1.03, duration: 0.25, ease: 'power2.out', overwrite: 'auto' }));
+          card.addEventListener('mouseleave', () =>
+            gsap.to(card, { y: 0, scale: 1, duration: 0.25, ease: 'power2.out', overwrite: 'auto' }));
+        });
+
+        // Status 卡片错开（底部区块，触发线放宽，避免滚到底也触发不到）
+        gsap.from('.status-card', {
+          opacity: 0, y: 30, duration: 0.55, ease: EASE, stagger: 0.09,
+          scrollTrigger: { trigger: '.status-section', start: 'top 95%', once: true },
+        });
+
+        // 系统架构图连线逐条"画出"
+        const lines = gsap.utils.toArray('.connection-line, .connection-line-direct');
+        lines.forEach((line, i) => {
+          const len = line.getTotalLength();
+          gsap.set(line, { strokeDasharray: len, strokeDashoffset: len });
+          gsap.to(line, {
+            strokeDashoffset: 0, duration: 0.9, ease: 'power2.inOut', delay: i * 0.15,
+            scrollTrigger: { trigger: '#system', start: 'top 70%', once: true },
+            onComplete: () => line.style.strokeDasharray = line.classList.contains('connection-line-direct') ? '3, 3' : 'none',
+          });
+        });
+
+        // 布局稳定（字体/图片加载完）后重算所有触发点，防止底部区块卡在隐藏态
+        ScrollTrigger.refresh();
+
+        return () => ScrollTrigger.getAll().forEach(t => t.kill());
+      });
+
+      // 兜底：万一某些卡片因触发点异常停在隐藏态，2s 后强制显示
+      setTimeout(() => {
+        document.querySelectorAll('.status-card, .card').forEach((el) => {
+          if (parseFloat(getComputedStyle(el).opacity) < 0.05) {
+            gsap.set(el, { opacity: 1, clearProps: 'transform,transformPerspective,transformOrigin' });
           }
-          type();
-          break;
-
-        case 'scroll':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `scrollDown 0.8s ease forwards`;
-            span.style.animationDelay = `${i * 0.08}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'flip':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `flipChar 0.6s ease forwards`;
-            span.style.animationDelay = `${i * 0.12}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'bounce':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `bounceChar 0.7s ease forwards`;
-            span.style.animationDelay = `${i * 0.1}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'wave':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `waveChar 0.6s ease forwards`;
-            span.style.animationDelay = `${i * 0.08}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'blur':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `blurFlicker 0.5s ease forwards`;
-            span.style.animationDelay = `${i * 0.1}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'glow':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `glowFlicker 0.7s ease forwards`;
-            span.style.animationDelay = `${i * 0.1}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'scale':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `scaleChar 0.6s ease forwards`;
-            span.style.animationDelay = `${i * 0.1}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'rotate':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `rotateChar 0.7s ease forwards`;
-            span.style.animationDelay = `${i * 0.1}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'skew':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `skewChar 0.6s ease forwards`;
-            span.style.animationDelay = `${i * 0.1}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'rainbow':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `rainbowColor 1s ease forwards`;
-            span.style.animationDelay = `${i * 0.08}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'stroke':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `strokeAnim 0.8s ease forwards`;
-            span.style.animationDelay = `${i * 0.1}s`;
-            span.style.webkitTextStroke = '1px rgba(255,255,255,0)';
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'shadow':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `shadowAnim 0.7s ease forwards`;
-            span.style.animationDelay = `${i * 0.1}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-
-        case 'distort':
-          text.split('').forEach((char, i) => {
-            const span = document.createElement('span');
-            span.className = 'text-char';
-            span.textContent = char;
-            span.style.animation = `distortChar 0.8s ease forwards`;
-            span.style.animationDelay = `${i * 0.12}s`;
-            titleEl.appendChild(span);
-          });
-          break;
-      }
+        });
+      }, 2000);
     }
 
-    // 添加动画定义
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-      @keyframes typeEffect { from { opacity: 0; } to { opacity: 1; } }
-      @keyframes scrollDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes flipChar { from { opacity: 0; transform: rotateY(90deg); } to { opacity: 1; transform: rotateY(0deg); } }
-      @keyframes bounceChar { 0% { opacity: 0; transform: translateY(-20px); } 50% { transform: translateY(5px); } 100% { opacity: 1; transform: translateY(0); } }
-      @keyframes waveChar { from { opacity: 0; transform: translateY(0) rotateX(0deg); } 50% { transform: translateY(-10px) rotateX(10deg); } to { opacity: 1; transform: translateY(0) rotateX(0deg); } }
-      @keyframes blurFlicker { 0%, 100% { opacity: 1; filter: blur(0px); } 50% { opacity: 0.3; filter: blur(4px); } }
-      @keyframes glowFlicker { 0%, 100% { opacity: 1; text-shadow: 0 0 0px rgba(255,255,255,0); } 50% { opacity: 1; text-shadow: 0 0 15px rgba(255,255,255,0.8); } }
-      @keyframes scaleChar { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
-      @keyframes rotateChar { from { opacity: 0; transform: rotateZ(-180deg); } to { opacity: 1; transform: rotateZ(0deg); } }
-      @keyframes skewChar { from { opacity: 0; transform: skewX(-45deg); } to { opacity: 1; transform: skewX(0deg); } }
-      @keyframes rainbowColor { 0% { color: #ff0000; } 16% { color: #ff7f00; } 33% { color: #ffff00; } 50% { color: #00ff00; } 66% { color: #0000ff; } 83% { color: #4b0082; } 100% { color: #ff0000; } }
-      @keyframes strokeAnim { from { opacity: 0; -webkit-text-stroke: 2px rgba(255,255,255,0); text-shadow: 0 0 0px rgba(255,255,255,0); } to { opacity: 1; -webkit-text-stroke: 1px rgba(255,255,255,1); text-shadow: 0 0 10px rgba(255,255,255,0.5); } }
-      @keyframes shadowAnim { from { opacity: 0; text-shadow: 0 0 0px rgba(0,0,0,0); transform: translateX(-10px); } to { opacity: 1; text-shadow: -5px 5px 15px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.3); transform: translateX(0); } }
-      @keyframes distortChar { 0% { opacity: 0; transform: scaleY(0.5) skewX(20deg); } 50% { opacity: 0.5; transform: scaleY(1.1) skewX(-10deg); } 100% { opacity: 1; transform: scaleY(1) skewX(0deg); } }
-    `;
-    document.head.appendChild(style);
-
-    function cycleTitle() {
-      animateTitleMode(modes[currentMode]);
-      currentMode = (currentMode + 1) % modes.length;
-      setTimeout(cycleTitle, 2000);
-    }
-
-    // ===== 卡片滑动 =====
+    // ===== 卡片：静态网格（无克隆、无自动滚动，入场由 initScrollNarrative 处理） =====
     const cardsGrid = document.getElementById('cardsGrid');
-    const cardsCarousel = document.querySelector('.cards-carousel');
-    let isGrabbing = false;
-    let startX = 0;
-    let currentTranslate = 0;
-    let hoveredCard = null;
-
-    // 初始化卡片（复制到4倍以支持无限滚动）
-    const originalCards = Array.from(cardsGrid.querySelectorAll('.card')).slice(0, 4);
-    for (let i = 0; i < 3; i++) {
-      originalCards.forEach(card => {
-        const clone = card.cloneNode(true);
-        cardsGrid.appendChild(clone);
-      });
-    }
-
-    // 重新获取所有卡片
-    const allCards = cardsGrid.querySelectorAll('.card');
-
-    // 卡片 hover 效果
-    allCards.forEach((card, idx) => {
-      card.addEventListener('mouseenter', () => {
-        hoveredCard = card;
-        cardsGrid.style.animationPlayState = 'paused';
-      });
-
-      card.addEventListener('mouseleave', () => {
-        hoveredCard = null;
-        cardsGrid.style.animationPlayState = 'running';
-      });
-    });
-
-    // 鼠标进入轮播区域（但不在卡片上）
-    cardsCarousel.addEventListener('mouseenter', () => {
-      if (!isGrabbing && !hoveredCard) {
-        cardsGrid.style.animationPlayState = 'paused';
-      }
-    });
-
-    cardsCarousel.addEventListener('mouseleave', () => {
-      if (!isGrabbing && !hoveredCard) {
-        cardsGrid.style.animationPlayState = 'running';
-      }
-    });
-
-    cardsGrid.addEventListener('mousedown', (e) => {
-      if (e.target.closest('.card-btn')) return;
-      isGrabbing = true;
-      startX = e.clientX;
-      cardsGrid.classList.add('dragging');
-      cardsGrid.style.animationPlayState = 'paused';
-    });
-
-    document.addEventListener('mousemove', (e) => {
-      if (!isGrabbing) return;
-      const diff = e.clientX - startX;
-      cardsGrid.style.transform = `translateX(calc(${currentTranslate}px + ${diff}px))`;
-    });
-
-    document.addEventListener('mouseup', (e) => {
-      if (!isGrabbing) return;
-      isGrabbing = false;
-      cardsGrid.classList.remove('dragging');
-      currentTranslate += e.clientX - startX;
-      if (!hoveredCard) {
-        cardsGrid.style.animationPlayState = 'running';
-      }
-    });
+    const teamCards = Array.from(cardsGrid.querySelectorAll('.card'));
 
     // ===== 背景波点发散 =====
     function createRipple() {
@@ -2776,35 +2583,12 @@
 
     // ===== 初始化 =====
     window.addEventListener('load', () => {
-      cycleTitle();
+      initTitle();
 
-      // ===== 滚动触发加载效果 =====
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -100px 0px'
-      });
-
-      // 为各个主要区域添加观察
-      const sections = document.querySelectorAll(
-        '.agents-section, .workflow-section, .status-section'
-      );
-      sections.forEach(section => {
-        section.classList.add('scroll-fade-in');
-        observer.observe(section);
-      });
-
-      // 为卡片添加错开延迟
-      const cards = document.querySelectorAll('.card');
-      cards.forEach((card, index) => {
-        card.style.animationDelay = `${index * 0.1}s`;
-      });
+      // gsap 驱动的滚动叙事 + 入场（CDN 加载失败时静默降级，内容保持可见）
+      if (window.gsap) {
+        initScrollNarrative();
+      }
 
       // ===== System Architecture 连接线交互 =====
       const connectionLines = document.querySelectorAll('.connection-line, .connection-line-direct');
