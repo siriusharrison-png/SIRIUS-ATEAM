@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MotionLab</title>
+  <style>
+    :root {
+      --bg: #0d0d0d; --panel: #161616; --border: #2a2a2a;
+      --text: #e8e8e8; --muted: #888; --accent: #4a9eff; --ok: #3fb950; --err: #f85149;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, "Noto Sans SC", sans-serif; height: 100vh; display: flex; flex-direction: column; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+    header .brand { font-weight: 700; letter-spacing: 1px; }
+    header select { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; }
+    .cost { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+    main { flex: 1; display: flex; min-height: 0; }
+    .preview { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; background: #000; min-width: 0; }
+    .preview .empty { color: var(--muted); }
+    .panel { width: 320px; border-left: 1px solid var(--border); padding: 16px; overflow-y: auto; background: var(--panel); }
+    .panel h3 { font-size: 13px; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; margin-bottom: 5px; }
+    .field input[type=text], .field input[type=number] { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 5px; padding: 7px 9px; }
+    .field input[type=range] { width: 100%; }
+    .field .val { float: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+    footer { border-top: 1px solid var(--border); padding: 12px 16px; display: flex; gap: 10px; align-items: flex-end; }
+    footer textarea { flex: 1; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px; resize: vertical; min-height: 46px; font-family: inherit; font-size: 14px; }
+    button { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 11px 18px; font-size: 14px; cursor: pointer; white-space: nowrap; }
+    button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    button:disabled { opacity: 0.5; cursor: default; }
+    .status { padding: 6px 16px; font-size: 13px; min-height: 28px; }
+    .status.err { color: var(--err); }
+    .status.ok { color: var(--ok); }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="brand">◐ MotionLab</span>
+    <div style="display:flex;align-items:center;gap:16px">
+      <select id="model"></select>
+      <span class="cost">本次 <b id="cost">¥0</b> · 累计 <b id="total">¥0</b></span>
+    </div>
+  </header>
+
+  <main>
+    <div class="preview" id="preview"><span class="empty">描述你想要的 motion，点生成开始</span></div>
+    <aside class="panel">
+      <h3>参数</h3>
+      <div id="params"><span style="color:var(--muted);font-size:13px">生成后出现可调参数</span></div>
+    </aside>
+  </main>
+
+  <div class="status" id="status"></div>
+
+  <footer>
+    <textarea id="desc" placeholder="例：标题'MotionLab'逐字淡入，下方副标题滑入，深蓝背景，12 秒"></textarea>
+    <button id="gen">生成</button>
+    <button id="render" class="secondary" disabled>渲染 mp4</button>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

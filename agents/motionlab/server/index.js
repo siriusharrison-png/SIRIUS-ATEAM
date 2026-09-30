@@ -12,7 +12,24 @@ import { generate } from "./orchestrate.js";
 const AGENT_DIR = path.resolve(fileURLToPath(import.meta.url), "../..");
 const WEB_DIR = path.join(AGENT_DIR, "web");
 const COST_FILE = path.join(AGENT_DIR, ".cost.json");
+const PLAYER_ENTRY = path.join(WEB_DIR, "player-entry.jsx");
 const PORT = Number(process.env.PORT ?? 4321);
+
+// 把 player-entry.jsx（含当前 generated 组件）esbuild 打包成浏览器 IIFE。
+async function buildPreviewBundle() {
+  const esbuild = await import("esbuild");
+  const r = await esbuild.build({
+    entryPoints: [PLAYER_ENTRY],
+    bundle: true,
+    format: "iife",
+    platform: "browser",
+    jsx: "automatic",
+    absWorkingDir: AGENT_DIR,
+    write: false,
+    logLevel: "silent",
+  });
+  return r.outputFiles[0].text;
+}
 
 const config = JSON.parse(
   fs.readFileSync(path.join(AGENT_DIR, "config.json"), "utf8"),
@@ -113,6 +130,11 @@ const server = http.createServer(async (req, res) => {
         cost,
         total,
       });
+    }
+
+    if (req.method === "GET" && url === "/preview-bundle") {
+      const js = await buildPreviewBundle();
+      return send(res, 200, js, "text/javascript; charset=utf-8");
     }
 
     if (req.method === "POST" && url === "/render") {
