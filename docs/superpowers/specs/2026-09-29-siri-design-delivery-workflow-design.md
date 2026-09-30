@@ -115,7 +115,7 @@
 ### 3.2 运行形态
 
 - **Siri**：飞书智能伙伴平台（Aily）云端常驻。平台已内建：收发消息、被@响应、定时推送（每日前瞻 / 每日回顾 / 每周回顾）、连接器（GitHub / Linear）、飞书卡片生成、工作上下文记忆、主动程度控制。**无需自建服务器 / Vercel Functions。**
-- **Claude 侧触发脚本**：`~/Desktop/astra/scripts/siri.sh`（2026-09-30 已实现并实测通过），任意项目里的 Claude 会话都能 `bash` 调用。子命令：`fields` / `list` / `archive` / `update` / `delete` / `chats` / `send`。凭证独立存于 `~/.config/siri/.env`（本机专属路径，不在任何 git 仓库内），与脚本本体分离——脚本可随 astra 跨设备同步，凭证不会跟着同步出去。用法详见 `~/Desktop/astra/scripts/siri.README.md`。
+- **Claude 侧触发脚本**：`~/Desktop/siri-tools/siri.sh`（独立仓库 `github.com/siriusharrison-png/siri-tools`，2026-09-30 已实现并实测通过），任意项目里的 Claude 会话都能 `bash` 调用。子命令：`fields` / `list` / `archive` / `update` / `delete` / `chats` / `send`。凭证独立存于 `~/.config/siri/.env`（本机专属路径，不在任何 git 仓库内），与脚本本体分离。用法详见该仓库 `README.md`。
 - **Siri 能力扩展**：通过平台的「技能」实现（对话创建，或上传 .skill 文件 / 文件夹）。技能是带描述 + 逻辑 + 资源（如卡片模板）的能力包。Claude 负责写技能描述文案，转转喂给 Siri 生成 / 上传。
 
 ### 3.3 Vercel 自建方案的退场说明
