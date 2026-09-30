@@ -1,5 +1,7 @@
 # Siri 一期（骨架）实施计划
 
+> ⛔ **已废弃（2026-09-30）**：本计划基于 Vercel Functions 自建飞书应用方案。后发现转转已有飞书智能伙伴平台（Aily）agent，平台原生提供收发消息、定时、连接器、卡片生成等全部骨架能力，无需自建。架构已改为「共享表格中心 + Siri 常驻 + Claude 按需 + 飞书 API 触发」。**本计划不再执行**，保留仅作历史记录。最新设计见 spec 第 3 节，新分期见 spec 第 12 节。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 打通飞书自建应用与 Vercel 的事件回调链路，做到「@Siri 发消息，Siri 回一句话」，验证常驻响应链路。
