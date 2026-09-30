@@ -75,7 +75,7 @@ export async function renderVideo(code, props, config, { durationSec }) {
       composition,
       serveUrl,
       codec: "h264",
-      output: outputPath,
+      outputLocation: outputPath,
       inputProps: props,
     }),
     TIMEOUT_MS,
