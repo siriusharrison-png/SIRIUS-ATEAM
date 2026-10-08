@@ -9,6 +9,39 @@ const AGENT_DIR = path.resolve(fileURLToPath(import.meta.url), "../..");
 const ENTRY = path.join(AGENT_DIR, "remotion", "index.ts");
 const GENERATED = path.join(AGENT_DIR, "remotion", "generated", "current.tsx");
 const OUTPUT_DIR = path.join(AGENT_DIR, "output");
+const TMP_BASE = path.join(AGENT_DIR, ".tmp");
+
+// 把一段组件代码写成独立的临时 Remotion entry（组件 + Root + index），返回 { entry, dir }。
+// 用于校验试渲染，避免污染正式的 generated/current.tsx。临时目录须在 AGENT_DIR 内，
+// 否则 esbuild/bundler 解析不到项目 node_modules。
+function makeTempEntry(code) {
+  fs.mkdirSync(TMP_BASE, { recursive: true });
+  const dir = fs.mkdtempSync(path.join(TMP_BASE, "render-"));
+  fs.writeFileSync(path.join(dir, "comp.tsx"), code);
+  fs.writeFileSync(
+    path.join(dir, "Root.tsx"),
+    `import { Composition } from "remotion";
+import Comp, { propsSchema } from "./comp";
+export const Root = () => (
+  <Composition id="Motion" component={Comp} durationInFrames={450} fps={30}
+    width={1920} height={1080} defaultProps={propsSchema.parse({})} />
+);
+`,
+  );
+  fs.writeFileSync(
+    path.join(dir, "index.ts"),
+    `import { registerRoot } from "remotion";
+import { Root } from "./Root";
+registerRoot(Root);
+`,
+  );
+  return { entry: path.join(dir, "index.ts"), dir };
+}
+
+// 把成功通过校验的代码写入正式 generated/current.tsx（供预览与正式渲染）。
+export function writeGenerated(code) {
+  fs.writeFileSync(GENERATED, code);
+}
 
 const TIMEOUT_MS = Number(process.env.RENDER_TIMEOUT_MS ?? 120000);
 
@@ -31,30 +64,31 @@ function tsNow() {
   );
 }
 
-function writeGenerated(code) {
-  fs.writeFileSync(GENERATED, code);
-}
-
 function ensureOutputDir() {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
 // 试渲染第 0 帧：供 contract 闸③，失败抛错。
+// 走独立临时 entry，不写 current.tsx —— 校验失败不会污染正式文件/预览。
 export async function renderStillFrame(code, props, _config) {
-  writeGenerated(code);
   ensureOutputDir();
-  const serveUrl = await bundle({ entryPoint: ENTRY });
-  const composition = await selectComposition({
-    serveUrl,
-    id: "Motion",
-    inputProps: props,
-  });
-  const output = path.join(OUTPUT_DIR, ".probe.png");
-  await withTimeout(
-    renderStill({ composition, serveUrl, output, inputProps: props, frame: 0 }),
-    TIMEOUT_MS,
-    "渲染超时",
-  );
+  const { entry, dir } = makeTempEntry(code);
+  try {
+    const serveUrl = await bundle({ entryPoint: entry });
+    const composition = await selectComposition({
+      serveUrl,
+      id: "Motion",
+      inputProps: props,
+    });
+    const output = path.join(dir, "probe.png");
+    await withTimeout(
+      renderStill({ composition, serveUrl, output, inputProps: props, frame: 0 }),
+      TIMEOUT_MS,
+      "渲染超时",
+    );
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 // 渲染完整 mp4，存 output/，文件名带时间戳。

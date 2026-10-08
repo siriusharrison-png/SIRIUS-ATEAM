@@ -10,7 +10,7 @@ const TMP_BASE = path.join(AGENT_DIR, ".tmp");
 
 // 剥掉 markdown 围栏与前后解释文字，只留代码。
 export function stripFences(text) {
-  const m = text.match(/```(?:tsx|jsx|ts|js)?\s*([\s\S]*?)```/);
+  const m = text.match(/```[a-zA-Z]*\r?\n([\s\S]*?)```/);
   return m ? m[1] : text;
 }
 

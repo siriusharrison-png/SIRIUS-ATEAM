@@ -33,12 +33,14 @@ function buildParams() {
     field.className = "field";
     const isColor = /color|colour/i.test(key);
     if (typeof def === "number") {
-      const min = 0, max = def === 0 ? 10 : def * 3;
+      // 按默认值符号取范围：负数默认值也能正常拖（避免 max<min）。
+      const lo = Math.min(0, def * 3);
+      const hi = Math.max(0, def * 3, def === 0 ? 10 : 0);
       field.innerHTML = `<label>${key}<span class="val" id="v_${key}">${def}</span></label>
-        <input type="range" min="${min}" max="${max}" step="0.01" value="${def}" data-key="${key}">`;
+        <input type="range" min="${lo}" max="${hi}" step="0.01" value="${def}" data-key="${key}">`;
       field.querySelector("input").addEventListener("input", (e) => {
         let v = parseFloat(e.target.value);
-        if (v < min) v = min; if (v > max) v = max; // clamp
+        if (v < lo) v = lo; if (v > hi) v = hi; // clamp
         $("v_" + key).textContent = v;
         state.props[key] = v;
         updatePreview();

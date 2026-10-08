@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { callLLM } from "./llm.js";
 import { validateComponent } from "./contract.js";
-import { renderVideo } from "./render.js";
+import { renderVideo, writeGenerated } from "./render.js";
 import { estimateCost, addToTotal } from "./cost.js";
 import { generate } from "./orchestrate.js";
 
@@ -121,6 +121,8 @@ const server = http.createServer(async (req, res) => {
         deps: { callLLM, validateComponent },
       });
       if (r.error) return send(res, 422, { error: r.error });
+      // 只有成功才把组件写入正式 current.tsx（供预览与渲染）；失败不写，不污染预览。
+      writeGenerated(r.code);
       const { cost } = estimateCost(modelId, r.usage, config);
       const { total } = addToTotal(cost, COST_FILE);
       return send(res, 200, {
@@ -151,6 +153,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
+// 只监听本机，避免同局域网他人访问 /render 执行任意代码。
+server.listen(PORT, "127.0.0.1", () => {
   console.log(`MotionLab 工作台: http://localhost:${PORT}`);
 });

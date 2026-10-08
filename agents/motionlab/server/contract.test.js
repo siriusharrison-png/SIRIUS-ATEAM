@@ -11,6 +11,16 @@ describe("stripFences", () => {
   it("无围栏时原样返回", () => {
     expect(stripFences("export default X;").trim()).toBe("export default X;");
   });
+
+  it("剥掉 ```typescript 围栏不残字", () => {
+    const input = "```typescript\nexport default X;\n```";
+    expect(stripFences(input).trim()).toBe("export default X;");
+  });
+
+  it("剥掉 ```javascript 围栏不残字", () => {
+    const input = "```javascript\nexport default X;\n```";
+    expect(stripFences(input).trim()).toBe("export default X;");
+  });
 });
 
 describe("gateStatic", () => {
