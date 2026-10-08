@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Event Bubble Guard",
+  "version": "0.2.0",
+  "description": "Isolates the Figma HTML-to-Design toolbar so clicking it no longer dismisses open dropdowns, drawers, and popovers on the page.",
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content/content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

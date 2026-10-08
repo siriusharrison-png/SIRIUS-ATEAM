@@ -55,6 +55,12 @@
    - 分析缓冲时间
    - 验证容量
 
+### 工具集
+
+- **辅助工具**：[tools/README.md](tools/README.md)
+   - 独立运行的设计/研发辅助小工具
+   - 当前收录：event-bubble-guard（Figma HTML to Design 浮层保护）
+
 ---
 
 ## 🏗️ 系统架构

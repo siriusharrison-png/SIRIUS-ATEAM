@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Bubble Guard — Isolation Logic Self-Test</title>
+<style>
+  body { font: 14px/1.6 system-ui, sans-serif; margin: 0; padding: 40px; background: #f5f5f7; color: #1d1d1f; }
+  h1 { font-size: 18px; }
+  .panel { position: relative; display: inline-block; margin-top: 16px; }
+  .trigger { padding: 10px 16px; border: 1px solid #d2d2d7; border-radius: 8px; background: #fff; cursor: pointer; }
+  .popover { position: absolute; top: 48px; left: 0; width: 280px; padding: 16px; background: #fff;
+             border: 1px solid #d2d2d7; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,.15); }
+  .popover.hidden { display: none; }
+  /* Simulate the Figma closed-shadow toolbar host: height 0, rendered via fixed positioning inside the shadow */
+  figma-html-to-design-toolbar { display: block; width: 100%; height: 0; }
+  .log { margin-top: 24px; padding: 12px; background: #111; color: #0f0; border-radius: 8px;
+         font: 12px/1.5 ui-monospace, monospace; white-space: pre-wrap; min-height: 80px; }
+  .controls { margin-top: 16px; }
+  .controls label { margin-right: 16px; }
+  .verdict { margin-top: 12px; font-weight: 600; }
+  .pass { color: #1a7f37; } .fail { color: #cf222e; }
+</style>
+</head>
+<body>
+  <h1>Isolation Logic Self-Test (simulating the real structure)</h1>
+  <p>The page overlay closes via the mainstream "document bubbling-phase onClickOutside"; the toolbar uses a <code>closed shadow DOM</code> host, matching the real Figma extension.</p>
+
+  <div class="controls">
+    <label><input type="checkbox" id="guardToggle" checked> Isolation (on by default, matching the extension's automatic behavior; uncheck to reproduce the original bug)</label>
+  </div>
+
+  <div class="panel">
+    <button class="trigger" id="trigger">Open overlay ▾</button>
+    <div class="popover hidden" id="popover">
+      I am the overlay. Click outside me (with isolation off) and I close.<br>Click the Figma toolbar below to see whether I get dismissed by mistake.
+    </div>
+  </div>
+
+  <!-- Simulate the Figma toolbar: closed shadow, with one button inside -->
+  <figma-html-to-design-toolbar id="__figma_h2d_chrome_extension_toolbar__" data-h2d-ignore="true"></figma-html-to-design-toolbar>
+
+  <div class="verdict" id="verdict">Waiting for action…</div>
+  <div class="log" id="log"></div>
+
+<script>
+  const logEl = document.getElementById('log');
+  const verdictEl = document.getElementById('verdict');
+  const popover = document.getElementById('popover');
+  const trigger = document.getElementById('trigger');
+  let toolbarClicked = false;
+  let popoverClosedByOutside = false;
+
+  function log(msg) { logEl.textContent += msg + '\n'; }
+
+  // 1) Build the closed-shadow toolbar (matching the real extension: shadowRoot is not accessible from outside)
+  const host = document.getElementById('__figma_h2d_chrome_extension_toolbar__');
+  const shadow = host.attachShadow({ mode: 'closed' });
+  const btn = document.createElement('button');
+  btn.textContent = 'Select element (toolbar button)';
+  btn.style.cssText = 'position:fixed;left:40px;bottom:40px;height:40px;padding:0 16px;border:0;border-radius:8px;background:#111;color:#fff;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.3)';
+  btn.addEventListener('click', () => { toolbarClicked = true; log('✓ Toolbar button click fired (functioning normally)'); });
+  shadow.appendChild(btn);
+
+  // 2) Page overlay: document bubbling-phase onClickOutside (the mainstream library approach)
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation(); // The trigger itself does not count as "outside"
+    popover.classList.remove('hidden');
+    popover.focus(); // Simulate Radix moving focus into the overlay after opening
+    toolbarClicked = false; popoverClosedByOutside = false;
+    verdictEl.textContent = 'Overlay opened; now click the "Figma toolbar button" to test…';
+    verdictEl.className = 'verdict';
+    log('— Overlay opened —');
+  });
+  document.addEventListener('mousedown', (e) => {
+    if (popover.classList.contains('hidden')) return;
+    if (popover.contains(e.target) || e.target === trigger) return;
+    popoverClosedByOutside = true;
+    popover.classList.add('hidden');
+    log('✗ Page onClickOutside fired → overlay closed');
+  });
+
+  // Extra: simulate Radix's onFocusOutside — close when focus leaves the overlay (the real page's close mechanism)
+  document.addEventListener('focusout', (e) => {
+    if (popover.classList.contains('hidden')) return;
+    // Focus moved outside the overlay (including into the closed shadow, retargeted to the host)
+    setTimeout(() => {
+      const active = document.activeElement;
+      if (active && !popover.contains(active) && active !== trigger) {
+        popoverClosedByOutside = true;
+        popover.classList.add('hidden');
+        log('✗ Page onFocusOutside fired → overlay closed');
+      }
+    }, 0);
+  });
+  // Make the overlay focusable, simulating Radix putting focus into the overlay after opening
+  popover.tabIndex = -1;
+
+  // 3) Logic under test: identical to content.js's blockBubble (attached at the host's bubbling phase)
+  let guardEnabled = true; // On by default, matching the extension's automatic behavior
+  const GUARDED = ['pointerdown','mousedown','pointerup','mouseup','click','dblclick','contextmenu','touchstart','touchend','focusin','focusout'];
+  const FOCUS_STEAL = new Set(['mousedown']);
+  function blockBubble(event) {
+    if (!guardEnabled) return;
+    event.stopPropagation();
+    if (FOCUS_STEAL.has(event.type)) event.preventDefault(); // Prevent focus-steal, does not affect click
+  }
+  GUARDED.forEach(t => host.addEventListener(t, blockBubble, false));
+
+  document.getElementById('guardToggle').addEventListener('change', (e) => {
+    guardEnabled = e.target.checked;
+    log('Isolation ' + (guardEnabled ? 'enabled' : 'disabled'));
+  });
+
+  // 4) Verdict: report the conclusion after the toolbar is clicked
+  document.addEventListener('click', () => {
+    setTimeout(() => {
+      if (!toolbarClicked) return; // Only judge after the toolbar was clicked
+      if (popoverClosedByOutside) {
+        verdictEl.textContent = 'Result: overlay dismissed by mistake (isolation not effective / not enabled)';
+        verdictEl.className = 'verdict fail';
+      } else {
+        verdictEl.textContent = '✓ Pass: toolbar clicked, overlay still open, button working';
+        verdictEl.className = 'verdict pass';
+      }
+    }, 0);
+  }, false);
+</script>
+</body>
+</html>
