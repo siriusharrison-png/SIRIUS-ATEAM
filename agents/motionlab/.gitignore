@@ -1,0 +1,7 @@
+node_modules/
+output/
+.cost.json
+.env
+.tmp/
+remotion/generated/*.tsx
+!remotion/generated/.gitkeep

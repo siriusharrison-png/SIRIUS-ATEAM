@@ -1,0 +1,38 @@
+{
+  "name": "MotionLab",
+  "role": "specialist",
+  "description": "个人探索型 motion 工作台：用大白话描述，LLM 写 Remotion 动画代码，本地校验+自愈后渲染成 mp4，支持实时参数微调与 token 成本估算。",
+  "gateway": {
+    "provider": "openai-compatible-gateway",
+    "envKey": "GATEWAY_API_KEY",
+    "envBaseUrl": "GATEWAY_BASE_URL",
+    "defaultBaseUrl": "https://apiproxy.paigod.work/v1"
+  },
+  "models": [
+    {
+      "id": "claude-opus-5-5",
+      "label": "Opus 5.5",
+      "endpoint": "/chat/completions",
+      "discount": 0.46,
+      "priceInPerM": 0,
+      "priceOutPerM": 0,
+      "_TODO": "填官方原价：每百万 token 输入(priceInPerM)/输出(priceOutPerM)"
+    },
+    {
+      "id": "gpt-6-astra",
+      "label": "GPT-6 astra",
+      "endpoint": "/chat/completions",
+      "discount": 0.68,
+      "priceInPerM": 0,
+      "priceOutPerM": 0,
+      "_TODO": "填官方原价：每百万 token 输入(priceInPerM)/输出(priceOutPerM)"
+    }
+  ],
+  "render": {
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "defaultDurationSec": 15
+  },
+  "deployment": "本地交互 / 手动触发"
+}
