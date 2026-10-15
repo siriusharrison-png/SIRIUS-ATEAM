@@ -2,6 +2,12 @@
   "name": "MotionLab",
   "role": "specialist",
   "description": "个人探索型 motion 工作台：用大白话描述，LLM 写 Remotion 动画代码，本地校验+自愈后渲染成 mp4，支持实时参数微调与 token 成本估算。",
+  "launch": {
+    "type": "server",
+    "cmd": "npm run server",
+    "cwd": "agents/motionlab",
+    "port": 4321
+  },
   "gateway": {
     "provider": "openai-compatible-gateway",
     "envKey": "GATEWAY_API_KEY",
