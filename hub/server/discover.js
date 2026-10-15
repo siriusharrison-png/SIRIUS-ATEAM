@@ -9,7 +9,10 @@ export function discoverCapabilities(scanRoots = ['agents']) {
 
   for (const scanRel of scanRoots) {
     const scanAbs = path.join(root, scanRel);
-    if (!fs.existsSync(scanAbs)) continue;
+    if (!fs.existsSync(scanAbs) || !fs.statSync(scanAbs).isDirectory()) {
+      warnings.push(`跳过扫描根 ${scanRel}：不是目录`);
+      continue;
+    }
 
     for (const entry of fs.readdirSync(scanAbs, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;

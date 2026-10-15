@@ -30,4 +30,12 @@ describe('discoverCapabilities', () => {
     expect(s.launch.openUrl).toBe('http://localhost:4321');
     expect(s.launch.cwd).toBe(path.join(fixturesAgents, 'good-server'));
   });
+
+  it('scan root 指向文件（非目录）时不崩，跳过并告警', () => {
+    // 用一个确定存在的文件当 scan root
+    const fileAsRoot = path.join(fixturesAgents, 'good-server/config.json');
+    expect(() => discoverCapabilities([fileAsRoot])).not.toThrow();
+    const { capabilities } = discoverCapabilities([fileAsRoot]);
+    expect(capabilities).toEqual([]);
+  });
 });

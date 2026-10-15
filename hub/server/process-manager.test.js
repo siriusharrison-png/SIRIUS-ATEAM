@@ -43,4 +43,26 @@ describe('process-manager', () => {
     pm = createProcessManager();
     expect(pm.stop('nope')).toEqual({ ok: true });
   });
+
+  it('停止后立刻重启占同一端口的服务，不发生端口冲突', async () => {
+    const PORT = 45999;
+    const portCap = {
+      id: 'porter',
+      name: 'porter',
+      launch: { type: 'server', cmd: `node port-server.js ${PORT}`, cwd: scriptsRel },
+    };
+    pm = createProcessManager();
+    const r1 = await pm.start(portCap);
+    expect(r1.ok).toBe(true);
+    pm.stop('porter');
+    // 旧进程 SIGTERM 后延迟 250ms 才释放端口；立刻重启不应起到冲突的第二个进程
+    const r2 = await pm.start(portCap);
+    expect(r2.ok).toBe(true);
+    // 第二个进程应健康运行（没有因 EADDRINUSE 瞬退）
+    await new Promise(res => setTimeout(res, 200));
+    expect(pm.status('porter').running).toBe(true);
+    expect(pm.logs('porter').some(l => l.includes('ERR EADDRINUSE'))).toBe(false);
+    pm.stop('porter');
+    await new Promise(res => setTimeout(res, 350));
+  }, 10000);
 });
