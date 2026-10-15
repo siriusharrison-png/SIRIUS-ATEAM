@@ -4,6 +4,10 @@
 
 ## 📚 快速导航
 
+### 本地启动中枢
+
+**[Playground Hub](hub/README.md)** —— 双击仓库根的 `hub.command`，统一入口管理所有本地能力：真·起/停服务型进程、看状态与日志，交互型一键开终端，配置型一键打开目录。新能力在 `config.json` 补一段 `launch` 即自动纳管。
+
 ### 对于新用户
 
 1. **了解系统架构**：[AGENTS.md](AGENTS.md)
