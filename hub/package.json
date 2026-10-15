@@ -1,0 +1,17 @@
+{
+  "name": "playground-hub",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.1",
+    "vitest": "^2.1.8"
+  }
+}

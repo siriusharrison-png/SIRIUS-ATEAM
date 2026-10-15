@@ -1,0 +1,6 @@
+{
+  "name": "Good Server",
+  "role": "specialist",
+  "description": "一个服务型能力",
+  "launch": { "type": "server", "cmd": "npm run server", "port": 4321 }
+}

@@ -2,6 +2,11 @@
   "name": "海报设计师",
   "role": "specialist",
   "description": "把上传图片/主题优化为极简 zine 纸感海报、抽象记忆面板编辑作品、实景拼贴，或原片＋手工图章的档案拼接",
+  "launch": {
+    "type": "interactive",
+    "command": "poster.command",
+    "cwd": "agents/posterdesigner"
+  },
   "skill": "gc-minimal-zine-poster-v0-1",
   "defaultSkill": "zine",
   "skills": [
