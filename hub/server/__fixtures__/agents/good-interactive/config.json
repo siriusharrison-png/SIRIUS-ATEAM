@@ -1,0 +1,6 @@
+{
+  "name": "Good Interactive",
+  "role": "specialist",
+  "description": "一个交互型能力",
+  "launch": { "type": "interactive", "command": "run.command" }
+}
