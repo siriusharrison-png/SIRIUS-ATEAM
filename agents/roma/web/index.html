@@ -7,31 +7,36 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>roma <span>香气卡片</span></h1>
-    <form id="form" class="controls">
-      <select id="model" aria-label="模型"></select>
-      <input id="input" autocomplete="off" placeholder="写一段香味描述，或粘一支香水的名字与香调…" />
-      <button id="gen" type="submit">生成</button>
-    </form>
-    <p id="status" role="status"></p>
-  </header>
-
-  <main>
-    <div id="scene" class="empty">
-      <div id="card" class="card">
-        <div class="face front" id="front"></div>
-        <div class="face back" id="back"></div>
+  <div id="layout">
+    <section id="stage">
+      <div id="scene" class="empty">
+        <div id="card" class="card">
+          <div class="face front" id="front"></div>
+          <div class="face back" id="back"></div>
+        </div>
+        <p id="hint">还没有卡片。右侧写一段香味，点「生成」。</p>
       </div>
-      <p id="hint">还没有卡片。写一段香味，点「生成」。</p>
-    </div>
 
-    <div class="actions">
-      <button id="flip" type="button" disabled>翻面</button>
-      <button id="export" type="button" disabled>存图片</button>
-      <label><input type="checkbox" id="showNotes" /> 显示香调</label>
-    </div>
-  </main>
+      <div class="stage-actions">
+        <button id="flip" type="button" disabled>翻面</button>
+        <button id="export" type="button" disabled>存图片</button>
+        <label><input type="checkbox" id="showNotes" /> 显示香调</label>
+      </div>
+
+      <div id="history" aria-label="历史生成记录"></div>
+    </section>
+
+    <aside id="panel">
+      <h1>roma <span>香气卡片</span></h1>
+      <form id="form">
+        <select id="model" aria-label="模型"></select>
+        <textarea id="input" autocomplete="off" rows="4"
+          placeholder="写一段香味描述，或粘一支香水的名字与香调…"></textarea>
+        <button id="gen" type="submit">生成</button>
+      </form>
+      <p id="status" role="status"></p>
+    </aside>
+  </div>
 
   <script type="module" src="app.js"></script>
 </body>

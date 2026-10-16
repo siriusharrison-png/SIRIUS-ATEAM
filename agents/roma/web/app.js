@@ -1,11 +1,11 @@
-import { lumaGrid } from './ascii.js';
+import { lumaGrid, asciiFromLuma } from './ascii.js';
 import { risoSvgFromLuma } from './riso.js';
-import { asciiFromLuma } from './ascii.js';
 import { risoFaceSvg, asciiFaceSvg, RISO_GRID, ASCII } from './card.js';
 
 const $ = (id) => document.getElementById(id);
-let current = null; // 最近一次生成的卡片结构化数据
+let current = null; // 当前展示的卡片（{ card, risoArt, asciiArt }）
 let showNotes = false;
+const history = []; // 本次会话内的生成历史，内存即可，刷新页面清空
 
 function setStatus(msg, busy = false) {
   $('status').textContent = msg;
@@ -57,12 +57,10 @@ async function generate(ev) {
     const asciiLuma = lumaGrid(img, ASCII.cols, ASCII.rows, ASCII.cols / (ASCII.rows * 2));
     const asciiArt = asciiFromLuma(asciiLuma);
 
-    current = { card, risoArt, asciiArt };
-    render();
-    $('scene').classList.remove('empty');
-    $('flip').disabled = false;
-    $('export').disabled = false;
-    $('card').classList.remove('flipped');
+    const entry = { card, risoArt, asciiArt };
+    history.push(entry);
+    selectEntry(entry);
+    renderHistory();
     setStatus('');
   } catch (e) {
     setStatus(String(e.message || e));
@@ -71,11 +69,36 @@ async function generate(ev) {
   }
 }
 
+// 把某条历史（或刚生成的）设为当前展示；不重新请求网络。
+function selectEntry(entry) {
+  current = entry;
+  render();
+  $('scene').classList.remove('empty');
+  $('flip').disabled = false;
+  $('export').disabled = false;
+  $('card').classList.remove('flipped');
+  renderHistory();
+}
+
 function render() {
   if (!current) return;
   const { card, risoArt, asciiArt } = current;
   $('front').innerHTML = risoFaceSvg(card, risoArt, { showNotes });
   $('back').innerHTML = asciiFaceSvg(card, asciiArt, { showNotes });
+}
+
+function renderHistory() {
+  const el = $('history');
+  el.innerHTML = '';
+  history.forEach((entry) => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'history-item' + (entry === current ? ' active' : '');
+    item.title = entry.card.perfumeName || '';
+    item.innerHTML = risoFaceSvg(entry.card, entry.risoArt, { showNotes: false });
+    item.addEventListener('click', () => selectEntry(entry));
+    el.appendChild(item);
+  });
 }
 
 async function exportPng() {
@@ -106,6 +129,6 @@ $('form').addEventListener('submit', generate);
 $('flip').addEventListener('click', () => $('card').classList.toggle('flipped'));
 $('card').addEventListener('click', () => { if (current) $('card').classList.toggle('flipped'); });
 $('export').addEventListener('click', exportPng);
-$('showNotes').addEventListener('change', (e) => { showNotes = e.target.checked; render(); });
+$('showNotes').addEventListener('change', (e) => { showNotes = e.target.checked; render(); renderHistory(); });
 
 loadModels();

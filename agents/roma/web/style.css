@@ -15,22 +15,44 @@ body {
   color: var(--ink);
   font-family: var(--serif);
   line-height: 1.6;
-  padding: 36px 20px 56px;
   min-height: 100vh;
 }
-header { max-width: 720px; margin: 0 auto 24px; }
-h1 { margin: 0 0 16px; font-size: 28px; letter-spacing: 6px; font-weight: 700; }
-h1 span { font-size: 13px; letter-spacing: 3px; color: var(--muted); font-weight: 400; margin-left: 10px; }
 
-.controls { display: flex; gap: 8px; flex-wrap: wrap; }
-.controls input {
-  flex: 1; min-width: 240px; padding: 10px 12px;
-  border: 1px solid var(--line); border-radius: 6px; background: #fff;
-  font: 14px var(--serif); color: var(--ink);
+/* 左右分栏：左侧展示区（大图 + 历史缩略带），右侧输入面板 */
+#layout { display: flex; min-height: 100vh; }
+
+#stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 40px 24px;
+  min-width: 0;
 }
-.controls select {
+
+#panel {
+  width: 320px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--line);
+  background: var(--card);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+#panel h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: 5px; font-weight: 700; }
+#panel h1 span { display: block; font-size: 12px; letter-spacing: 3px; color: var(--muted); font-weight: 400; margin-top: 4px; }
+
+#form { display: flex; flex-direction: column; gap: 10px; }
+#panel select {
   padding: 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff;
   font: 13px var(--mono); color: var(--ink);
+}
+#panel textarea {
+  padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: #fff;
+  font: 14px var(--serif); color: var(--ink); resize: vertical; min-height: 84px;
 }
 button {
   cursor: pointer; border: 1px solid var(--ink); border-radius: 6px;
@@ -38,17 +60,18 @@ button {
   font: 13px var(--mono); letter-spacing: 2px;
 }
 button:disabled { opacity: .35; cursor: not-allowed; }
-.actions button { background: transparent; color: var(--ink); }
-.actions button:disabled { background: transparent; }
+.stage-actions button, .stage-actions label { background: transparent; color: var(--ink); }
+.stage-actions button:disabled { background: transparent; }
 
-#status { min-height: 20px; margin: 10px 0 0; font: 12px var(--mono); color: #a33; }
+#status { min-height: 20px; margin: 0; font: 12px var(--mono); color: #a33; }
 #status.busy { color: var(--muted); }
 
-main { display: flex; flex-direction: column; align-items: center; gap: 18px; }
-#scene { perspective: 1600px; width: 600px; max-width: 100%; }
+/* 展示区：大图卡片 */
+#scene { perspective: 1600px; width: 420px; max-width: 100%; }
 .card {
   position: relative; width: 100%; aspect-ratio: 2 / 3;
   transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3, .7, .2, 1);
+  cursor: pointer;
 }
 .card.flipped { transform: rotateY(180deg); }
 .face {
@@ -63,5 +86,26 @@ main { display: flex; flex-direction: column; align-items: center; gap: 18px; }
 #hint { display: none; text-align: center; color: var(--muted); font: 13px var(--mono); padding: 90px 0; }
 #scene.empty #hint { display: block; }
 
-.actions { display: flex; gap: 12px; align-items: center; font: 13px var(--mono); color: var(--muted); }
-.actions label { cursor: pointer; }
+.stage-actions { display: flex; gap: 12px; align-items: center; font: 13px var(--mono); color: var(--muted); }
+.stage-actions label { cursor: pointer; }
+
+/* 历史缩略带 */
+#history {
+  display: flex; gap: 10px; overflow-x: auto; max-width: 100%;
+  padding: 4px 2px;
+}
+#history:empty { display: none; }
+.history-item {
+  flex-shrink: 0; width: 46px; aspect-ratio: 2 / 3; border-radius: 3px;
+  border: 1px solid var(--line); background: var(--card); overflow: hidden;
+  cursor: pointer; opacity: .7; transition: opacity .15s, border-color .15s;
+}
+.history-item:hover { opacity: .95; }
+.history-item.active { opacity: 1; border-color: var(--ink); }
+.history-item svg { width: 100%; height: 100%; display: block; }
+
+@media (max-width: 760px) {
+  #layout { flex-direction: column; }
+  #panel { width: 100%; border-left: none; border-top: 1px solid var(--line); order: -1; }
+  #scene { width: 320px; }
+}
