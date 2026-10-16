@@ -26,6 +26,7 @@
 
 - 放 `agents/roma/`，补 `launch`（server 型，端口 4322，避开 motionlab 的 4321），自动进 Hub。
 - 技术栈对齐 motionlab：原生 Node http 服务 + 原生前端（无框架）+ 网关 LLM 客户端。
+- **整体视觉风格对齐 posterdesigner 的纸感 zine 风**：暖白纸底 `#f4f1ea`、墨黑字 `#1a1a1a`、柔和灰调 `#8a8378`、面板布局、方正克制。与 Riso 面纸底天然统一。具体卡面排版待转转提供参考后整合。
 - server 拆小模块，各带 vitest 测试。
 - 复用网关：`GATEWAY_API_KEY` / `GATEWAY_BASE_URL`，`.env` 与 motionlab/poster 同机制（启动时读入、不覆盖已设）。
 
