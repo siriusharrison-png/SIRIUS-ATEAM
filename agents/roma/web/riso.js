@@ -9,6 +9,15 @@ export const PAPER = '#f4f1ea';
 export const RISO_INKS = ['#FF48B0', '#0078BF', '#FFE800', '#00A95C', '#FF6C2F', '#765BA7', '#000000'];
 const DEFAULT_INK = '#0078BF';
 
+// 预设配色风格——用户可在生成后切换，不必只能用 LLM 给的 palette。
+// 每套都是 RISO_INKS 内的真实油墨色（本身就经过 nearestInk 校验），直接喂给 risoSvgFromLuma 即可。
+export const RISO_PALETTES = {
+  classic: ['#FF48B0', '#0078BF', '#000000'], // 粉蓝黑，默认那套
+  warm: ['#FF6C2F', '#FFE800', '#000000'], // 橙黄黑
+  cool: ['#0078BF', '#765BA7', '#000000'], // 蓝紫黑
+  mono: ['#000000'], // 单色黑，最克制
+};
+
 // 套色错位：各层相对格宽的位移比例，模拟丝网印刷的对位偏差。
 const OFFSETS = [[0, 0], [0.15, -0.1], [-0.1, 0.15]];
 
