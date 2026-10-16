@@ -16,6 +16,11 @@ describe('parseCardJson', () => {
     expect(r.visual.palette.length).toBeGreaterThan(0);
     expect(r.caption).toBe('');
     expect(r.imagePrompt).toBe('');
+    expect(r.perfumeNameEn).toBe('');
+  });
+
+  it('保留英文名，缺省为空串', () => {
+    expect(parseCardJson('{"perfumeName":"鸦","perfumeNameEn":"CROW"}').perfumeNameEn).toBe('CROW');
   });
 
   it('彻底非法 JSON 抛可读错误', () => {

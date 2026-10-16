@@ -1,5 +1,6 @@
 const SYSTEM = `你是香气视觉设计助手。读用户的香味描述或香水信息，只输出一个 JSON 对象（不要额外解释），字段：
 - perfumeName: 香水名；没有就起一个贴合的意象名
+- perfumeNameEn: 对应的英文名（全大写短词，如 CROW、TIGEROSE），用于卡面中英双名
 - family: 香调分类（如 "花香醛调"）
 - notes: { top: [], mid: [], base: [] } 前/中/后调原料
 - keyMaterials: 关键原料数组

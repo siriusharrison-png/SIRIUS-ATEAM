@@ -8,6 +8,7 @@ describe('buildMessages', () => {
     expect(sys).toMatch(/JSON/);
     expect(sys).toMatch(/palette/);
     expect(sys).toMatch(/imagePrompt/);
+    expect(sys).toMatch(/perfumeNameEn/);
     expect(msgs.find(m => m.role === 'user').content).toContain('雨后的木头');
   });
 });

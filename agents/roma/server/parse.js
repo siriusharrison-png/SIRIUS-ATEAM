@@ -20,6 +20,7 @@ export function parseCardJson(text) {
   const visual = obj.visual || {};
   return {
     perfumeName: obj.perfumeName || '',
+    perfumeNameEn: typeof obj.perfumeNameEn === 'string' ? obj.perfumeNameEn : '',
     family: obj.family || '',
     notes: {
       top: Array.isArray(notes.top) ? notes.top : [],
