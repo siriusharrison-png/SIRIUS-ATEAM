@@ -30,7 +30,19 @@ export async function generateImage({ prompt, config, size = '1024x1536', fetchI
     throw new Error(`图像生成失败 ${res.status}: ${await res.text()}`);
   }
   const raw = await res.json();
-  const image = toImageRef(raw?.images?.[0]);
-  if (!image) throw new Error('网关没有返回图像数据');
-  return { image };
+  const ref = toImageRef(raw?.images?.[0]);
+  if (!ref) throw new Error('网关没有返回图像数据');
+  return { image: await inlineRemote(ref, fetchImpl) };
+}
+
+// 远程地址由服务端下载并内联为 data: URI。
+// 浏览器 canvas 读取跨域图片会被污染（getImageData 抛 SecurityError），
+// 而 Riso / ASCII 两面都要读像素，所以必须在这里转成同源数据。
+async function inlineRemote(ref, fetchImpl) {
+  if (!/^https?:/i.test(ref)) return ref;
+  const res = await fetchImpl(ref);
+  if (!res.ok) throw new Error(`下载图像失败 ${res.status}`);
+  const type = res.headers?.get?.('content-type') || 'image/png';
+  const buf = Buffer.from(await res.arrayBuffer());
+  return `data:${type};base64,${buf.toString('base64')}`;
 }
