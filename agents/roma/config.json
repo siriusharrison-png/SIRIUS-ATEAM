@@ -1,0 +1,21 @@
+{
+  "name": "roma",
+  "role": "specialist",
+  "description": "香气卡片生成器：输入香味描述，LLM 出结构化香调信息，生成正反两面（Riso / ASCII）的香气卡片，翻面切换、一键存 PNG。",
+  "launch": {
+    "type": "server",
+    "cmd": "npm run server",
+    "cwd": "agents/roma",
+    "port": 4322
+  },
+  "gateway": {
+    "provider": "openai-compatible-gateway",
+    "envKey": "GATEWAY_API_KEY",
+    "envBaseUrl": "GATEWAY_BASE_URL",
+    "defaultBaseUrl": "https://apiproxy.paigod.work/v1"
+  },
+  "models": [
+    { "id": "claude-opus-5-5", "label": "Opus 5.5", "endpoint": "/chat/completions" },
+    { "id": "gpt-6-astra", "label": "GPT-6 astra", "endpoint": "/chat/completions" }
+  ]
+}
