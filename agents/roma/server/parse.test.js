@@ -15,8 +15,22 @@ describe('parseCardJson', () => {
     expect(r.notes).toEqual({ top: [], mid: [], base: [] });
     expect(r.visual.palette.length).toBeGreaterThan(0);
     expect(r.caption).toBe('');
-    expect(r.imagePrompt).toBe('');
     expect(r.perfumeNameEn).toBe('');
+  });
+
+  it('imagePrompt 缺省时由 visual 字段合成，保证出图流程不断', () => {
+    const r = parseCardJson('{"perfumeName":"鸦","visual":{"motif":"黑色羽毛","mood":"潮湿的夜"}}');
+    expect(r.imagePrompt).toMatch(/abstract/);
+    expect(r.imagePrompt).toContain('黑色羽毛');
+    expect(r.imagePrompt).toContain('潮湿的夜');
+  });
+
+  it('什么字段都没有时也给出可用的通用 imagePrompt', () => {
+    expect(parseCardJson('{}').imagePrompt).toMatch(/abstract/);
+  });
+
+  it('模型给了 imagePrompt 就原样使用，不覆盖', () => {
+    expect(parseCardJson('{"imagePrompt":"my prompt"}').imagePrompt).toBe('my prompt');
   });
 
   it('保留英文名，缺省为空串', () => {

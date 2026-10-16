@@ -9,6 +9,15 @@ function stripFence(text) {
   return text;
 }
 
+// 模型漏给 imagePrompt 时，用 visual 里已有的意象合成一条，避免出图流程中断。
+function synthImagePrompt(visual) {
+  const hints = [visual.motif, visual.texture, visual.mood].filter(Boolean).join(', ');
+  return (
+    'abstract organic form, soft grain, monochrome ink wash on paper, high contrast, no text' +
+    (hints ? `, inspired by: ${hints}` : '')
+  );
+}
+
 export function parseCardJson(text) {
   let obj;
   try {
@@ -35,7 +44,10 @@ export function parseCardJson(text) {
       mood: visual.mood || '',
     },
     caption: obj.caption || '',
-    imagePrompt: typeof obj.imagePrompt === 'string' ? obj.imagePrompt : '',
+    imagePrompt:
+      typeof obj.imagePrompt === 'string' && obj.imagePrompt.trim()
+        ? obj.imagePrompt
+        : synthImagePrompt(visual),
     ascii: typeof obj.ascii === 'string' && obj.ascii.trim() ? obj.ascii : '  ~  ~  ~\n (no ascii)\n  ~  ~  ~',
   };
 }
