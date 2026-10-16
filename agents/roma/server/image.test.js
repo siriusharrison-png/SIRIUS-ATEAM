@@ -75,4 +75,18 @@ describe('generateImage', () => {
     const fetchImpl = async () => ({ ok: false, status: 500, text: async () => 'err' });
     await expect(generateImage({ prompt: 'p', config, fetchImpl })).rejects.toThrow(/500/);
   });
+
+  it('网关原始响应体不无差别透传——超长正文被截断', async () => {
+    process.env.GATEWAY_API_KEY = 'k';
+    const fetchImpl = async () => ({ ok: false, status: 500, text: async () => 'y'.repeat(2000) });
+    let caught;
+    try {
+      await generateImage({ prompt: 'p', config, fetchImpl });
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeDefined();
+    expect(caught.message).toContain('500');
+    expect(caught.message.length).toBeLessThan(300);
+  });
 });

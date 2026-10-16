@@ -1,3 +1,9 @@
+// 网关错误体内容不可控，只截一小段给用户当线索，不整段回显。
+function truncate(s, max = 200) {
+  const t = String(s ?? '');
+  return t.length > max ? t.slice(0, max) + '…' : t;
+}
+
 function extractText(raw) {
   return raw?.choices?.[0]?.message?.content ?? raw?.content?.[0]?.text ?? '';
 }
@@ -18,7 +24,7 @@ export async function callLLM({ modelId, messages, config, fetchImpl = globalThi
   });
 
   if (!res.ok) {
-    throw new Error(`LLM 调用失败 ${res.status}: ${await res.text()}`);
+    throw new Error(`LLM 调用失败 ${res.status}: ${truncate(await res.text())}`);
   }
   const raw = await res.json();
   return { text: extractText(raw) };

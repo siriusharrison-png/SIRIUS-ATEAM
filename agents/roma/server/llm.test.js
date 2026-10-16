@@ -29,4 +29,19 @@ describe('callLLM', () => {
     const fetchImpl = async () => ({ ok: false, status: 401, text: async () => 'unauthorized' });
     await expect(callLLM({ modelId: 'm1', messages: [], config, fetchImpl })).rejects.toThrow(/401/);
   });
+
+  it('网关原始响应体不无差别透传——超长正文被截断，不整段回显给前端', async () => {
+    process.env.GATEWAY_API_KEY = 'k';
+    const longBody = 'x'.repeat(2000);
+    const fetchImpl = async () => ({ ok: false, status: 500, text: async () => longBody });
+    let caught;
+    try {
+      await callLLM({ modelId: 'm1', messages: [], config, fetchImpl });
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeDefined();
+    expect(caught.message).toContain('500');
+    expect(caught.message.length).toBeLessThan(300);
+  });
 });

@@ -3,6 +3,12 @@
 
 const DEFAULT_IMAGE_MODEL = 'gpt-image-2-text-to-image';
 
+// 网关错误体内容不可控，只截一小段给用户当线索，不整段回显。
+function truncate(s, max = 200) {
+  const t = String(s ?? '');
+  return t.length > max ? t.slice(0, max) + '…' : t;
+}
+
 function toImageRef(item) {
   if (!item) return '';
   const v = typeof item === 'string' ? item : (item.url || item.b64_json || item.image || '');
@@ -27,7 +33,7 @@ export async function generateImage({ prompt, config, size = '1024x1536', fetchI
   });
 
   if (!res.ok) {
-    throw new Error(`图像生成失败 ${res.status}: ${await res.text()}`);
+    throw new Error(`图像生成失败 ${res.status}: ${truncate(await res.text())}`);
   }
   const raw = await res.json();
   const ref = toImageRef(raw?.images?.[0]);
