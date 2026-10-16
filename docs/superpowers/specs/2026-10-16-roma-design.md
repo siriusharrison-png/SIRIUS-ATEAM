@@ -25,8 +25,16 @@
 ## 2. 形态与技术栈
 
 - 放 `agents/roma/`，补 `launch`（server 型，端口 4322，避开 motionlab 的 4321），自动进 Hub。
-- 技术栈对齐 motionlab：原生 Node http 服务 + 原生前端（无框架）+ 网关 LLM 客户端。
-- **整体视觉风格对齐 posterdesigner 的纸感 zine 风**：暖白纸底 `#f4f1ea`、墨黑字 `#1a1a1a`、柔和灰调 `#8a8378`、面板布局、方正克制。与 Riso 面纸底天然统一。具体卡面排版待转转提供参考后整合。
+- 技术栈对齐 motionlab：原生 Node http 服务 + 原生前端（无框架）+ 网关 LLM 客户端 + 网关图像模型客户端。
+- **整体视觉风格：纸白 + 墨黑的编辑设计**（参考转转提供的香水卡片）：纸白底 `#f4f1ea`、墨黑字 `#1a1a1a`、柔和灰调 `#8a8378`；衬线大标题 + 等宽/小字正文；中英双名；香调金字塔细线分隔；实验室/小票气质（波形、编号、点线、数据表）。
+
+## 1.5 管线升级（v2）：真实图像转 ASCII
+
+初版让 LLM 直接吐 ASCII 字符串，质感不足。参考图里的 ASCII 其实是**真实图像转字符**（亮度映射字符密度，开源通法见 [img2ascii](https://github.com/Technical-1/img2ascii)/[jsascii](https://github.com/hassadee/jsascii)/[Asciify](https://github.com/z-------------/Asciify)）。故升级为：
+
+> 描述 → LLM 出结构化信息 + **一段抽象图生成提示词(imagePrompt)** → 后端调网关图像模型出**一张抽象源图** → 前端用这张源图出两面：正面 Riso（套色降位 + 半调网点）、反面 ASCII（亮度→字符密度）。
+
+一张源图、两种处理 = 同一股香的两种表达。代价：每卡多一次图像生成（有成本、慢几秒），换参考图级质感。
 - server 拆小模块，各带 vitest 测试。
 - 复用网关：`GATEWAY_API_KEY` / `GATEWAY_BASE_URL`，`.env` 与 motionlab/poster 同机制（启动时读入、不覆盖已设）。
 

@@ -1,0 +1,108 @@
+// 卡面排版：把艺术区（Riso 或 ASCII）+ 中英双名 + 文案 + 可选香调，拼成一份完整 SVG。
+// 页面预览和导出 PNG 用同一份 SVG，所以"所见即所存"。
+// 全部是纯函数，可在 node 下单测。LLM 生成的文字一律经 escapeXml 再拼进 SVG。
+
+export const CARD = { w: 600, h: 900 };
+export const ART = { x: 30, y: 40, w: 540, h: 600 };
+// Riso 艺术区：54×60 个方格，每格 10px，正好铺满 ART
+export const RISO_GRID = { cols: 54, rows: 60, cell: 10 };
+// ASCII 艺术区：80 列 × 48 行；字号 11px 的等宽字约宽 6.6px，行高 12.5px，正好铺满 ART
+export const ASCII = { cols: 80, rows: 48, fontSize: 11, lineH: 12.5 };
+
+const PAPER = '#f4f1ea';
+const INK = '#1a1a1a';
+const MUTED = '#8a8378';
+const SERIF = "'Songti SC','Noto Serif SC','STSong',Georgia,'Times New Roman',serif";
+const MONO = "ui-monospace,'SF Mono',Menlo,Consolas,monospace";
+
+export function escapeXml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]
+  ));
+}
+
+// 按字数折行（按码点算，中英文都适用）；超出 maxLines 时最后一行以省略号收尾。
+export function wrapText(text, perLine, maxLines = 99) {
+  const chars = [...String(text ?? '').trim()];
+  if (!chars.length) return [];
+  const lines = [];
+  for (let i = 0; i < chars.length; i += perLine) lines.push(chars.slice(i, i + perLine).join(''));
+  if (lines.length <= maxLines) return lines;
+  const kept = lines.slice(0, maxLines);
+  kept[maxLines - 1] = [...kept[maxLines - 1]].slice(0, Math.max(1, perLine - 1)).join('') + '…';
+  return kept;
+}
+
+// 小票式编号：由名字稳定地算出 4 位数，同一张卡永远同一个号。
+export function serialOf(card) {
+  const key = `${card?.perfumeName ?? ''}|${card?.perfumeNameEn ?? ''}|${card?.family ?? ''}`;
+  let h = 5381;
+  for (const ch of key) h = ((h * 33) ^ ch.codePointAt(0)) >>> 0;
+  return `#${String(h % 10000).padStart(4, '0')}`;
+}
+
+const trunc = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
+
+function notesBlock(card, y0) {
+  const n = card?.notes ?? {};
+  const rows = [['TOP', n.top], ['MID', n.mid], ['BASE', n.base]];
+  const rule = `<line x1="30" y1="${y0 - 14}" x2="570" y2="${y0 - 14}" stroke="${INK}" stroke-width="0.75"/>`;
+  const out = rows.map(([label, items], i) => {
+    const y = y0 + i * 19;
+    const text = trunc((Array.isArray(items) ? items : []).join(' / '), 34);
+    return (
+      `<text x="30" y="${y}" font-family="${MONO}" font-size="10" letter-spacing="2" fill="${MUTED}">${label}</text>` +
+      `<text x="86" y="${y}" font-family="${SERIF}" font-size="12.5" fill="${INK}">${escapeXml(text)}</text>`
+    );
+  });
+  return rule + out.join('');
+}
+
+function frame(card, art, { showNotes = false } = {}, tag) {
+  const c = card ?? {};
+  const name = c.perfumeName ?? '';
+  const nameLen = [...name].length;
+  const nameSize = nameLen <= 4 ? 48 : nameLen <= 8 ? 38 : 28;
+  const caption = wrapText(c.caption, 30, 2)
+    .map((line, i) => (
+      `<text x="30" y="${770 + i * 20}" font-family="${SERIF}" font-size="14" fill="${INK}">${escapeXml(line)}</text>`
+    ))
+    .join('');
+  const dashed = (y) =>
+    `<line x1="30" y1="${y}" x2="570" y2="${y}" stroke="${INK}" stroke-width="0.75" stroke-dasharray="2 3"/>`;
+
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${CARD.w}" height="${CARD.h}" viewBox="0 0 ${CARD.w} ${CARD.h}">` +
+    `<rect width="${CARD.w}" height="${CARD.h}" fill="${PAPER}"/>` +
+    `<rect x="10" y="10" width="${CARD.w - 20}" height="${CARD.h - 20}" fill="none" stroke="${INK}" stroke-width="0.75"/>` +
+    `<text x="30" y="30" font-family="${MONO}" font-size="11" letter-spacing="1" fill="${INK}">${escapeXml(serialOf(c))}</text>` +
+    `<text x="570" y="30" text-anchor="end" font-family="${SERIF}" font-size="12" fill="${MUTED}">${escapeXml(c.family ?? '')}</text>` +
+    art +
+    `<text x="30" y="702" font-family="${SERIF}" font-size="${nameSize}" font-weight="700" fill="${INK}">${escapeXml(name)}</text>` +
+    `<text x="30" y="730" font-family="${MONO}" font-size="13" letter-spacing="5" fill="${INK}">${escapeXml(c.perfumeNameEn ?? '')}</text>` +
+    dashed(746) +
+    caption +
+    (showNotes ? notesBlock(c, 818) : '') +
+    `<text x="30" y="884" font-family="${MONO}" font-size="9" letter-spacing="2" fill="${MUTED}">ROMA · ${tag}</text>` +
+    `</svg>`
+  );
+}
+
+// risoSvg 由 riso.js 生成（内部可信），整体平移到艺术区。
+export function risoFaceSvg(card, risoSvg, opts) {
+  return frame(card, `<g transform="translate(${ART.x} ${ART.y})">${risoSvg}</g>`, opts, 'RISO');
+}
+
+// 每行一个 <text>，保留空白；字符一律转义。
+export function asciiFaceSvg(card, asciiText, opts) {
+  const lines = String(asciiText ?? '').split('\n');
+  const art = lines
+    .map((line, i) => (
+      `<text data-ascii-line xml:space="preserve" x="${ART.x}" y="${r2(ART.y + ASCII.fontSize + i * ASCII.lineH)}" ` +
+      `font-family="${MONO}" font-size="${ASCII.fontSize}" fill="${INK}" style="white-space:pre">${escapeXml(line)}</text>`
+    ))
+    .join('');
+  return frame(card, art, opts, 'ASCII');
+}
+
+const r2 = (v) => +v.toFixed(2);
