@@ -14,7 +14,7 @@ function sendJson(res, code, obj) {
   res.end(body);
 }
 
-export function createHandler({ config, callLLMImpl }) {
+export function createHandler({ config, callLLMImpl, generateImageImpl }) {
   return async function handler(req, res) {
     try {
       if (req.method === 'GET' && req.url === '/config') {
@@ -30,6 +30,12 @@ export function createHandler({ config, callLLMImpl }) {
           config,
         });
         return sendJson(res, 200, parseCardJson(text));
+      }
+      if (req.method === 'POST' && req.url === '/image') {
+        const body = JSON.parse((await readBody(req)) || '{}');
+        const prompt = (body.imagePrompt || '').trim();
+        if (!prompt) return sendJson(res, 400, { error: '缺少 imagePrompt' });
+        return sendJson(res, 200, await generateImageImpl({ prompt, config }));
       }
       sendJson(res, 404, { error: 'not found' });
     } catch (e) {

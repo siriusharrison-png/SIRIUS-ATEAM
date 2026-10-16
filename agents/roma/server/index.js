@@ -5,6 +5,7 @@ import { exec } from 'node:child_process';
 import { agentDir } from './paths.js';
 import { createHandler } from './app.js';
 import { callLLM } from './llm.js';
+import { generateImage } from './image.js';
 
 const DIR = agentDir();
 const WEB = path.join(DIR, 'web');
@@ -21,12 +22,12 @@ function loadEnv() {
 loadEnv();
 
 const config = JSON.parse(fs.readFileSync(path.join(DIR, 'config.json'), 'utf8'));
-const api = createHandler({ config, callLLMImpl: callLLM });
+const api = createHandler({ config, callLLMImpl: callLLM, generateImageImpl: generateImage });
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8' };
 
 const server = http.createServer((req, res) => {
-  if (req.url === '/config' || req.url === '/generate') return api(req, res);
+  if (req.url === '/config' || req.url === '/generate' || req.url === '/image') return api(req, res);
   // 静态
   const rel = req.url === '/' ? '/index.html' : req.url.split('?')[0];
   const file = path.join(WEB, rel);

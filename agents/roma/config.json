@@ -14,6 +14,7 @@
     "envBaseUrl": "GATEWAY_BASE_URL",
     "defaultBaseUrl": "https://apiproxy.paigod.work/v1"
   },
+  "imageModel": "gpt-image-2-text-to-image",
   "models": [
     { "id": "claude-opus-5-5", "label": "Opus 5.5", "endpoint": "/chat/completions" },
     { "id": "gpt-6-astra", "label": "GPT-6 astra", "endpoint": "/chat/completions" }
