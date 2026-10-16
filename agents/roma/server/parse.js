@@ -34,6 +34,7 @@ export function parseCardJson(text) {
       mood: visual.mood || '',
     },
     caption: obj.caption || '',
+    imagePrompt: typeof obj.imagePrompt === 'string' ? obj.imagePrompt : '',
     ascii: typeof obj.ascii === 'string' && obj.ascii.trim() ? obj.ascii : '  ~  ~  ~\n (no ascii)\n  ~  ~  ~',
   };
 }

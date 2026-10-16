@@ -5,7 +5,7 @@ const SYSTEM = `你是香气视觉设计助手。读用户的香味描述或香�
 - keyMaterials: 关键原料数组
 - visual: { palette: [16进制颜色数组], motif: 母题意象, texture: 质感, mood: 氛围 }
 - caption: 一句氛围文案
-- ascii: 一段等宽 ASCII 构图（纯字符，表达这股香气的抽象视觉；12~20 行）
+- imagePrompt: 一段英文抽象图生成提示词，描述适合这股香气的抽象、单色或低饱和、有机质感的图像（供图像模型出图，之后转成 Riso 与 ASCII 两种卡面）
 palette 给 2~4 个颜色。只输出 JSON。`;
 
 export function buildMessages(input) {

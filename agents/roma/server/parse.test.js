@@ -15,6 +15,7 @@ describe('parseCardJson', () => {
     expect(r.notes).toEqual({ top: [], mid: [], base: [] });
     expect(r.visual.palette.length).toBeGreaterThan(0);
     expect(r.caption).toBe('');
+    expect(r.imagePrompt).toBe('');
   });
 
   it('彻底非法 JSON 抛可读错误', () => {

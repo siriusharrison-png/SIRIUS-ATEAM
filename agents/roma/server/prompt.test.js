@@ -7,7 +7,7 @@ describe('buildMessages', () => {
     const sys = msgs.find(m => m.role === 'system').content;
     expect(sys).toMatch(/JSON/);
     expect(sys).toMatch(/palette/);
-    expect(sys).toMatch(/ascii/);
+    expect(sys).toMatch(/imagePrompt/);
     expect(msgs.find(m => m.role === 'user').content).toContain('雨后的木头');
   });
 });
