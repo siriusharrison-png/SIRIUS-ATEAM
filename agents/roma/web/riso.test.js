@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { RISO_INKS, nearestInk, pickInks, inkLayers, risoSvgFromLuma } from './riso.js';
+import { RISO_INKS, RISO_PALETTES, nearestInk, pickInks, inkLayers, risoSvgFromLuma } from './riso.js';
 
 describe('nearestInk', () => {
   it('把任意颜色映射到油墨色板内', () => {
@@ -90,5 +90,33 @@ describe('risoSvgFromLuma', () => {
 
   it('空矩阵不抛错', () => {
     expect(() => risoSvgFromLuma([], ['#0078BF'])).not.toThrow();
+  });
+});
+
+// 配色风格切换：几套预设油墨色板，供用户选择，而非只能用 LLM 给的 palette。
+describe('RISO_PALETTES（预设配色风格）', () => {
+  it('至少提供几种命名预设，每种都是合法油墨色的数组', () => {
+    const names = Object.keys(RISO_PALETTES);
+    expect(names.length).toBeGreaterThanOrEqual(3);
+    for (const name of names) {
+      const palette = RISO_PALETTES[name];
+      expect(Array.isArray(palette)).toBe(true);
+      expect(palette.length).toBeGreaterThan(0);
+      palette.forEach((hex) => expect(RISO_INKS).toContain(nearestInk(hex)));
+    }
+  });
+
+  it('每套预设都能直接喂给 risoSvgFromLuma 出图，不抛错', () => {
+    const mid = [[60, 60], [60, 60]];
+    for (const name of Object.keys(RISO_PALETTES)) {
+      expect(() => risoSvgFromLuma(mid, RISO_PALETTES[name], { cell: 10 })).not.toThrow();
+    }
+  });
+
+  it('不同预设在相同亮度矩阵下产出不同颜色的网点', () => {
+    const mid = [[60, 60], [60, 60]];
+    const names = Object.keys(RISO_PALETTES);
+    const outputs = names.map((n) => risoSvgFromLuma(mid, RISO_PALETTES[n], { cell: 10 }));
+    expect(new Set(outputs).size).toBeGreaterThan(1);
   });
 });

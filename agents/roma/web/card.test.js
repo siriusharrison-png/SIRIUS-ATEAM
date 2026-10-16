@@ -45,40 +45,42 @@ describe('serialOf', () => {
   });
 });
 
-describe('risoFaceSvg', () => {
+// 图片只保留最小身份标识（编号 + 中英文名），不再带香调/文案——那些挪到右侧小票面板。
+describe('risoFaceSvg（图片只带最小身份标识）', () => {
   it('整张卡的画布尺寸与 CARD 一致', () => {
     const svg = risoFaceSvg(card, riso);
     expect(svg).toContain(`viewBox="0 0 ${CARD.w} ${CARD.h}"`);
   });
 
-  it('包含中英双名、香调、文案与编号', () => {
+  it('包含中英双名与编号，不包含香调/文案', () => {
     const svg = risoFaceSvg(card, riso);
-    for (const s of ['鸦', 'CROW', '木质烟熏调', '潮湿的夜里', serialOf(card)]) expect(svg).toContain(s);
+    for (const s of ['鸦', 'CROW', serialOf(card)]) expect(svg).toContain(s);
+    expect(svg).not.toContain('木质烟熏调');
+    expect(svg).not.toContain('潮湿的夜里');
   });
 
   it('嵌入艺术区 SVG', () => {
     expect(risoFaceSvg(card, riso)).toContain('width="540" height="600"');
   });
 
-  it('showNotes 关闭时不出现香调金字塔，开启时出现', () => {
-    expect(risoFaceSvg(card, riso, { showNotes: false })).not.toContain('TOP');
-    const on = risoFaceSvg(card, riso, { showNotes: true });
-    for (const s of ['TOP', 'MID', 'BASE', '黑胡椒', '雪松', '麝香']) expect(on).toContain(s);
+  it('不接受/不渲染香调金字塔——即便 card 带了 notes 也不出现', () => {
+    const svg = risoFaceSvg(card, riso);
+    for (const s of ['TOP', 'MID', 'BASE', '黑胡椒', '雪松', '麝香']) expect(svg).not.toContain(s);
   });
 
-  it('LLM 文本里的标签被转义，不能注入元素', () => {
-    const evil = { ...card, perfumeName: '<script>alert(1)</script>', caption: '"><img src=x onerror=alert(1)>' };
-    const svg = risoFaceSvg(evil, riso, { showNotes: true });
+  it('LLM 文本（名字）被转义，不能注入元素', () => {
+    const evil = { ...card, perfumeName: '<script>alert(1)</script>', perfumeNameEn: '"><img src=x onerror=alert(1)>' };
+    const svg = risoFaceSvg(evil, riso);
     expect(svg).not.toContain('<script>');
     expect(svg).not.toContain('<img');
   });
 
   it('什么字段都没有也不抛错', () => {
-    expect(() => risoFaceSvg({}, riso, { showNotes: true })).not.toThrow();
+    expect(() => risoFaceSvg({}, riso)).not.toThrow();
   });
 });
 
-describe('asciiFaceSvg', () => {
+describe('asciiFaceSvg（同样只带最小身份标识）', () => {
   const art = 'ab<c\n&&  \n@@@';
 
   it('每行一个 <text>，保留行数', () => {
@@ -93,9 +95,10 @@ describe('asciiFaceSvg', () => {
     expect(svg).toContain('xml:space="preserve"');
   });
 
-  it('同样带中英双名与画布尺寸', () => {
+  it('同样带中英双名与画布尺寸，不带香调/文案', () => {
     const svg = asciiFaceSvg(card, art);
     expect(svg).toContain('CROW');
     expect(svg).toContain(`viewBox="0 0 ${CARD.w} ${CARD.h}"`);
+    expect(svg).not.toContain('木质烟熏调');
   });
 });
