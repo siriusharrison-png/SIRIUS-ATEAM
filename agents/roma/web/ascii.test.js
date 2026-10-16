@@ -1,5 +1,28 @@
 import { describe, it, expect } from 'vitest';
-import { asciiFromLuma, DEFAULT_RAMP, lumaOf, cellAverages } from './ascii.js';
+import { asciiFromLuma, DEFAULT_RAMP, lumaOf, cellAverages, coverCrop } from './ascii.js';
+
+describe('coverCrop（按目标比例居中裁切源图，保证铺满不变形）', () => {
+  it('源图更宽：左右各裁掉一部分', () => {
+    // 源 2000×1000（2:1），目标 1:1 → 取中间 1000×1000
+    expect(coverCrop(2000, 1000, 1)).toEqual({ sx: 500, sy: 0, sw: 1000, sh: 1000 });
+  });
+
+  it('源图更高：上下各裁掉一部分', () => {
+    // 源 1000×2000（1:2），目标 1:1 → 取中间 1000×1000
+    expect(coverCrop(1000, 2000, 1)).toEqual({ sx: 0, sy: 500, sw: 1000, sh: 1000 });
+  });
+
+  it('比例一致：整张取用', () => {
+    expect(coverCrop(900, 1000, 0.9)).toEqual({ sx: 0, sy: 0, sw: 900, sh: 1000 });
+  });
+
+  it('典型的 2:3 网关出图 → 0.9 的艺术区', () => {
+    const r = coverCrop(1024, 1536, 0.9);
+    expect(r.sw).toBe(1024);
+    expect(r.sw / r.sh).toBeCloseTo(0.9, 1);
+    expect(r.sy).toBeGreaterThan(0);
+  });
+});
 
 describe('asciiFromLuma（亮度 → 字符密度）', () => {
   it('全黑映射为最密字符，全白映射为空格', () => {

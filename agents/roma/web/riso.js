@@ -1,7 +1,6 @@
 // Riso（丝网印）风格渲染：源图亮度 → 多油墨叠印的半调网点 SVG。
-// 纯函数（nearestInk / pickInks / inkLayers / risoSvgFromLuma）可在 node 下单测；
-// risoFromImage 依赖浏览器 canvas，走手动验收。
-import { cellAverages, lumaOf } from './ascii.js';
+// 全部是纯函数，可在 node 下单测；取像素的浏览器侧逻辑在 ascii.js 的 lumaGrid（两面共用）。
+import { lumaOf } from './ascii.js';
 
 export const PAPER = '#f4f1ea';
 
@@ -111,18 +110,4 @@ export function risoSvgFromLuma(lumaRows, palette, { cell = 10, paper = PAPER } 
     .join('');
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="${paper}"/>${groups}</svg>`;
-}
-
-// 浏览器侧：把 <img> 画到离屏 canvas，按 cols 列切成方格求平均亮度，再生成 Riso SVG。
-export function risoFromImage(img, palette, cols = 60, cell = 10) {
-  const w = img.naturalWidth || img.width;
-  const h = img.naturalHeight || img.height;
-  const rows = Math.max(1, Math.round(cols * (h / w)));
-  const canvas = document.createElement('canvas');
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  ctx.drawImage(img, 0, 0, w, h);
-  const { data } = ctx.getImageData(0, 0, w, h);
-  return risoSvgFromLuma(cellAverages(data, w, h, cols, rows), palette, { cell });
 }

@@ -54,17 +54,29 @@ export function cellAverages(data, width, height, cols, rows) {
   return out;
 }
 
-// 浏览器侧：把 <img> 画到离屏 canvas，按 cols 列转 ASCII。
-// 等宽字符高约为宽的 2 倍，所以行数按 0.5 折算以保持比例。
-export function asciiFromImage(img, cols = 80, ramp = DEFAULT_RAMP) {
-  const w = img.naturalWidth || img.width;
-  const h = img.naturalHeight || img.height;
-  const rows = Math.max(1, Math.round(cols * (h / w) * 0.5));
+// 按目标宽高比（宽/高）从源图中居中裁出一块，铺满目标区域而不拉伸变形。
+export function coverCrop(srcW, srcH, aspect) {
+  if (srcW / srcH > aspect) {
+    const sw = Math.round(srcH * aspect);
+    return { sx: Math.round((srcW - sw) / 2), sy: 0, sw, sh: srcH };
+  }
+  const sh = Math.round(srcW / aspect);
+  return { sx: 0, sy: Math.round((srcH - sh) / 2), sw: srcW, sh };
+}
+
+// 浏览器侧：把 <img> 居中裁切成 aspect 比例，降采样成 cols×rows 的平均亮度矩阵。
+// Riso 与 ASCII 两面共用这一步，所以两面看到的是同一块构图。
+// 先画到 cols*S × rows*S 的中间画布再按块平均，比一次性大幅缩小更不易混叠。
+export function lumaGrid(img, cols, rows, aspect) {
+  const S = 6;
+  const { sx, sy, sw, sh } = coverCrop(img.naturalWidth || img.width, img.naturalHeight || img.height, aspect);
   const canvas = document.createElement('canvas');
-  canvas.width = w;
-  canvas.height = h;
+  canvas.width = cols * S;
+  canvas.height = rows * S;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  ctx.drawImage(img, 0, 0, w, h);
-  const { data } = ctx.getImageData(0, 0, w, h);
-  return asciiFromLuma(cellAverages(data, w, h, cols, rows), ramp);
+  ctx.fillStyle = '#fff'; // 透明区域按纸白处理
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+  const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  return cellAverages(data, canvas.width, canvas.height, cols, rows);
 }
