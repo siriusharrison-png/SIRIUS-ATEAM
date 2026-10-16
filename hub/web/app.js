@@ -40,9 +40,28 @@ function cardOf(c) {
     if (running && c.launch.openUrl) actions.appendChild(btn('打开', '', () => window.open(c.launch.openUrl, '_blank')));
     actions.appendChild(btn('日志', '', () => showLogs(c)));
   } else if (t === 'interactive') {
-    actions.appendChild(btn('在终端运行', '', async () => {
-      const r = await (await fetch(`/api/launch/${c.id}`, { method: 'POST' })).json();
-      if (r.mode === 'copy') { await navigator.clipboard.writeText(r.hint); alert('已复制命令：\n' + r.hint); }
+    const hint = document.createElement('div');
+    hint.className = 'hint';
+    actions.appendChild(hint);
+    actions.appendChild(btn('在终端运行', '', async (ev) => {
+      const b = ev.target;
+      b.disabled = true;
+      hint.textContent = '正在打开终端…';
+      try {
+        const r = await (await fetch(`/api/launch/${c.id}`, { method: 'POST' })).json();
+        if (r.mode === 'copy') {
+          await navigator.clipboard.writeText(r.hint);
+          alert('已复制命令：\n' + r.hint);
+          hint.textContent = '';
+        } else if (r.mode === 'terminal') {
+          // 新终端窗口不一定会抢前台焦点，明确告知已打开，避免看起来“没反应”。
+          hint.textContent = '已在新终端窗口打开（可能在桌面其他位置，去找一下 Terminal）';
+        }
+      } catch (e) {
+        hint.textContent = '打开失败：' + (e.message || e);
+      } finally {
+        b.disabled = false;
+      }
     }));
   } else {
     actions.appendChild(btn('打开目录', '', async () => {

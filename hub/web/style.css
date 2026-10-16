@@ -17,3 +17,4 @@ button { font-family:inherit; cursor:pointer; border:none; border-radius:6px; pa
 button.stop{background:var(--stop);color:#111;}
 dialog{background:var(--card);color:var(--ink);border:2px solid #0f3460;border-radius:8px;max-width:80vw;}
 pre{max-height:50vh;overflow:auto;background:#0b1020;padding:12px;border-radius:6px;}
+.hint{font-size:11px;color:var(--accent);min-height:14px;margin-bottom:4px;}
