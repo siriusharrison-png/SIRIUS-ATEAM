@@ -4,7 +4,7 @@
   "description": "把上传图片/主题优化为极简 zine 纸感海报、抽象记忆面板编辑作品、实景拼贴，或原片＋手工图章的档案拼接",
   "launch": {
     "type": "server",
-    "cmd": "python3 scripts/serve.py",
+    "cmd": "bash -c 'source scripts/_python.sh && exec \"$PY\" scripts/serve.py'",
     "cwd": "agents/posterdesigner",
     "port": 8765
   },
