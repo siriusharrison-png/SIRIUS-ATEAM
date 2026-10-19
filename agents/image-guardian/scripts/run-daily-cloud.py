@@ -170,6 +170,8 @@ def push_to_feishu(stats, trending):
 | 浏览 | +{day_views:,} | {stats['summary']['views']:,} |
 | 点赞 | - | {stats['summary']['likes']:,} |
 
+<font color="grey">数据源：Unsplash API（含所有下载调用，口径大于统计页的真人下载；累计为历史总计，非近30天）</font>
+
 **热门关键词**
 {trending_text}
 """
