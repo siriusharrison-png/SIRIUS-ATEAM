@@ -17,6 +17,9 @@ __pycache__/
 .claude/logs/
 **/.claude/logs/
 
+# git worktree 临时副本，不入库
+.claude/worktrees/
+
 # Python 虚拟环境，不入库
 .venv/
 **/.venv/
