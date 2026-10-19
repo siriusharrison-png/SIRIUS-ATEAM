@@ -11,6 +11,8 @@
 | 秘书 | secretary | 生成日报，汇总所有设备的使用情况 | 每日 18:00 (UTC 10:00) | P1 |
 | 设计基础设施 | design-infra | 设计系统维护（预留） | 按需 | P2 |
 | 海报设计师 | posterdesigner | 把上传图片/主题优化成 zine 纸感海报（Gemini 图生图） | 手动 `/poster` | P2 |
+| roma | roma | 香气卡片生成器：香味描述→结构化香调→正反两面香气卡片 | 手动 `/roma` | P2 |
+| MotionLab | motionlab | motion 工作台：大白话→Remotion 动画代码→渲染 mp4 | 手动 `/motionlab` | P2 |
 
 ## 1. Agent 详细定义
 
@@ -115,6 +117,25 @@
 - **输入**：`agents/posterdesigner/input/` 图片 + 主题文字
 - **输出**：`agents/posterdesigner/output/` + 上报 `hub.json`
 - **详见**：[agents/posterdesigner/README.md](agents/posterdesigner/README.md)
+
+### 1.6 roma (roma)
+
+**职责**：香气卡片生成器。转转输入香味描述，LLM 产出结构化香调信息，生成正反两面（Riso / ASCII 两种风格）的香气卡片，支持翻面切换、一键存 PNG。
+
+- **引擎**：openai-compatible-gateway（文字 Opus 5.5 / GPT-6 astra；图像 `gpt-image-2-text-to-image`）
+- **启动**：server 型，`npm run server`，端口 4322
+- **触发**：手动 `/roma`
+- **详见**：[agents/roma/README.md](agents/roma/README.md)
+
+### 1.7 MotionLab (motionlab)
+
+**职责**：个人探索型 motion 工作台。用大白话描述动画意图，LLM 写 Remotion 代码，本地校验+自愈后渲染成 mp4，支持实时参数微调与 token 成本估算。
+
+- **引擎**：openai-compatible-gateway（Opus 5.5 / GPT-6 astra）
+- **启动**：server 型，`npm run server`，端口 4321
+- **触发**：手动 `/motionlab`
+- **状态**：已登记，尚在试用期（功能可用，暂未高频使用）
+- **详见**：[agents/motionlab/README.md](agents/motionlab/README.md)
 
 ---
 

@@ -29,6 +29,14 @@
     "设计系统管家": {
       "status": "active",
       "lastSeen": "2026-08-08T01:49:19.696709+08:00"
+    },
+    "roma": {
+      "status": "active",
+      "lastSeen": "2026-10-19T00:00:00+08:00"
+    },
+    "MotionLab": {
+      "status": "active",
+      "lastSeen": "2026-10-19T00:00:00+08:00"
     }
   },
   "messages": [

@@ -65,6 +65,28 @@ const memberOrder = [
     primaryButton: { label: '打开工作台', action: 'openWorkbench()' },
     secondaryButton: { label: '查看', action: "openGitHub('agents/posterdesigner')" },
   },
+  {
+    name: 'roma',
+    number: '006 / Roma',
+    role: 'Scent Card Maker',
+    folder: 'agents/roma',
+    config: 'agents/roma/config.json',
+    summary: '香味描述→结构化香调→正反两面香气卡片（Riso / ASCII）',
+    scheduleText: '本地工作台手动触发，一键存 PNG。',
+    tasks: ['香调解析', '卡片生成', '翻面存图'],
+    primaryButton: { label: '查看', action: "openGitHub('agents/roma')" },
+  },
+  {
+    name: 'MotionLab',
+    number: '007 / MotionLab',
+    role: 'Motion Workbench',
+    folder: 'agents/motionlab',
+    config: 'agents/motionlab/config.json',
+    summary: '大白话→Remotion 动画代码→本地校验自愈→渲染 mp4（试用期）',
+    scheduleText: '本地工作台手动触发，支持参数微调与成本估算。',
+    tasks: ['动画代码生成', '校验自愈', 'mp4 渲染'],
+    primaryButton: { label: '查看', action: "openGitHub('agents/motionlab')" },
+  },
 ];
 
 const archivedMembers = [
